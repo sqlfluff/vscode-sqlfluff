@@ -21,9 +21,9 @@ export default class SqlFluffLinterProvider implements Linter {
 		const linterConfiguration = {
 			executable: section.get<string>('linter.executablePath', 'sqlfluff'),
 			fileArgs: ['lint', '--format', 'json'],
-			bufferArgs: ['lint', '--format', 'json'],
+			bufferArgs: ['lint', '--format', 'json', '-'],
 			extraArgs: [],
-			runTrigger: section.get<string>('linter.run', 'onSave')
+			runTrigger: section.get<string>('linter.run', 'onType')
 		};
 		return linterConfiguration;
 	}
