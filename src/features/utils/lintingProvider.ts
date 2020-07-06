@@ -40,7 +40,7 @@ export interface LinterConfiguration {
 }
 
 export interface Linter {
-	languageId:string,
+	languageId: Array<string>,
 	loadConfiguration:()=>LinterConfiguration | null,
 	process:(output:string[])=>vscode.Diagnostic[]	
 }
@@ -110,7 +110,7 @@ export class LintingProvider {
 	}
 
 	private triggerLint(textDocument: vscode.TextDocument): void {
-		if (textDocument.languageId !== this.linter.languageId || this.executableNotFound || RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.off){
+		if (!this.linter.languageId.includes(textDocument.languageId) || this.executableNotFound || RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.off){
 			return;
 		}
 		let key = textDocument.uri.toString();

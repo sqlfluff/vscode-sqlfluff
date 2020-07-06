@@ -11,7 +11,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onLanguage:sql"
+		"onLanguage:sql",
+		"onLanguage:jinja-sql"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
