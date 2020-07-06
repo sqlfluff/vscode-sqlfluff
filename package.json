@@ -1,9 +1,19 @@
 {
 	"name": "vscode-sqlfluff",
 	"displayName": "sqlfluff",
-	"description": "",
+	"description": "An extension to use the sqlfluff linter in vscode",
 	"publisher": "dorzey",
-	"version": "0.0.1",
+	"license": "SEE LICENSE IN LICENSE",
+	"icon": "images/icon.png",
+	"homepage": "https://github.com/dorzey/vscode-sqlfluff",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/dorzey/vscode-sqlfluff.git"
+	},
+	"bugs": {
+		"url": "https://github.com/dorzey/vscode-sqlfluff/issues"
+	},
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.46.0"
 	},
@@ -18,12 +28,12 @@
 	"contributes": {
 		"configuration": {
 			"properties": {
-				"ruby.linter.executablePath": {
+				"sql.linter.executablePath": {
 					"type": "string",
 					"default": "sqlfluff",
 					"description": "Points to the sqlfluff exectuable."
 				},
-				"ruby.linter.run": {
+				"sql.linter.run": {
 					"type": "string",
 					"enum": [
 						"onSave",
@@ -44,7 +54,7 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js",
-		"deploy": "vsce publish --yarn"
+		"deploy": "vsce publish"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
