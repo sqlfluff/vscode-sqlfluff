@@ -1,7 +1,8 @@
 {
-	"name": "sqlfluff",
+	"name": "vscode-sqlfluff",
 	"displayName": "sqlfluff",
 	"description": "",
+	"publisher": "dorzey",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.46.0"
