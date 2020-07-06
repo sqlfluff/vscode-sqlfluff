@@ -5,7 +5,7 @@ import { LintingProvider, LinterConfiguration, Linter } from './utils/lintingPro
 
 export default class SqlFluffLinterProvider implements Linter {
 
-	public languageId = 'sql';
+	public languageId = ['sql', 'jinja-sql'];
 
 	public activate(subscriptions: Disposable[]) {
 		let provider = new LintingProvider(this);
@@ -13,7 +13,7 @@ export default class SqlFluffLinterProvider implements Linter {
 	}
 
 	public loadConfiguration(): LinterConfiguration | null{
-		let section = workspace.getConfiguration(this.languageId);
+		let section = workspace.getConfiguration();
 		if (!section) {
 			return null;
 		}
