@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.3] - 2020-07-25
+
+### Changed
+
 - Bumps lodash from 4.17.15 to 4.17.19
 
 ## [0.0.2] - 2020-07-06
