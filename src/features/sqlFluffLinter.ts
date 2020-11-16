@@ -36,7 +36,7 @@ export default class SqlFluffLinterProvider implements Linter {
 			filePaths.forEach((filePath: FilePath) => {
 				filePath.violations.forEach((violation: Violation) => {
 					diagnostics.push({
-						range: new Range(violation.line_no, violation.line_pos, violation.line_no, violation.line_pos),
+						range: new Range(violation.line_no-1, violation.line_pos, violation.line_no-1, violation.line_pos),
 						severity: DiagnosticSeverity.Error,
 						message: violation.description,
 						code: violation.code,

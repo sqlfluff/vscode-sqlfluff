@@ -139,7 +139,7 @@ export class LintingProvider {
 				args = this.linterConfiguration.bufferArgs;
 			}
 			args = args.concat(this.linterConfiguration.extraArgs);
-			
+
 			let childProcess = cp.spawn(executable, args, options);
 			childProcess.on('error', (error: Error) => {
 				if (this.executableNotFound) {
