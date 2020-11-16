@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+- [#8](https://github.com/sqlfluff/vscode-sqlfluff/pull/8) fixes line number mismatch
+
 ## [0.0.3] - 2020-07-25
 
 ### Changed
