@@ -2,9 +2,9 @@
 
 ![.github/workflows/ci.yml](https://github.com/dorzey/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
 
-An extension to use the [sqlfluff](https://github.com/alanmcruickshank/sqlfluff) linter in vscode.
+An extension to use the [SQLFluff](https://github.com/alanmcruickshank/sqlfluff) linter in vscode.
 
-The extension expects sqlfluff to be installed and already added to the path. If it is installed but cannot be found, add the path to your preferences as seen below.
+The extension expects SQLFluff to already added to the path. If it cannot be found then add the path to your preferences as seen below.
 
 ```json
 {
@@ -21,6 +21,16 @@ By default the linter will lint on the fly but can be changed to linting as you 
 ```json
 {
  "sql.linter.run": "onType"
+}
+```
+
+### Format file
+
+By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force --no-safey <path>`
+
+```json
+{
+ "sql.format.enable": true
 }
 ```
 

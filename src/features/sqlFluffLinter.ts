@@ -1,9 +1,11 @@
 'use strict';
+import * as vscode from 'vscode';
 import { workspace, Disposable, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
 
 import { LintingProvider, LinterConfiguration, Linter } from './utils/lintingProvider';
+import { DocumentFormattingEditProvider } from './formatter/formattingProvider';
 
-export default class SqlFluffLinterProvider implements Linter {
+export class SqlFluffLinterProvider implements Linter {
 
 	public languageId = ['sql', 'jinja-sql'];
 
@@ -12,18 +14,16 @@ export default class SqlFluffLinterProvider implements Linter {
 		provider.activate(subscriptions);
 	}
 
-	public loadConfiguration(): LinterConfiguration | null{
+	public loadConfiguration(): LinterConfiguration {
 		let section = workspace.getConfiguration();
-		if (!section) {
-			return null;
-		}
 
 		const linterConfiguration = {
-			executable: section.get<string>('linter.executablePath', 'sqlfluff'),
+			executable: section.get<string>('sql.linter.executablePath', 'sqlfluff'),
 			fileArgs: ['lint', '--format', 'json'],
 			bufferArgs: ['lint', '--format', 'json', '-'],
 			extraArgs: [],
-			runTrigger: section.get<string>('linter.run', 'onType')
+			runTrigger: section.get<string>('sql.linter.run', 'onType'),
+			formatterEnabled: section.get<boolean>('sql.format.enable', true),
 		};
 		return linterConfiguration;
 	}
@@ -52,6 +52,13 @@ export default class SqlFluffLinterProvider implements Linter {
 
 interface FilePath {
 	violations: Array<Violation>
+}
+
+export class SqlFLuffDocumentFormattingEditProvider {
+	activate(): vscode.DocumentFormattingEditProvider {
+		const configuration = new SqlFluffLinterProvider().loadConfiguration;
+		return new DocumentFormattingEditProvider(configuration);
+	}
 }
 
 interface Violation {

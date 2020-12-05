@@ -42,6 +42,11 @@
 					],
 					"default": "onSave",
 					"description": "Whether the linter is run on save or on type or disabled."
+				},
+				"sql.format.enable": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether the document formatter is enabled or not."
 				}
 			}
 		}
