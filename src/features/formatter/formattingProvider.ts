@@ -2,10 +2,11 @@
 
 import * as cp from "child_process";
 
-import { TextEdit } from "vscode";
+import { TextEdit, Range } from "vscode";
 import * as vscode from "vscode";
 
 import { LinterConfiguration } from "../utils/lintingProvider";
+import { LineDecoder } from "../utils/lineDecoder";
 import { resolve } from "path";
 
 export class DocumentFormattingEditProvider {
@@ -24,7 +25,9 @@ export class DocumentFormattingEditProvider {
 
     if (linterConfiguration.formatterEnabled) {
       let executable = linterConfiguration.executable;
-      let args: string[] = ["fix", "--force", "--no-safety", document.fileName];
+      let tmp = linterConfiguration.bufferArgs;
+      // let args: string[] = ["fix", "--force", "--no-safety", document.fileName];
+      let args: string[] = ["fix", "--force", "--no-safety", "-"];
       let options = vscode.workspace.rootPath
         ? { cwd: vscode.workspace.rootPath }
         : undefined;
@@ -47,8 +50,48 @@ export class DocumentFormattingEditProvider {
                 : `Failed to run executable using path: ${executable}. Reason is unknown.`;
             }
             vscode.window.showInformationMessage(message);
-            resolve();
           });
+          let decoder = new LineDecoder();
+          let onDataEvent = (data: Buffer) => {
+            decoder.write(data);
+          };
+
+          let onEndEvent = () => {
+            decoder.end();
+            let lines = decoder.getLines();
+            if (lines && lines.length > 0) {
+              const editor = vscode.window.activeTextEditor;
+              if (editor) {
+                const document = editor.document;
+                const selection = editor.selection;
+
+                editor.edit((editBuilder) => {
+                  const lineCount = document.lineCount;
+                  let lastLineRange = document.lineAt(lineCount - 1).range;
+                  const endChar = lastLineRange.end.character;
+                  if (lines[0].startsWith("NO SAFETY:")) {
+                    lines.shift();
+                  }
+                  // TODO DEAL WITH TRAILING LINE BREAKS
+                  editBuilder.replace(
+                    new Range(0, 0, document.lineCount, endChar),
+                    lines.join("\n")
+                  );
+                });
+              }
+            }
+            resolve();
+          };
+
+          if (childProcess.pid) {
+            childProcess.stdin.write(document.getText());
+            childProcess.stdin.end();
+            childProcess.stdout.on("data", onDataEvent);
+            childProcess.stdout.on("end", onEndEvent);
+            resolve();
+          } else {
+            resolve();
+          }
         }
       );
     }
