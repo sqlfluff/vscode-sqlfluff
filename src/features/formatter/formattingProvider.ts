@@ -53,7 +53,7 @@ export class DocumentFormattingEditProvider {
           });
           let decoder = new LineDecoder();
           let onDataEvent = (data: Buffer) => {
-            decoder.write(data);
+            decoder.formatResultWriter(data);
           };
 
           let onEndEvent = () => {
@@ -71,8 +71,8 @@ export class DocumentFormattingEditProvider {
                   const endChar = lastLineRange.end.character;
                   if (lines[0].startsWith("NO SAFETY:")) {
                     lines.shift();
+                    lines.shift();
                   }
-                  // TODO DEAL WITH TRAILING LINE BREAKS
                   editBuilder.replace(
                     new Range(0, 0, document.lineCount, endChar),
                     lines.join("\n")
