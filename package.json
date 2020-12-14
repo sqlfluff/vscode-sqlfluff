@@ -1,7 +1,7 @@
 {
 	"name": "vscode-sqlfluff",
 	"displayName": "sqlfluff",
-	"description": "An extension to use the sqlfluff linter in vscode",
+	"description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
 	"publisher": "dorzey",
 	"license": "SEE LICENSE IN LICENSE",
 	"icon": "images/icon.png",
@@ -19,6 +19,11 @@
 	},
 	"categories": [
 		"Other"
+	],
+	"keywords": [
+		"dbt",
+		"sql",
+		"jinja-sql"
 	],
 	"activationEvents": [
 		"onLanguage:sql",

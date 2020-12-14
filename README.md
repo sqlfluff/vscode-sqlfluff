@@ -2,7 +2,7 @@
 
 ![.github/workflows/ci.yml](https://github.com/dorzey/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
 
-An extension to use the [SQLFluff](https://github.com/alanmcruickshank/sqlfluff) linter in vscode.
+A linter and auto-formatter for [SQLFluff](https://github.com/alanmcruickshank/sqlfluff), a popular linting tool for SQL and dbt.
 
 ![linter in action](./media/linter_in_action.gif)
 
@@ -23,11 +23,7 @@ The linter will work on files with the [language mode](https://code.visualstudio
 
 By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force --no-safey <path>`
 
-```json
-{
- "sql.format.enable": true
-}
-```
+![plugin configuration](./media/format_config.gif)
 
 ## Acknowledgements
 
