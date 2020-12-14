@@ -37,6 +37,7 @@ export interface LinterConfiguration {
 	bufferArgs:string[],
 	extraArgs:string[],
 	runTrigger:string,
+	formatterEnabled:boolean,
 }
 
 export interface Linter {
@@ -148,7 +149,7 @@ export class LintingProvider {
 				}
 				let message: string = "";
 				if ((<any>error).code === 'ENOENT') {
-					message = `Cannot lint ${textDocument.fileName}. The executable was not found. Use the '${this.linter.languageId}.executablePath' setting to configure the location of the executable`;
+					message = `Cannot lint ${textDocument.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
 				} else {
 					message = error.message ? error.message : `Failed to run executable using path: ${executable}. Reason is unknown.`;
 				}
@@ -175,8 +176,6 @@ export class LintingProvider {
 					childProcess.stdin.write(textDocument.getText());
 					childProcess.stdin.end();
 				}
-				childProcess.stderr.on('data', onDataEvent);
-				childProcess.stderr.on('end', onEndEvent);
 				childProcess.stdout.on('data', onDataEvent);
 				childProcess.stdout.on('end', onEndEvent);
 				resolve();

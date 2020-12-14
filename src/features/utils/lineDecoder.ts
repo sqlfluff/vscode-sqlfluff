@@ -11,6 +11,11 @@ export class LineDecoder {
 		this.lines = [];
 	}
 
+	public formatResultWriter(buffer: Buffer): string[] {
+		const result = buffer.toString().split("\n");
+		this.lines = this.lines.concat(result);
+		return result;
+	}
 	public write(buffer: Buffer): string[] {
 		var result: string[] = [];
 		var value = this.remaining
