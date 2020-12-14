@@ -6,7 +6,7 @@ A linter and auto-formatter for [SQLFluff](https://github.com/alanmcruickshank/s
 
 ![linter in action](./media/linter_in_action.gif)
 
-You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection.
+You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection. Please note that not all linting violations are automatically fixable.
 ## Configuration
 
 The extension expects sqlfluff to be installed and already added to the path. If it is installed but cannot be found, add the path to your preferences as seen below.
