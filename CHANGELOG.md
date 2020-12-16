@@ -8,6 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - [#9](https://github.com/sqlfluff/vscode-sqlfluff/pull/9) adds VS Code "format" capability to run "fix" in SQLFLuff
 - [#10](https://github.com/sqlfluff/vscode-sqlfluff/pull/10) updates README and adds TESTING.md
+- [#16](https://github.com/sqlfluff/vscode-sqlfluff/pull/17) updates README
 
 ## [0.0.4] - 2020-11-16
 

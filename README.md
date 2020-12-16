@@ -7,17 +7,23 @@ A linter and auto-formatter for [SQLFluff](https://github.com/alanmcruickshank/s
 ![linter in action](./media/linter_in_action.gif)
 
 You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection. Please note that not all linting violations are automatically fixable.
+
 ## Configuration
 
-The extension expects sqlfluff to be installed and already added to the path. If it is installed but cannot be found, add the path to your preferences as seen below.
+The extension expects sqlfluff to be installed and already added to the path. If it is installed but cannot be found, add the path to your preferences as seen below. Find the path by typing `which sqlfluff` into your terminal.
+
+Edit your VS Code `settings.json` file either through the UI or by manually updating the file. The gif below shows the UI path.
 
 ![plugin configuration](./media/config.gif)
 
-By default the linter will lint on the fly but can be changed to linting as you save. Note that linting on save is most useful when auto-save is on. 
+If you want to manually update the `settings.json` file, open the VS Code command palette and type in `settings.json`. Select `Preferences: Open Settings`. Then, add the following two lines to `settings.json`.
 
-The linter will work on files with the [language mode](https://code.visualstudio.com/docs/languages/overview#_changing-the-language-for-the-selected-file) set to `sql` or `jinja-sql`. The screen capture below shows you how to switch it.
+```
+"sql.linter.executablePath": "<PATH_TO_YOUR_SQLFLUFF_FROM_WHICH_SQLFLUFF_COMMAND",
+"sql.linter.run": "onType"
+```
 
-![switch language mode](./media/language_mode.gif)
+By default the linter will lint on the fly `"sql.linter.run": "onType"` but can be changed to linting as you save `"sql.linter.run": "onSave"`. Note that linting on save is most useful when auto-save is on.
 
 ### Format file
 
