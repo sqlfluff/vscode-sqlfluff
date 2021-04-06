@@ -26,8 +26,8 @@ export class DocumentFormattingEditProvider {
     if (linterConfiguration.formatterEnabled) {
       let executable = linterConfiguration.executable;
       let tmp = linterConfiguration.bufferArgs;
-      // let args: string[] = ["fix", "--force", "--no-safety", document.fileName];
-      let args: string[] = ["fix", "--force", "--no-safety", "-"];
+      // let args: string[] = ["fix", "--force", document.fileName];
+      let args: string[] = ["fix", "--force", "-"];
       let options = vscode.workspace.rootPath
         ? { cwd: vscode.workspace.rootPath }
         : undefined;
