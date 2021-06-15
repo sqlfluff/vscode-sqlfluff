@@ -131,7 +131,12 @@ export class LintingProvider {
 			let decoded = [];
 			let diagnostics: vscode.Diagnostic[] = [];
 			
-			let options = vscode.workspace.rootPath ? { cwd: vscode.workspace.rootPath } : undefined;
+			let options = vscode.workspace.rootPath ? {
+				 cwd: vscode.workspace.rootPath,
+				 env: {
+					 LANG: 'en_US.utf-8'
+				 }
+				} : undefined;
 			let args: string[];
 			if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onSave) {
 				args = this.linterConfiguration.fileArgs.slice(0);
@@ -140,9 +145,10 @@ export class LintingProvider {
 				args = this.linterConfiguration.bufferArgs;
 			}
 			args = args.concat(this.linterConfiguration.extraArgs);
-
+			console.log('exec', executable, args, options);
 			let childProcess = cp.spawn(executable, args, options);
 			childProcess.on('error', (error: Error) => {
+				console.log('is errorring???');
 				if (this.executableNotFound) {
 					resolve();
 					return;
@@ -157,8 +163,8 @@ export class LintingProvider {
 				this.executableNotFound = true;
 				resolve();
 			});
-			
-			let onDataEvent = (data:Buffer) => { 
+		
+			let onDataEvent = (data:Buffer) => {
 				decoder.write(data); 
 			};
 			let onEndEvent = () => {
@@ -172,6 +178,7 @@ export class LintingProvider {
 			};
 			
 			if (childProcess.pid) {
+				console.log('has a process???');
 				if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onType) {
 					childProcess.stdin.write(textDocument.getText());
 					childProcess.stdin.end();

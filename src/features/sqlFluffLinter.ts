@@ -21,10 +21,11 @@ export class SqlFluffLinterProvider implements Linter {
 			executable: section.get<string>('sql.linter.executablePath', 'sqlfluff'),
 			fileArgs: ['lint', '--format', 'json'],
 			bufferArgs: ['lint', '--format', 'json', '-'],
-			extraArgs: [],
+			extraArgs: ['--ignore', 'parsing'],
 			runTrigger: section.get<string>('sql.linter.run', 'onType'),
 			formatterEnabled: section.get<boolean>('sql.format.enable', true),
 		};
+		console.log('loaded config,', linterConfiguration);
 		return linterConfiguration;
 	}
 
@@ -57,6 +58,7 @@ interface FilePath {
 export class SqlFLuffDocumentFormattingEditProvider {
 	activate(): vscode.DocumentFormattingEditProvider {
 		const configuration = new SqlFluffLinterProvider().loadConfiguration;
+		console.log('creating formatter??');
 		return new DocumentFormattingEditProvider(configuration);
 	}
 }
