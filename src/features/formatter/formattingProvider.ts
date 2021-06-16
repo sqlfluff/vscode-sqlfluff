@@ -22,15 +22,17 @@ export class DocumentFormattingEditProvider {
   ): vscode.TextEdit[] {
     const textEdits: TextEdit[] = [];
     const linterConfiguration = this.linterConfigurationFunc();
-
     if (linterConfiguration.formatterEnabled) {
       let executable = linterConfiguration.executable;
       let tmp = linterConfiguration.bufferArgs;
       // let args: string[] = ["fix", "--force", "--no-safety", document.fileName];
-      let args: string[] = ["fix", "--force", "--no-safety", "-"];
-      let options = vscode.workspace.rootPath
-        ? { cwd: vscode.workspace.rootPath }
-        : undefined;
+      let args: string[] = ["fix", "--force", "-"];
+      let options = vscode.workspace.rootPath ? {
+        cwd: vscode.workspace.rootPath,
+        env: {
+          LANG: 'en_US.utf-8'
+        }
+       } : undefined;
 
       vscode.window.withProgress(
         {
