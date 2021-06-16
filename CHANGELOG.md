@@ -6,13 +6,23 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.5] - 2021-06-16
+
+### Added
+
 - [#9](https://github.com/sqlfluff/vscode-sqlfluff/pull/9) adds VS Code "format" capability to run "fix" in SQLFLuff
+- [#31](https://github.com/sqlfluff/vscode-sqlfluff/pull/31) updates CLI args and adds ignoreParsing option
+
+### Changed
+
 - [#10](https://github.com/sqlfluff/vscode-sqlfluff/pull/10) updates README and adds TESTING.md
 - [#16](https://github.com/sqlfluff/vscode-sqlfluff/pull/17) updates README
-- [#26](https://github.com/sqlfluff/vscode-sqlfluff/pull/26) remove obsolete "--no-safety" flag
 - [#28](https://github.com/sqlfluff/vscode-sqlfluff/pull/28) dependabot bump
 - [#30](https://github.com/sqlfluff/vscode-sqlfluff/pull/30) dependabot bump
-- [#31](https://github.com/sqlfluff/vscode-sqlfluff/pull/31) updates CLI args and adds ignoreParsing option
+
+### Removed
+
+- [#26](https://github.com/sqlfluff/vscode-sqlfluff/pull/26) remove obsolete "--no-safety" flag
 
 
 ## [0.0.4] - 2020-11-16
