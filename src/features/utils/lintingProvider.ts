@@ -131,7 +131,12 @@ export class LintingProvider {
 			let decoded = [];
 			let diagnostics: vscode.Diagnostic[] = [];
 			
-			let options = vscode.workspace.rootPath ? { cwd: vscode.workspace.rootPath } : undefined;
+			let options = vscode.workspace.rootPath ? {
+				 cwd: vscode.workspace.rootPath,
+				 env: {
+					 LANG: 'en_US.utf-8'
+				 }
+				} : undefined;
 			let args: string[];
 			if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onSave) {
 				args = this.linterConfiguration.fileArgs.slice(0);
@@ -157,9 +162,9 @@ export class LintingProvider {
 				this.executableNotFound = true;
 				resolve();
 			});
-			
-			let onDataEvent = (data:Buffer) => { 
-				decoder.write(data); 
+
+			let onDataEvent = (data:Buffer) => {
+				decoder.write(data);
 			};
 			let onEndEvent = () => {
 				decoder.end();

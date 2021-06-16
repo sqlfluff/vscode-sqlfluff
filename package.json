@@ -52,6 +52,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Whether the document formatter is enabled or not."
+				},
+				"sql.linter.ignoreParsing": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether the sql linter should ignore parsing errors."
 				}
 			}
 		}

@@ -12,6 +12,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - [#26](https://github.com/sqlfluff/vscode-sqlfluff/pull/26) remove obsolete "--no-safety" flag
 - [#28](https://github.com/sqlfluff/vscode-sqlfluff/pull/28) dependabot bump
 - [#30](https://github.com/sqlfluff/vscode-sqlfluff/pull/30) dependabot bump
+- [#31](https://github.com/sqlfluff/vscode-sqlfluff/pull/31) updates CLI args and adds ignoreParsing option
+
 
 ## [0.0.4] - 2020-11-16
 
