@@ -27,7 +27,7 @@ By default the linter will lint on the fly `"sql.linter.run": "onType"` but can 
 
 ### Format file
 
-By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force --no-safey <path>`
+By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force <path>`
 
 ![plugin configuration](./media/format_config.gif)
 
