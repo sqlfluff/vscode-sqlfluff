@@ -10,6 +10,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - [#10](https://github.com/sqlfluff/vscode-sqlfluff/pull/10) updates README and adds TESTING.md
 - [#16](https://github.com/sqlfluff/vscode-sqlfluff/pull/17) updates README
 - [#26](https://github.com/sqlfluff/vscode-sqlfluff/pull/26) remove obsolete "--no-safety" flag
+- [#28](https://github.com/sqlfluff/vscode-sqlfluff/pull/28) dependabot bump
+- [#30](https://github.com/sqlfluff/vscode-sqlfluff/pull/30) dependabot bump
 
 ## [0.0.4] - 2020-11-16
 
