@@ -22,6 +22,7 @@ export class DocumentFormattingEditProvider {
   ): vscode.TextEdit[] {
     const textEdits: TextEdit[] = [];
     const linterConfiguration = this.linterConfigurationFunc();
+
     if (linterConfiguration.formatterEnabled) {
       let executable = linterConfiguration.executable;
       let tmp = linterConfiguration.bufferArgs;

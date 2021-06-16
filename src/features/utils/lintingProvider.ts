@@ -162,9 +162,9 @@ export class LintingProvider {
 				this.executableNotFound = true;
 				resolve();
 			});
-		
+
 			let onDataEvent = (data:Buffer) => {
-				decoder.write(data); 
+				decoder.write(data);
 			};
 			let onEndEvent = () => {
 				decoder.end();
