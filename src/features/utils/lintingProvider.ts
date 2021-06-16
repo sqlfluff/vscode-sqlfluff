@@ -145,10 +145,9 @@ export class LintingProvider {
 				args = this.linterConfiguration.bufferArgs;
 			}
 			args = args.concat(this.linterConfiguration.extraArgs);
-			console.log('exec', executable, args, options);
+
 			let childProcess = cp.spawn(executable, args, options);
 			childProcess.on('error', (error: Error) => {
-				console.log('is errorring???');
 				if (this.executableNotFound) {
 					resolve();
 					return;
@@ -178,7 +177,6 @@ export class LintingProvider {
 			};
 			
 			if (childProcess.pid) {
-				console.log('has a process???');
 				if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onType) {
 					childProcess.stdin.write(textDocument.getText());
 					childProcess.stdin.end();
