@@ -23,6 +23,12 @@ jobs:
       with:
         node-version: 10.x
     - run: npm install
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install sqlfluff
+      run: pip install sqlfluff 
     - name: Run tests
       uses: GabrielBB/xvfb-action@v1.2
       with:

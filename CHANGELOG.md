@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+- [#33](https://github.com/sqlfluff/vscode-sqlfluff/pull/33) adds basic set of automated tests
+
 ## [0.0.5] - 2021-06-16
 
 ### Added
