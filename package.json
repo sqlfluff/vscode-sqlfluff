@@ -63,7 +63,8 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
+		"compile": "tsc -p ./ && npm run postbuild",
+		"postbuild": "cpy 'test_sql/**/*.sql' '../../../out/test/suite' --cwd='src/test/suite/' --parents",
 		"lint": "eslint src --ext ts",
 		"lint:fix": "eslint src --ext ts --fix",
 		"watch": "tsc -watch -p ./",
@@ -78,6 +79,7 @@
 		"@types/vscode": "^1.46.0",
 		"@typescript-eslint/eslint-plugin": "^2.30.0",
 		"@typescript-eslint/parser": "^2.30.0",
+		"cpy-cli": "^3.1.1",
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.11.0",
 		"glob": "^7.1.6",
