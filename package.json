@@ -27,7 +27,8 @@
 	],
 	"activationEvents": [
 		"onLanguage:sql",
-		"onLanguage:jinja-sql"
+		"onLanguage:jinja-sql",
+		"onLanguage:sql-bigquery"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
