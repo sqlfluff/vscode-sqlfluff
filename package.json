@@ -13,7 +13,7 @@
 	"bugs": {
 		"url": "https://github.com/dorzey/vscode-sqlfluff/issues"
 	},
-	"version": "0.0.5",
+	"version": "0.0.5b",
 	"engines": {
 		"vscode": "^1.46.0"
 	},
@@ -23,7 +23,8 @@
 	"keywords": [
 		"dbt",
 		"sql",
-		"jinja-sql"
+		"jinja-sql",
+		"sql-bigquery"
 	],
 	"activationEvents": [
 		"onLanguage:sql",

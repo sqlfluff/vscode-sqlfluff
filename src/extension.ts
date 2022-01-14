@@ -7,6 +7,7 @@ export const activate = (context: vscode.ExtensionContext) => {
 
 	vscode.languages.registerDocumentFormattingEditProvider('jinja-sql', new SqlFLuffDocumentFormattingEditProvider().activate());
 	vscode.languages.registerDocumentFormattingEditProvider('sql', new SqlFLuffDocumentFormattingEditProvider().activate());
+	vscode.languages.registerDocumentFormattingEditProvider('sql-bigquery', new SqlFLuffDocumentFormattingEditProvider().activate());
 };
 
 export const deactivate: any = () => {};
