@@ -36,11 +36,15 @@ export class DocumentFormattingEditProvider {
         {
           location: vscode.ProgressLocation.Notification,
           title: "SQLFluff is formatting the file.",
-          cancellable: false,
+          cancellable: true,
         },
         async (progress, token) => {
           return new Promise<void>((resolve, reject) => {
             let childProcess = cp.spawn(executable, args, options);
+            token.onCancellationRequested(_ => {
+              childProcess.kill();
+              resolve();
+            });
             childProcess.on("error", (error: Error) => {
               let message: string = "";
               if ((<any>error).code === "ENOENT") {
