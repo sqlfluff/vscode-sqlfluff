@@ -57,9 +57,22 @@ export class DocumentFormattingEditProvider {
               vscode.window.showErrorMessage(message);
               reject(message);
             });
+
             let decoder = new LineDecoder();
+            let errDecoder = new LineDecoder();
+
             let onDataEvent = (data: Buffer) => {
               decoder.formatResultWriter(data);
+            };
+            let onErrDataEvent = (data: Buffer) => {
+              errDecoder.formatResultWriter(data);
+            };
+  
+            let onErrEndEvent = () => {
+              errDecoder.end();
+              let lines = errDecoder.getLines();
+              console.error(lines.join("\n"));
+              reject();
             };
   
             let onEndEvent = () => {
@@ -94,6 +107,8 @@ export class DocumentFormattingEditProvider {
               childProcess.stdin.end();
               childProcess.stdout.on("data", onDataEvent);
               childProcess.stdout.on("end", onEndEvent);
+              childProcess.stderr.on("data", onErrDataEvent);
+              childProcess.stderr.on("end", onErrEndEvent);
   
               childProcess.on('exit', (code) => {
                 if (code !== null && code !== 0) {
