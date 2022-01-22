@@ -16,6 +16,7 @@ export class LineDecoder {
 		this.lines = this.lines.concat(result);
 		return result;
 	}
+
 	public write(buffer: Buffer): string[] {
 		var result: string[] = [];
 		var value = this.remaining
@@ -26,11 +27,13 @@ export class LineDecoder {
 			this.lines = this.lines.concat(value);
 			return result;
 		}
+
 		var start = 0;
 		var ch: number;
 		while (start < value.length && ((ch = value.charCodeAt(start)) === 13 || ch === 10)) {
 			start++;
 		}
+
 		var idx = start;
 		while (idx < value.length) {
 			ch = value.charCodeAt(idx);
@@ -45,8 +48,10 @@ export class LineDecoder {
 				idx++;
 			}
 		}
+
 		this.remaining = start < value.length ? value.substr(start) : "";
 		this.lines = this.lines.concat(result);
+
 		return result;
 	}
 
@@ -54,9 +59,10 @@ export class LineDecoder {
 		if (this.remaining && this.remaining.length > 0) {
 			this.lines = this.lines.concat(this.remaining);
 		}
+
 		return this.remaining;
 	}
-	
+
 	public getLines(): string[] {
 		return this.lines;
 	}

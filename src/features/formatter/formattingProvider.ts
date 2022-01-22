@@ -1,10 +1,9 @@
 "use strict";
 
+import * as vscode from "vscode";
 import * as cp from "child_process";
 
 import { TextEdit, Range } from "vscode";
-import * as vscode from "vscode";
-
 import { LinterConfiguration } from "../utils/lintingProvider";
 import { LineDecoder } from "../utils/lineDecoder";
 import { resolve } from "path";
@@ -20,8 +19,9 @@ export class DocumentFormattingEditProvider {
   provideDocumentFormattingEdits(
     document: vscode.TextDocument
   ): vscode.TextEdit[] {
-    const textEdits: TextEdit[] = [];
     const linterConfiguration = this.linterConfigurationFunc();
+    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const textEdits: TextEdit[] = [];
 
     if (linterConfiguration.formatterEnabled) {
       let executable = linterConfiguration.executable;
@@ -29,8 +29,8 @@ export class DocumentFormattingEditProvider {
 
       // let args: string[] = ["fix", "--force", document.fileName];
       let args: string[] = ["fix", "--force", "-"];
-      let options = vscode.workspace.rootPath
-        ? { cwd: vscode.workspace.rootPath }
+      let options = rootPath
+        ? { cwd: rootPath }
         : undefined;
 
       vscode.window.withProgress(
@@ -38,8 +38,7 @@ export class DocumentFormattingEditProvider {
           location: vscode.ProgressLocation.Notification,
           title: "SQLFluff is formatting the file.",
           cancellable: false,
-        },
-        async (progress, token) => {
+        }, async (progress, token) => {
           let childProcess = cp.spawn(executable, args, options);
           childProcess.on("error", (error: Error) => {
             let message: string = "";
@@ -50,9 +49,12 @@ export class DocumentFormattingEditProvider {
                 ? error.message
                 : `Failed to run executable using path: ${executable}. Reason is unknown.`;
             }
+
             vscode.window.showInformationMessage(message);
           });
+
           let decoder = new LineDecoder();
+
           let onDataEvent = (data: Buffer) => {
             decoder.formatResultWriter(data);
           };
@@ -81,6 +83,7 @@ export class DocumentFormattingEditProvider {
                 });
               }
             }
+
             resolve();
           };
 
@@ -96,6 +99,7 @@ export class DocumentFormattingEditProvider {
         }
       );
     }
+
     return textEdits;
   }
 }

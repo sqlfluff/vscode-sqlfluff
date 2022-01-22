@@ -4,6 +4,7 @@ import { workspace, Disposable, Diagnostic, DiagnosticSeverity, Range } from 'vs
 
 import { LintingProvider, LinterConfiguration, Linter } from './utils/lintingProvider';
 import { DocumentFormattingEditProvider } from './formatter/formattingProvider';
+import { Configuration } from './Helpers/configuration';
 
 export class SqlFluffLinterProvider implements Linter {
 
@@ -18,12 +19,11 @@ export class SqlFluffLinterProvider implements Linter {
 		let section = workspace.getConfiguration();
 
 		const linterConfiguration = {
-			executable: section.get<string>('sql.linter.executablePath', 'sqlfluff'),
+			executable: Configuration.executablePath(),
 			fileArgs: ['lint', '--format', 'json'],
 			bufferArgs: ['lint', '--format', 'json', '-'],
-			extraArgs: section.get<boolean>(
-				'sql.linter.ignoreParsing', true) ? ['--ignore', 'parsing'] : [],
-			runTrigger: section.get<string>('sql.linter.run', 'onType'),
+			extraArgs: Configuration.extraArguments(),
+			runTrigger: Configuration.runTrigger(),
 			formatterEnabled: section.get<boolean>('sql.format.enable', true),
 		};
 
@@ -38,11 +38,16 @@ export class SqlFluffLinterProvider implements Linter {
 			filePaths.forEach((filePath: FilePath) => {
 				filePath.violations.forEach((violation: Violation) => {
 					diagnostics.push({
-						range: new Range(violation.line_no-1, violation.line_pos, violation.line_no-1, violation.line_pos),
+						range: new Range(
+							violation.line_no - 1,
+							violation.line_pos,
+							violation.line_no - 1,
+							violation.line_pos
+						),
 						severity: DiagnosticSeverity.Error,
 						message: violation.description,
 						code: violation.code,
-						source: 'sqlfluff'
+						source: "sqlfluff",
 					});
 				});
 			});
@@ -53,7 +58,7 @@ export class SqlFluffLinterProvider implements Linter {
 }
 
 interface FilePath {
-	violations: Array<Violation>
+	violations: Array<Violation>;
 }
 
 export class SqlFLuffDocumentFormattingEditProvider {

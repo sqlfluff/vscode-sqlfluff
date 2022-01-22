@@ -6,7 +6,6 @@ export interface ITask<T> {
  * A helper to prevent accumulation of sequential async tasks.
  */
 export class Throttler<T> {
-
 	private activePromise!: Promise<T>;
 	private queuedPromise!: Promise<T>;
 	private queuedPromiseFactory!: ITask<Promise<T>>;
@@ -60,7 +59,6 @@ export class Throttler<T> {
  * A helper to delay execution of a task that is being requested often.
  */
 export class Delayer<T> {
-
 	public defaultDelay: number;
 	private timeout!: number;
 	private completionPromise!: Promise<T>;
@@ -131,7 +129,6 @@ export class Delayer<T> {
  * preventing accumulation of consecutive executions, while the task runs.
  */
 export class ThrottledDelayer<T> extends Delayer<Promise<T>> {
-
 	private throttler: Throttler<T>;
 
 	constructor(defaultDelay: number) {
@@ -142,6 +139,6 @@ export class ThrottledDelayer<T> extends Delayer<Promise<T>> {
 
 	public trigger(promiseFactory: ITask<Promise<T>>, delay?: number): Promise<Promise<T>> {
 		// @ts-ignore
-		return super.trigger(() => {return this.throttler.queue(promiseFactory);}, delay);
+		return super.trigger(() => { return this.throttler.queue(promiseFactory); }, delay);
 	}
 }

@@ -34,30 +34,69 @@
   "contributes": {
     "configuration": {
       "properties": {
-        "sql.linter.executablePath": {
+        "sqlfluff.linter.config": {
+          "type": "string",
+          "default": "",
+          "description": "Specify an additional configuration file that overrides the standard configuration files."
+        },
+        "sqlfluff.linter.executablePath": {
           "type": "string",
           "default": "sqlfluff",
           "description": "Points to the sqlfluff exectuable."
         },
-        "sql.linter.run": {
+        "sqlfluff.linter.dialect": {
+          "type": "string",
+          "enum": [
+            "ansi",
+            "bigquery",
+            "exasol",
+            "hive",
+            "mysql",
+            "postgres",
+            "redshift",
+            "snowflake",
+            "spark3",
+            "sqlite",
+            "tsql",
+            "teradata"
+          ],
+          "default": "ansi",
+          "description": "The dialect of SQL to lint."
+        },
+        "sqlfluff.linter.excludeRules": {
+          "type": "array",
+          "default": [],
+          "description": "Exclude specific rules."
+        },
+        "sqlfluff.linter.ignoreLocalConfig": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ignore config files in default search path locations. Can be used with config to only reference the custom config file."
+        },
+        "sqlfluff.linter.ignoreParsing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Determines if the sql linter should ignore parsing errors."
+        },
+        "sqlfluff.linter.rules": {
+          "type": "array",
+          "default": [],
+          "description": "Narrow the search to only specific rules."
+        },
+        "sqlfluff.linter.run": {
           "type": "string",
           "enum": [
             "onSave",
             "onType",
             "off"
           ],
-          "default": "onSave",
-          "description": "Whether the linter is run on save or on type or disabled."
+          "default": "onType",
+          "description": "Determines if the linter is run on save, on type, or disabled."
         },
-        "sql.format.enable": {
+        "sqlfluff.format.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Whether the document formatter is enabled or not."
-        },
-        "sql.linter.ignoreParsing": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether the sql linter should ignore parsing errors."
+          "description": "Determines if the document formatter is enabled."
         }
       }
     }
