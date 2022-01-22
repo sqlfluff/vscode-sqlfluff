@@ -18,7 +18,7 @@ Edit your VS Code `settings.json` file either through the UI or by manually upda
 
 If you want to manually update the `settings.json` file, open the VS Code command palette and type in `settings.json`. Select `Preferences: Open Settings`. Then, add the following two lines to `settings.json`.
 
-```
+```json
 "sql.linter.executablePath": "<PATH_TO_YOUR_SQLFLUFF_FROM_WHICH_SQLFLUFF_COMMAND",
 "sql.linter.run": "onType"
 ```
@@ -31,6 +31,12 @@ By default you will be able use SQLFluff fix your file by formatting. Same as ca
 
 ![plugin configuration](./media/format_config.gif)
 
-## Acknowledgements
+## Credits / Links
 
-The extension is based off of the [ruby linter extension](https://github.com/hoovercj/vscode-ruby-linter).
+- [dorzey](https://github.com/sqlfluff/vscode-sqlfluff)
+- [VSCode's Extensions Samples](https://github.com/microsoft/vscode-extension-samples/tree/main/test-provider-sample)
+- [VSCode's Testing Documentation](https://code.visualstudio.com/api/extension-guides/testing)
+
+## License
+
+The MIT License (MIT). Please see the [license file](LICENSE.md) for more information.
