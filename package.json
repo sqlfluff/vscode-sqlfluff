@@ -21,13 +21,15 @@
   },
   "license": "MIT",
   "keywords": [
+    "sqlfluff",
     "dbt",
     "sql",
-    "sqlfluff",
+    "sql-bigquery",
     "jinja-sql"
   ],
   "activationEvents": [
     "onLanguage:sql",
+    "onLanguage:sql-bigquery",
     "onLanguage:jinja-sql"
   ],
   "main": "./out/src/extension.js",
