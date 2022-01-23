@@ -3,3 +3,5 @@ node_modules
 .vscode-test/
 *.vsix
 .DS_Store
+/vscode.d.ts
+/vscode.proposed.d.ts
