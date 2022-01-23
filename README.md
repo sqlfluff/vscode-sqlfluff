@@ -20,7 +20,7 @@ The extension expects sqlfluff to be installed and already added to the path. If
 
 Edit your VS Code `settings.json` file manually or through the user interface.
 
-If you want to manually update the `settings.json` file, open the VS Code command palette and type in `settings.json`. Select `Preferences: Open Settings`. Then, add the following two lines to `settings.json`.
+If you want to manually update the `settings.json` file, open the VS Code command palette and type in `settings.json`. Select `Preferences: Open Settings`. Then, you can add any of the following configuration options to `settings.json`.
 
 ```json
   "sqlfluff.config": "",
