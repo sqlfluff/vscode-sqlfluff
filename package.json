@@ -36,17 +36,17 @@
   "contributes": {
     "configuration": {
       "properties": {
-        "sqlfluff.linter.config": {
+        "sqlfluff.config": {
           "type": "string",
           "default": "",
           "description": "Specify an additional configuration file that overrides the standard configuration files."
         },
-        "sqlfluff.linter.executablePath": {
+        "sqlfluff.executablePath": {
           "type": "string",
           "default": "sqlfluff",
           "description": "Points to the sqlfluff exectuable."
         },
-        "sqlfluff.linter.dialect": {
+        "sqlfluff.dialect": {
           "type": "string",
           "enum": [
             "ansi",
@@ -65,22 +65,22 @@
           "default": "ansi",
           "description": "The dialect of SQL to lint."
         },
-        "sqlfluff.linter.excludeRules": {
+        "sqlfluff.excludeRules": {
           "type": "array",
           "default": [],
           "description": "Exclude specific rules."
         },
-        "sqlfluff.linter.ignoreLocalConfig": {
+        "sqlfluff.ignoreLocalConfig": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Ignore config files in default search path locations. Can be used with config to only reference the custom config file."
         },
-        "sqlfluff.linter.ignoreParsing": {
+        "sqlfluff.ignoreParsing": {
           "type": "boolean",
           "default": true,
           "description": "Determines if the sql linter should ignore parsing errors."
         },
-        "sqlfluff.linter.rules": {
+        "sqlfluff.rules": {
           "type": "array",
           "default": [],
           "description": "Narrow the search to only specific rules."
@@ -95,7 +95,7 @@
           "default": "onType",
           "description": "Determines if the linter is run on save, on type, or disabled."
         },
-        "sqlfluff.format.enable": {
+        "sqlfluff.format.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Determines if the document formatter is enabled."
@@ -106,7 +106,7 @@
   "scripts": {
     "vscode:prepublish": "npm run -S esbuild-base -- --minify",
     "compile": "rimraf out && tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "watch": "rimraf out && tsc -watch -p ./",
     "test": "node ./node_modules/vscode/bin/test",
     "download-api": "vscode-dts dev",
     "postdownload-api": "vscode-dts main",

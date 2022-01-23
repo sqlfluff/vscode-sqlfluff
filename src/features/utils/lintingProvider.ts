@@ -44,17 +44,14 @@ export interface Linter {
 }
 
 export class LintingProvider {
-
 	public linterConfiguration!: LinterConfiguration;
 
 	private executableNotFound: boolean;
-
 	private documentListener!: vscode.Disposable;
 	private diagnosticCollection!: vscode.DiagnosticCollection;
 	private delayers!: { [key: string]: ThrottledDelayer<void>; };
-
-
 	private linter: Linter;
+
 	constructor(linter: Linter) {
 		this.linter = linter;
 		this.executableNotFound = false;
@@ -105,6 +102,7 @@ export class LintingProvider {
 		} else {
 			this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 		}
+		this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 
 		// Configuration has changed. Reevaluate all documents.
 		vscode.workspace.textDocuments.forEach(this.triggerLint, this);
@@ -114,12 +112,15 @@ export class LintingProvider {
 		if (!this.linter.languageId.includes(textDocument.languageId) || this.executableNotFound || RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.off) {
 			return;
 		}
+
 		let key = textDocument.uri.toString();
 		let delayer = this.delayers[key];
+
 		if (!delayer) {
 			delayer = new ThrottledDelayer<void>(RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onType ? 250 : 0);
 			this.delayers[key] = delayer;
 		}
+
 		delayer.trigger(() => { return this.doLint(textDocument); });
 	}
 

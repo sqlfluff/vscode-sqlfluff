@@ -6,19 +6,20 @@ import * as cp from "child_process";
 import { TextEdit, Range } from "vscode";
 import { LinterConfiguration } from "../utils/lintingProvider";
 import { LineDecoder } from "../utils/lineDecoder";
+import { resolve } from "path";
 
 export class DocumentFormattingEditProvider {
-  public linterConfigurationFunc: () => LinterConfiguration;
+  public linterConfiguration: () => LinterConfiguration;
 
-  constructor(linterConfigurationFunc: () => LinterConfiguration) {
-    this.linterConfigurationFunc = linterConfigurationFunc;
-    vscode.workspace.onDidChangeConfiguration(linterConfigurationFunc, this);
+  constructor(linterConfiguration: () => LinterConfiguration) {
+    this.linterConfiguration = linterConfiguration;
+    vscode.workspace.onDidChangeConfiguration(linterConfiguration, this);
   }
 
   provideDocumentFormattingEdits(
     document: vscode.TextDocument
   ): vscode.TextEdit[] {
-    const linterConfiguration = this.linterConfigurationFunc();
+    const linterConfiguration = this.linterConfiguration();
     const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const textEdits: TextEdit[] = [];
 
@@ -26,8 +27,9 @@ export class DocumentFormattingEditProvider {
       let executable = linterConfiguration.executable;
       let tmp = linterConfiguration.bufferArgs;
 
-      // let args: string[] = ["fix", "--force", document.fileName];
       let args: string[] = ["fix", "--force", "-"];
+      args = args.concat(linterConfiguration.extraArgs);
+
       let options = rootPath
         ? { cwd: rootPath }
         : undefined;
@@ -36,93 +38,65 @@ export class DocumentFormattingEditProvider {
         {
           location: vscode.ProgressLocation.Notification,
           title: "SQLFluff is formatting the file.",
-          cancellable: true,
-        },
-        async (progress, token) => {
-          return new Promise<void>((resolve, reject) => {
-            let childProcess = cp.spawn(executable, args, options);
-            token.onCancellationRequested(_ => {
-              childProcess.kill();
-              resolve();
-            });
-            childProcess.on("error", (error: Error) => {
-              let message: string = "";
-              if ((<any>error).code === "ENOENT") {
-                message = `Cannot lint ${document.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
-              } else {
-                message = error.message
-                  ? error.message
-                  : `Failed to run executable using path: ${executable}. Reason is unknown.`;
-              }
-              vscode.window.showErrorMessage(message);
-              reject(message);
-            });
+          cancellable: false,
+        }, async (progress, token) => {
+          let childProcess = cp.spawn(executable, args, options);
+          let decoder = new LineDecoder();
 
-            let decoder = new LineDecoder();
-            let errDecoder = new LineDecoder();
-
-            let onDataEvent = (data: Buffer) => {
-              decoder.formatResultWriter(data);
-            };
-            let onErrDataEvent = (data: Buffer) => {
-              errDecoder.formatResultWriter(data);
-            };
-
-            let onErrEndEvent = () => {
-              errDecoder.end();
-              let lines = errDecoder.getLines();
-              console.error(lines.join("\n"));
-              reject();
-            };
-
-            let onEndEvent = () => {
-              decoder.end();
-              let lines = decoder.getLines();
-              if (lines && lines.length > 0) {
-                const editor = vscode.window.activeTextEditor;
-                if (editor) {
-                  const document = editor.document;
-                  const selection = editor.selection;
-
-                  editor.edit((editBuilder) => {
-                    const lineCount = document.lineCount;
-                    let lastLineRange = document.lineAt(lineCount - 1).range;
-                    const endChar = lastLineRange.end.character;
-                    if (lines[0].startsWith("NO SAFETY:")) {
-                      lines.shift();
-                      lines.shift();
-                    }
-                    editBuilder.replace(
-                      new Range(0, 0, document.lineCount, endChar),
-                      lines.join("\n")
-                    );
-                  });
-                }
-              }
-
-              resolve();
-            };
-
-            if (childProcess.pid) {
-              childProcess.stdin.write(document.getText());
-              childProcess.stdin.end();
-              childProcess.stdout.on("data", onDataEvent);
-              childProcess.stdout.on("end", onEndEvent);
-              childProcess.stderr.on("data", onErrDataEvent);
-              childProcess.stderr.on("end", onErrEndEvent);
-
-              childProcess.on('exit', (code) => {
-                if (code !== null && code !== 0) {
-                  vscode.window.showErrorMessage(`sqlfluff process exited with code ${code}`);
-                  reject();
-                }
-
-                resolve();
-              });
+          childProcess.on("error", (error: Error) => {
+            let message: string = "";
+            if ((<any>error).code === "ENOENT") {
+              message = `Cannot lint ${document.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
             } else {
-              reject();
+              message = error.message
+                ? error.message
+                : `Failed to run executable using path: ${executable}. Reason is unknown.`;
             }
+
+            vscode.window.showInformationMessage(message);
           });
+
+          let onDataEvent = (data: Buffer) => {
+            decoder.formatResultWriter(data);
+          };
+
+          let onEndEvent = () => {
+            decoder.end();
+            let lines = decoder.getLines();
+            if (lines && lines.length > 0) {
+              const editor = vscode.window.activeTextEditor;
+              if (editor) {
+                const document = editor.document;
+                const selection = editor.selection;
+
+                editor.edit((editBuilder) => {
+                  const lineCount = document.lineCount;
+                  let lastLineRange = document.lineAt(lineCount - 1).range;
+                  const endChar = lastLineRange.end.character;
+                  if (lines[0].startsWith("NO SAFETY:")) {
+                    lines.shift();
+                    lines.shift();
+                  }
+                  editBuilder.replace(
+                    new Range(0, 0, document.lineCount, endChar),
+                    lines.join("\n")
+                  );
+                });
+              }
+            }
+
+            resolve();
+          };
+
+          if (childProcess.pid) {
+            childProcess.stdin.write(document.getText());
+            childProcess.stdin.end();
+            childProcess.stdout.on("data", onDataEvent);
+            childProcess.stdout.on("end", onEndEvent);
+            resolve();
+          } else {
+            resolve();
+          }
         }
       );
     }

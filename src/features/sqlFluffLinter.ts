@@ -1,14 +1,13 @@
 'use strict';
 import * as vscode from 'vscode';
-import { workspace, Disposable, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
+import { Disposable, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
 
 import { LintingProvider, LinterConfiguration, Linter } from './utils/lintingProvider';
 import { DocumentFormattingEditProvider } from './formatter/formattingProvider';
 import { Configuration } from './Helpers/configuration';
 
 export class SqlFluffLinterProvider implements Linter {
-
-	public languageId = ['sql', 'jinja-sql'];
+	public languageId = ['sql', 'jinja-sql', 'sql-bigquery'];
 
 	public activate(subscriptions: Disposable[]) {
 		let provider = new LintingProvider(this);
@@ -16,15 +15,13 @@ export class SqlFluffLinterProvider implements Linter {
 	}
 
 	public loadConfiguration(): LinterConfiguration {
-		let section = workspace.getConfiguration();
-
 		const linterConfiguration = {
 			executable: Configuration.executablePath(),
 			fileArgs: ['lint', '--format', 'json'],
 			bufferArgs: ['lint', '--format', 'json', '-'],
 			extraArgs: Configuration.extraArguments(),
 			runTrigger: Configuration.runTrigger(),
-			formatterEnabled: section.get<boolean>('sql.format.enable', true),
+			formatterEnabled: Configuration.formattingEnabled(),
 		};
 
 		return linterConfiguration;
@@ -53,6 +50,7 @@ export class SqlFluffLinterProvider implements Linter {
 			});
 
 		});
+
 		return diagnostics;
 	}
 }

@@ -12,18 +12,21 @@ You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasi
 
 The extension expects sqlfluff to be installed and already added to the path. If it is installed but cannot be found, add the path to your preferences as seen below. Find the path by typing `which sqlfluff` into your terminal.
 
-Edit your VS Code `settings.json` file either through the UI or by manually updating the file. The gif below shows the UI path.
-
-![plugin configuration](./media/config.gif)
+Edit your VS Code `settings.json` file manually or through the user interface.
 
 If you want to manually update the `settings.json` file, open the VS Code command palette and type in `settings.json`. Select `Preferences: Open Settings`. Then, add the following two lines to `settings.json`.
 
 ```json
-"sql.linter.executablePath": "<PATH_TO_YOUR_SQLFLUFF_FROM_WHICH_SQLFLUFF_COMMAND",
-"sql.linter.run": "onType"
+  "sqlfluff.config": "",
+  "sqlfluff.dialect": "mysql",
+  "sqlfluff.excludeRules": ["L009"],
+  "sqlfluff.executablePath": "sqlfluff",
+  "sqlfluff.ignoreLocalConfig": false,
+  "sqlfluff.format.enabled": true,
+  "sqlfluff.ignoreParsing": false,
+  "sqlfluff.linter.run": "onType",
+  "sqlfluff.rules": [],
 ```
-
-By default the linter will lint on the fly `"sql.linter.run": "onType"` but can be changed to linting as you save `"sql.linter.run": "onSave"`. Note that linting on save is most useful when auto-save is on.
 
 ### Format file
 
