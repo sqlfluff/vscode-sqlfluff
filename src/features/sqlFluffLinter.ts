@@ -6,7 +6,7 @@ import { DocumentFormattingEditProvider } from "./formatter/formattingProvider";
 import { Configuration } from "./Helpers/configuration";
 import { Linter, LinterConfiguration, LintingProvider } from "./utils/lintingProvider";
 
-export class SqlFluffLinterProvider implements Linter {
+export class SQLFluffLinterProvider implements Linter {
 	public languageId = ["sql", "jinja-sql", "sql-bigquery"];
 
 	public activate(subscriptions: Disposable[]) {
@@ -34,18 +34,19 @@ export class SqlFluffLinterProvider implements Linter {
 
 			filePaths.forEach((filePath: FilePath) => {
 				filePath.violations.forEach((violation: Violation) => {
-					diagnostics.push({
-						range: new Range(
+					const diagnostic = new Diagnostic(
+						new Range(
 							violation.line_no - 1,
 							violation.line_pos,
 							violation.line_no - 1,
 							violation.line_pos
 						),
-						severity: DiagnosticSeverity.Error,
-						message: violation.description,
-						code: violation.code,
-						source: "sqlfluff",
-					});
+						violation.description,
+						DiagnosticSeverity.Error,
+					);
+					diagnostic.code = violation.code;
+					diagnostic.source = "sqlfluff";
+					diagnostics.push(diagnostic);
 				});
 			});
 
@@ -59,9 +60,9 @@ interface FilePath {
 	violations: Array<Violation>;
 }
 
-export class SqlFLuffDocumentFormattingEditProvider {
+export class SQLFLuffDocumentFormattingEditProvider {
 	activate(): vscode.DocumentFormattingEditProvider {
-		const configuration = new SqlFluffLinterProvider().loadConfiguration;
+		const configuration = new SQLFluffLinterProvider().loadConfiguration;
 		return new DocumentFormattingEditProvider(configuration);
 	}
 }
@@ -72,3 +73,43 @@ interface Violation {
 	description: string,
 	code: string,
 }
+
+export class SQLFluffQuickFix implements vscode.CodeActionProvider {
+	public static readonly providedCodeActionKind = [
+		vscode.CodeActionKind.QuickFix,
+	];
+
+	provideCodeActions(
+		document: vscode.TextDocument,
+		range: vscode.Range | vscode.Selection,
+		context: vscode.CodeActionContext,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		token: vscode.CancellationToken
+	): vscode.CodeAction[] {
+		// for each diagnostic entry that has the matching `code`, create a code action command
+		return context.diagnostics.map((diagnostic) =>
+			this.createCodeAction(diagnostic)
+		);
+	}
+
+	private createCodeAction(
+		diagnostic: vscode.Diagnostic
+	): vscode.CodeAction {
+		const action = new vscode.CodeAction(
+			`Exclude Rule ${diagnostic.code}`,
+			vscode.CodeActionKind.QuickFix
+		);
+		action.command = {
+			command: EXCLUDE_RULE,
+			title: `Exclude Rule ${diagnostic.code}`,
+			tooltip: `This will exclude the rule ${diagnostic.code} in settings.json`,
+			arguments: [diagnostic.code]
+		};
+		action.diagnostics = [diagnostic];
+		action.isPreferred = true;
+
+		return action;
+	}
+}
+
+export const EXCLUDE_RULE = "sqlfluff.quickfix.command";
