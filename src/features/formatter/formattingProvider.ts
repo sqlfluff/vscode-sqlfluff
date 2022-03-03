@@ -3,10 +3,8 @@
 import * as vscode from "vscode";
 import * as cp from "child_process";
 
-import { TextEdit, Range } from "vscode";
 import { LinterConfiguration } from "../utils/lintingProvider";
-import { LineDecoder } from "../utils/lineDecoder";
-import { resolve } from "path";
+import Process from "./process";
 
 export class DocumentFormattingEditProvider {
   public linterConfiguration: () => LinterConfiguration;
@@ -16,89 +14,39 @@ export class DocumentFormattingEditProvider {
     vscode.workspace.onDidChangeConfiguration(linterConfiguration, this);
   }
 
-  provideDocumentFormattingEdits(
+  async provideDocumentFormattingEdits(
     document: vscode.TextDocument
-  ): vscode.TextEdit[] {
+  ): Promise<vscode.TextEdit[]> {
     const linterConfiguration = this.linterConfiguration();
     const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const textEdits: TextEdit[] = [];
+    const textEdits: vscode.TextEdit[] = [];
 
     if (linterConfiguration.formatterEnabled) {
-      let executable = linterConfiguration.executable;
-      let tmp = linterConfiguration.bufferArgs;
+      const command = linterConfiguration.executable;
 
       let args: string[] = ["fix", "--force", "-"];
       args = args.concat(linterConfiguration.extraArgs);
 
-      let options = rootPath
+      let spawnOptions: cp.SpawnOptions = rootPath
         ? { cwd: rootPath }
         : undefined;
 
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: "SQLFluff is formatting the file.",
-          cancellable: false,
-        }, async (progress, token) => {
-          let childProcess = cp.spawn(executable, args, options);
-          let decoder = new LineDecoder();
+      const output = await new Process().run(command, args, spawnOptions, document);
 
-          childProcess.on("error", (error: Error) => {
-            let message: string = "";
-            if ((<any>error).code === "ENOENT") {
-              message = `Cannot lint ${document.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
-            } else {
-              message = error.message
-                ? error.message
-                : `Failed to run executable using path: ${executable}. Reason is unknown.`;
-            }
+      const lines = output.split(/\r?\n/);
+      const lineCount = document.lineCount;
+      let lastLineRange = document.lineAt(lineCount - 1).range;
+      const endChar = lastLineRange.end.character;
 
-            vscode.window.showInformationMessage(message);
-          });
+      if (lines[0].startsWith("NO SAFETY:")) {
+        lines.shift();
+        lines.shift();
+      }
 
-          let onDataEvent = (data: Buffer) => {
-            decoder.formatResultWriter(data);
-          };
-
-          let onEndEvent = () => {
-            decoder.end();
-            let lines = decoder.getLines();
-            if (lines && lines.length > 0) {
-              const editor = vscode.window.activeTextEditor;
-              if (editor) {
-                const document = editor.document;
-                const selection = editor.selection;
-
-                editor.edit((editBuilder) => {
-                  const lineCount = document.lineCount;
-                  let lastLineRange = document.lineAt(lineCount - 1).range;
-                  const endChar = lastLineRange.end.character;
-                  if (lines[0].startsWith("NO SAFETY:")) {
-                    lines.shift();
-                    lines.shift();
-                  }
-                  editBuilder.replace(
-                    new Range(0, 0, document.lineCount, endChar),
-                    lines.join("\n")
-                  );
-                });
-              }
-            }
-
-            resolve();
-          };
-
-          if (childProcess.pid) {
-            childProcess.stdin.write(document.getText());
-            childProcess.stdin.end();
-            childProcess.stdout.on("data", onDataEvent);
-            childProcess.stdout.on("end", onEndEvent);
-            resolve();
-          } else {
-            resolve();
-          }
-        }
-      );
+      textEdits.push(vscode.TextEdit.replace(
+        new vscode.Range(0, 0, document.lineCount, endChar),
+        lines.join("\n")
+      ));
     }
 
     return textEdits;
