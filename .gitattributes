@@ -1,0 +1,23 @@
+# See this article for reference: https://help.github.com/articles/dealing-with-line-endings/
+# Refreshing repo after line ending change:
+# https://help.github.com/articles/dealing-with-line-endings/#refreshing-a-repository-after-changing-line-endings
+
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+#
+# The above will handle all files NOT found below
+#
+# These files are text and should be normalized (Convert crlf => lf)
+# Use lf as eol for these files
+.editorconfig   text    eol=lf
+.eslintignore   text    eol=lf
+.eslintrc       text    eol=lf
+.gitignore      text    eol=lf
+.vscodeignore   text    eol=lf
+*.js            text    eol=lf
+*.json          text    eol=lf
+*.md            text    eol=lf
+*.php           text    eol=lf
+*.ts            text    eol=lf
+*.xml           text    eol=lf

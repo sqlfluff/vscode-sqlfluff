@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 export interface ITask<T> {
 	(): T;
 }
@@ -10,19 +11,16 @@ export class Throttler<T> {
 	private queuedPromise!: Promise<T>;
 	private queuedPromiseFactory!: ITask<Promise<T>>;
 
-	constructor() {
-	}
-
 	public queue(promiseFactory: ITask<Promise<T>>): Promise<T> {
 		if (this.activePromise) {
 			this.queuedPromiseFactory = promiseFactory;
 
 			if (!this.queuedPromise) {
-				var onComplete = () => {
+				const onComplete = () => {
 					// @ts-ignore
 					this.queuedPromise = null;
 
-					var result = this.queue(this.queuedPromiseFactory);
+					const result = this.queue(this.queuedPromiseFactory);
 					// @ts-ignore
 					this.queuedPromiseFactory = null;
 
@@ -82,7 +80,7 @@ export class Delayer<T> {
 				// @ts-ignore
 				this.onResolve = null;
 
-				var result = this.task();
+				const result = this.task();
 				// @ts-ignore
 				this.task = null;
 

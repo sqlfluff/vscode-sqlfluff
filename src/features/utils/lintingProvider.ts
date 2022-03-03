@@ -1,9 +1,9 @@
-'use strict';
-import * as vscode from 'vscode';
-import * as cp from 'child_process';
+"use strict";
+import * as cp from "child_process";
+import * as vscode from "vscode";
 
-import { ThrottledDelayer } from './async';
-import { LineDecoder } from './lineDecoder';
+import { ThrottledDelayer } from "./async";
+import { LineDecoder } from "./lineDecoder";
 
 enum RunTrigger {
 	onSave,
@@ -11,16 +11,17 @@ enum RunTrigger {
 	off
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace RunTrigger {
-	export let strings = {
-		onSave: 'onSave',
-		onType: 'onType',
-		off: 'off'
+	export const strings = {
+		onSave: "onSave",
+		onType: "onType",
+		off: "off"
 	};
-	export let from = function (value: string): RunTrigger {
-		if (value === 'onType') {
+	export const from = function (value: string): RunTrigger {
+		if (value === "onType") {
 			return RunTrigger.onType;
-		} else if (value === 'onSave') {
+		} else if (value === "onSave") {
 			return RunTrigger.onSave;
 		} else {
 			return RunTrigger.off;
@@ -80,7 +81,7 @@ export class LintingProvider {
 
 	private loadConfiguration(): void {
 		const config = this.linter.loadConfiguration();
-		let oldExecutable = this.linterConfiguration && this.linterConfiguration.executable;
+		const oldExecutable = this.linterConfiguration && this.linterConfiguration.executable;
 		this.delayers = Object.create(null);
 
 		if (config) {
@@ -113,7 +114,7 @@ export class LintingProvider {
 			return;
 		}
 
-		let key = textDocument.uri.toString();
+		const key = textDocument.uri.toString();
 		let delayer = this.delayers[key];
 
 		if (!delayer) {
@@ -129,14 +130,14 @@ export class LintingProvider {
 			const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
 			let args: string[];
-			let decoder = new LineDecoder();
+			const decoder = new LineDecoder();
 			let diagnostics: vscode.Diagnostic[] = [];
-			let executable = this.linterConfiguration.executable;
+			const executable = this.linterConfiguration.executable;
 
-			let options = rootPath ? {
+			const options = rootPath ? {
 				cwd: rootPath,
 				env: {
-					LANG: 'en_US.utf-8'
+					LANG: "en_US.utf-8"
 				}
 			} : undefined;
 
@@ -148,15 +149,15 @@ export class LintingProvider {
 			}
 			args = args.concat(this.linterConfiguration.extraArgs);
 
-			let childProcess = cp.spawn(executable, args, options);
-			childProcess.on('error', (error: Error) => {
-				let message: string = "";
+			const childProcess = cp.spawn(executable, args, options);
+			childProcess.on("error", (error: Error) => {
+				let message = "";
 				if (this.executableNotFound) {
 					resolve();
 					return;
 				}
 
-				if ((<any>error).code === 'ENOENT') {
+				if ((<any>error).code === "ENOENT") {
 					message = `Cannot lint ${textDocument.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
 				} else {
 					message = error.message ? error.message : `Failed to run executable using path: ${executable}. Reason is unknown.`;
@@ -167,14 +168,14 @@ export class LintingProvider {
 				resolve();
 			});
 
-			let onDataEvent = (data: Buffer) => {
+			const onDataEvent = (data: Buffer) => {
 				decoder.write(data);
 			};
 
-			let onEndEvent = () => {
+			const onEndEvent = () => {
 				decoder.end();
 
-				let lines = decoder.getLines();
+				const lines = decoder.getLines();
 				if (lines && lines.length > 0) {
 					diagnostics = this.linter.process(lines);
 				}
@@ -189,8 +190,8 @@ export class LintingProvider {
 					childProcess.stdin.end();
 				}
 
-				childProcess.stdout.on('data', onDataEvent);
-				childProcess.stdout.on('end', onEndEvent);
+				childProcess.stdout.on("data", onDataEvent);
+				childProcess.stdout.on("end", onEndEvent);
 				resolve();
 			} else {
 				resolve();

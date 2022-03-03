@@ -1,24 +1,24 @@
-'use strict';
-import * as vscode from 'vscode';
-import { Disposable, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
+"use strict";
+import * as vscode from "vscode";
+import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
-import { LintingProvider, LinterConfiguration, Linter } from './utils/lintingProvider';
-import { DocumentFormattingEditProvider } from './formatter/formattingProvider';
-import { Configuration } from './Helpers/configuration';
+import { DocumentFormattingEditProvider } from "./formatter/formattingProvider";
+import { Configuration } from "./Helpers/configuration";
+import { Linter, LinterConfiguration, LintingProvider } from "./utils/lintingProvider";
 
 export class SqlFluffLinterProvider implements Linter {
-	public languageId = ['sql', 'jinja-sql', 'sql-bigquery'];
+	public languageId = ["sql", "jinja-sql", "sql-bigquery"];
 
 	public activate(subscriptions: Disposable[]) {
-		let provider = new LintingProvider(this);
+		const provider = new LintingProvider(this);
 		provider.activate(subscriptions);
 	}
 
 	public loadConfiguration(): LinterConfiguration {
 		const linterConfiguration = {
 			executable: Configuration.executablePath(),
-			fileArgs: ['lint', '--format', 'json'],
-			bufferArgs: ['lint', '--format', 'json', '-'],
+			fileArgs: ["lint", "--format", "json"],
+			bufferArgs: ["lint", "--format", "json", "-"],
 			extraArgs: Configuration.extraArguments(),
 			runTrigger: Configuration.runTrigger(),
 			formatterEnabled: Configuration.formattingEnabled(),
@@ -28,9 +28,9 @@ export class SqlFluffLinterProvider implements Linter {
 	}
 
 	public process(lines: string[]): Diagnostic[] {
-		let diagnostics: Diagnostic[] = [];
+		const diagnostics: Diagnostic[] = [];
 		lines.forEach((line) => {
-			let filePaths: Array<FilePath> = JSON.parse(line);
+			const filePaths: Array<FilePath> = JSON.parse(line);
 
 			filePaths.forEach((filePath: FilePath) => {
 				filePath.violations.forEach((violation: Violation) => {

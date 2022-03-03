@@ -1,11 +1,11 @@
-import { StringDecoder } from 'string_decoder';
+import { StringDecoder } from "string_decoder";
 
 export class LineDecoder {
 	private stringDecoder: StringDecoder;
 	private remaining: string;
 	private lines: string[];
 
-	constructor(encoding: string = 'utf8') {
+	constructor(encoding: BufferEncoding = "utf8") {
 		this.stringDecoder = new StringDecoder(encoding);
 		this.remaining = "";
 		this.lines = [];
@@ -18,8 +18,8 @@ export class LineDecoder {
 	}
 
 	public write(buffer: Buffer): string[] {
-		var result: string[] = [];
-		var value = this.remaining
+		const result: string[] = [];
+		const value = this.remaining
 			? this.remaining + this.stringDecoder.write(buffer)
 			: this.stringDecoder.write(buffer);
 
@@ -28,13 +28,13 @@ export class LineDecoder {
 			return result;
 		}
 
-		var start = 0;
-		var ch: number;
+		let start = 0;
+		let ch: number;
 		while (start < value.length && ((ch = value.charCodeAt(start)) === 13 || ch === 10)) {
 			start++;
 		}
 
-		var idx = start;
+		let idx = start;
 		while (idx < value.length) {
 			ch = value.charCodeAt(idx);
 			if (ch === 13 || ch === 10) {

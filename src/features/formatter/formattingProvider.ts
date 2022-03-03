@@ -1,7 +1,7 @@
 "use strict";
 
-import * as vscode from "vscode";
 import * as cp from "child_process";
+import * as vscode from "vscode";
 
 import { LinterConfiguration } from "../utils/lintingProvider";
 import Process from "./process";
@@ -27,7 +27,7 @@ export class DocumentFormattingEditProvider {
       let args: string[] = ["fix", "--force", "-"];
       args = args.concat(linterConfiguration.extraArgs);
 
-      let spawnOptions: cp.SpawnOptions = rootPath
+      const spawnOptions: cp.SpawnOptions = rootPath
         ? { cwd: rootPath }
         : undefined;
 
@@ -35,7 +35,7 @@ export class DocumentFormattingEditProvider {
 
       const lines = output.split(/\r?\n/);
       const lineCount = document.lineCount;
-      let lastLineRange = document.lineAt(lineCount - 1).range;
+      const lastLineRange = document.lineAt(lineCount - 1).range;
       const endChar = lastLineRange.end.character;
 
       if (lines[0].startsWith("NO SAFETY:")) {

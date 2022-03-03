@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export class Configuration {
   public static executablePath(): string {
@@ -33,52 +33,52 @@ export class Configuration {
   }
 
   private static config(): string[] {
-    let config: string = vscode.workspace
+    const config: string = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("config");
 
-    return config ? ['--config', config] : [];
+    return config ? ["--config", config] : [];
   }
 
   private static dialect(): string[] {
-    let dialect: string = vscode.workspace
+    const dialect: string = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("config");
 
-    return dialect ? ['--dialect', dialect] : [];
+    return dialect ? ["--dialect", dialect] : [];
   }
 
   private static excludeRules(): string[] {
-    let excludeRulesArray: string[] = vscode.workspace
+    const excludeRulesArray: string[] = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("excludeRules");
 
-    let excludeRules = excludeRulesArray.join(',');
-    return excludeRules ? ['--exclude-rules', excludeRules] : [];
+    const excludeRules = excludeRulesArray.join(",");
+    return excludeRules ? ["--exclude-rules", excludeRules] : [];
   }
 
   private static ignoreLocalConfig(): string[] {
-    let ignoreLocalConfig = vscode.workspace
+    const ignoreLocalConfig = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("ignoreLocalConfig");
 
-    return ignoreLocalConfig ? ['--ignore-local-config'] : [];
+    return ignoreLocalConfig ? ["--ignore-local-config"] : [];
   }
 
   private static ignoreParsing(): string[] {
-    let ignoreParsing = vscode.workspace
+    const ignoreParsing = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("ignoreParsing");
 
-    return ignoreParsing ? ['--ignore', 'parsing'] : [];
+    return ignoreParsing ? ["--ignore", "parsing"] : [];
   }
 
   private static rules(): string[] {
-    let rulesArray: string[] = vscode.workspace
+    const rulesArray: string[] = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("rules");
 
-    let rules = rulesArray.join(',');
-    return rules ? ['--rules', rules] : [];
+    const rules = rulesArray.join(",");
+    return rules ? ["--rules", rules] : [];
   }
 }
