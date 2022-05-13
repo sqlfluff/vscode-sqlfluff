@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2022-03-03
+
+- Fix dialect not correctly being used in command.
+
 ## [0.1.3] - 2022-03-03
 
 - Add ability to exclude command as a quick fix option.

@@ -43,7 +43,7 @@ export class Configuration {
   private static dialect(): string[] {
     const dialect: string = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("config");
+      .get("dialect");
 
     return dialect ? ["--dialect", dialect] : [];
   }

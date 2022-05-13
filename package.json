@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff-extended",
   "displayName": "sqlfluff extended",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "RobertOstermann",
   "icon": "images/icon.png",
