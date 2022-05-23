@@ -43,10 +43,12 @@ export class DocumentFormattingEditProvider {
         lines.shift();
       }
 
-      textEdits.push(vscode.TextEdit.replace(
-        new vscode.Range(0, 0, document.lineCount, endChar),
-        lines.join("\n")
-      ));
+      if (lines.length > 1 || lines[0] !== "") {
+        textEdits.push(vscode.TextEdit.replace(
+          new vscode.Range(0, 0, document.lineCount, endChar),
+          lines.join("\n")
+        ));
+      }
     }
 
     return textEdits;

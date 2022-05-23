@@ -14,7 +14,6 @@ export default class Process {
    */
   run(command: string, args: string[], options: SpawnOptions, document: TextDocument): Promise<string> {
     return new Promise((resolve) => {
-
       const buffers: any[] = [];
 
       this.process = spawn(
