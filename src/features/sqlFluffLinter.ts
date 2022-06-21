@@ -16,26 +16,33 @@ export class SQLFluffLinterProvider implements Linter {
 	public process(lines: string[]): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 		lines.forEach((line) => {
-			const filePaths: Array<FilePath> = JSON.parse(line);
+			let filePaths: Array<FilePath>;
+			try {
+				filePaths = JSON.parse(line);
+			} catch (e) {
+				// JSON.parse may fail if sqlfluff compilation prints non-JSON formatted messages
+				console.warn(e);
+			}
 
-			filePaths.forEach((filePath: FilePath) => {
-				filePath.violations.forEach((violation: Violation) => {
-					const diagnostic = new Diagnostic(
-						new Range(
-							violation.line_no - 1,
-							violation.line_pos,
-							violation.line_no - 1,
-							violation.line_pos
-						),
-						violation.description,
-						DiagnosticSeverity.Error,
-					);
-					diagnostic.code = violation.code;
-					diagnostic.source = "sqlfluff";
-					diagnostics.push(diagnostic);
+			if (filePaths) {
+				filePaths.forEach((filePath: FilePath) => {
+					filePath.violations.forEach((violation: Violation) => {
+						const diagnostic = new Diagnostic(
+							new Range(
+								violation.line_no - 1,
+								violation.line_pos,
+								violation.line_no - 1,
+								violation.line_pos
+							),
+							violation.description,
+							DiagnosticSeverity.Error,
+						);
+						diagnostic.code = violation.code;
+						diagnostic.source = "sqlfluff";
+						diagnostics.push(diagnostic);
+					});
 				});
-			});
-
+			}
 		});
 
 		return diagnostics;
