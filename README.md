@@ -6,8 +6,6 @@
   <a href="https://marketplace.visualstudio.com/items?itemName=RobertOstermann.vscode-sqlfluff-extended"><img src="https://vsmarketplacebadge.apphb.com/rating-short/RobertOstermann.vscode-sqlfluff-extended.svg" alt="VS Marketplace Rating"></a>
 </p>
 
-![.github/workflows/ci.yml](https://github.com/dorzey/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
-
 A linter and auto-formatter for [SQLFluff](https://github.com/alanmcruickshank/sqlfluff), a popular linting tool for SQL and dbt.
 
 ![linter in action](./media/linter_in_action.gif)
@@ -27,8 +25,9 @@ If you want to manually update the `settings.json` file, open the VS Code comman
   "sqlfluff.dialect": "mysql",
   "sqlfluff.excludeRules": ["L009"],
   "sqlfluff.executablePath": "sqlfluff",
-  "sqlfluff.ignoreLocalConfig": false,
   "sqlfluff.format.enabled": true,
+  "sqlfluff.format.workingDirectory": "",
+  "sqlfluff.ignoreLocalConfig": false,
   "sqlfluff.ignoreParsing": false,
   "sqlfluff.linter.run": "onType",
   "sqlfluff.rules": [],

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2022-06-22
+
+- Attempt to fix formatting not working - [issue #1](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/1)
+
 ## [0.1.5] - 2022-03-03
 
 - Try not to clear the file text when the sqlfluff command fails.

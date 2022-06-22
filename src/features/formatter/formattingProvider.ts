@@ -3,6 +3,7 @@
 import * as cp from "child_process";
 import * as vscode from "vscode";
 
+import { Configuration } from "../Helpers/configuration";
 import { LinterConfiguration } from "../utils/lintingProvider";
 import Process from "./process";
 
@@ -18,7 +19,7 @@ export class DocumentFormattingEditProvider {
     document: vscode.TextDocument
   ): Promise<vscode.TextEdit[]> {
     const linterConfiguration = this.linterConfiguration();
-    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const workingDirectory = Configuration.workingDirectory();
     const textEdits: vscode.TextEdit[] = [];
 
     if (linterConfiguration.formatterEnabled) {
@@ -27,8 +28,8 @@ export class DocumentFormattingEditProvider {
       let args: string[] = ["fix", "--force", "-"];
       args = args.concat(linterConfiguration.extraArgs);
 
-      const spawnOptions: cp.SpawnOptions = rootPath
-        ? { cwd: rootPath }
+      const spawnOptions: cp.SpawnOptions = workingDirectory
+        ? { cwd: workingDirectory }
         : undefined;
 
       const output = await new Process().run(command, args, spawnOptions, document);

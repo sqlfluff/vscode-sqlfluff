@@ -13,6 +13,12 @@ export class Configuration {
       .get("enabled");
   }
 
+  public static workingDirectory(): string {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("workingDirectory");
+  }
+
   public static runTrigger(): string {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
