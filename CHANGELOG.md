@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2022-06-24
+
+- Set default working directory as root path - [issue #2](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/2)
+
 ## [0.1.6] - 2022-06-22
 
 - Attempt to fix formatting not working - [issue #1](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/1)

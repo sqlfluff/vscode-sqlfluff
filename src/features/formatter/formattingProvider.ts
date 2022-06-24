@@ -19,7 +19,8 @@ export class DocumentFormattingEditProvider {
     document: vscode.TextDocument
   ): Promise<vscode.TextEdit[]> {
     const linterConfiguration = this.linterConfiguration();
-    const workingDirectory = Configuration.workingDirectory();
+    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
     const textEdits: vscode.TextEdit[] = [];
 
     if (linterConfiguration.formatterEnabled) {
