@@ -26,6 +26,10 @@ export default class Process {
         return;
       }
 
+      this.process.stdin.setDefaultEncoding("utf-8");
+      this.process.stdout.setEncoding("utf-8");
+      this.process.stderr.setEncoding("utf-8");
+
       if (this.process.pid) {
         this.process.stdin.write(document.getText());
         this.process.stdin.end();

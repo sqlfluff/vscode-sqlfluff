@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2022-06-24
+
+- Undo rework of formatting provider to and use "utf-8" encoding to solve mojibake and other issues - [issue #3](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/3)
+
 ## [0.1.8] - 2022-06-24
 
 - Rework formatting provider to hopefully solve mojibake and other issues - [issue #3](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/3)

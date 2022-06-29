@@ -1,1 +1,2 @@
-SELECT a from a_table; 
+-- 割引金額
+select a from b;
