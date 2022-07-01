@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2022-07-01
+
+- Add the `sqlfluff.format.executeInTerminal` option.
+- Rewrite several files to make them more readable.
+
 ## [0.1.9] - 2022-06-24
 
 - Undo rework of formatting provider to and use "utf-8" encoding to solve mojibake and other issues - [issue #3](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/3)

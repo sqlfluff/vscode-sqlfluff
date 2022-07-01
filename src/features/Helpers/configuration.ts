@@ -7,37 +7,6 @@ export class Configuration {
       .get("executablePath");
   }
 
-  public static formattingEnabled(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get("enabled");
-  }
-
-  public static workingDirectory(): string {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get("workingDirectory");
-  }
-
-  public static runTrigger(): string {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get("run");
-  }
-
-  public static extraArguments(): string[] {
-    let extraArguments = [];
-
-    extraArguments = extraArguments.concat(this.config());
-    extraArguments = extraArguments.concat(this.dialect());
-    extraArguments = extraArguments.concat(this.excludeRules());
-    extraArguments = extraArguments.concat(this.ignoreLocalConfig());
-    extraArguments = extraArguments.concat(this.ignoreParsing());
-    extraArguments = extraArguments.concat(this.rules());
-
-    return extraArguments;
-  }
-
   private static config(): string[] {
     const config: string = vscode.workspace
       .getConfiguration("sqlfluff")
@@ -86,5 +55,58 @@ export class Configuration {
 
     const rules = rulesArray.join(",");
     return rules ? ["--rules", rules] : [];
+  }
+
+  public static formatEnabled(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("enabled");
+  }
+
+  public static executeInTerminal(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("executeInTerminal");
+  }
+
+  public static workingDirectory(): string {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("workingDirectory");
+  }
+
+  public static runTrigger(): string {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get("run");
+  }
+
+  public static lintBufferArguments(): string[] {
+    return ["lint", "--format", "json", "-"];
+  }
+
+  public static lintFileArguments(): string[] {
+    return ["lint", "--format", "json"];
+  }
+
+  public static formatBufferArguments(): string[] {
+    return ["fix", "--force", "-"];
+  }
+
+  public static formatFileArguments(): string[] {
+    return ["fix", "--force"];
+  }
+
+  public static extraArguments(): string[] {
+    let extraArguments = [];
+
+    extraArguments = extraArguments.concat(this.config());
+    extraArguments = extraArguments.concat(this.dialect());
+    extraArguments = extraArguments.concat(this.excludeRules());
+    extraArguments = extraArguments.concat(this.ignoreLocalConfig());
+    extraArguments = extraArguments.concat(this.ignoreParsing());
+    extraArguments = extraArguments.concat(this.rules());
+
+    return extraArguments;
   }
 }

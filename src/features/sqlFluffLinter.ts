@@ -3,8 +3,7 @@ import * as vscode from "vscode";
 import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
 import { DocumentFormattingEditProvider } from "./formatter/formattingProvider";
-import { Configuration } from "./Helpers/configuration";
-import { Linter, LinterConfiguration, LintingProvider } from "./utils/lintingProvider";
+import { Linter, LintingProvider } from "./utils/lintingProvider";
 
 export class SQLFluffLinterProvider implements Linter {
 	public languageId = ["sql", "jinja-sql", "sql-bigquery"];
@@ -12,19 +11,6 @@ export class SQLFluffLinterProvider implements Linter {
 	public activate(subscriptions: Disposable[]) {
 		const provider = new LintingProvider(this);
 		provider.activate(subscriptions);
-	}
-
-	public loadConfiguration(): LinterConfiguration {
-		const linterConfiguration = {
-			executable: Configuration.executablePath(),
-			fileArgs: ["lint", "--format", "json"],
-			bufferArgs: ["lint", "--format", "json", "-"],
-			extraArgs: Configuration.extraArguments(),
-			runTrigger: Configuration.runTrigger(),
-			formatterEnabled: Configuration.formattingEnabled(),
-		};
-
-		return linterConfiguration;
 	}
 
 	public process(lines: string[]): Diagnostic[] {
@@ -62,8 +48,7 @@ interface FilePath {
 
 export class SQLFLuffDocumentFormattingEditProvider {
 	activate(): vscode.DocumentFormattingEditProvider {
-		const configuration = new SQLFluffLinterProvider().loadConfiguration;
-		return new DocumentFormattingEditProvider(configuration);
+		return new DocumentFormattingEditProvider();
 	}
 }
 

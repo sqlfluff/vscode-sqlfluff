@@ -1,4 +1,5 @@
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
+import { StringDecoder } from "string_decoder";
 import { TextDocument } from "vscode";
 
 export default class Process {
@@ -26,10 +27,6 @@ export default class Process {
         return;
       }
 
-      this.process.stdin.setDefaultEncoding("utf-8");
-      this.process.stdout.setEncoding("utf-8");
-      this.process.stderr.setEncoding("utf-8");
-
       if (this.process.pid) {
         this.process.stdin.write(document.getText());
         this.process.stdin.end();
@@ -44,8 +41,11 @@ export default class Process {
       });
 
       this.process.on("close", () => {
+        const encoding: BufferEncoding = "utf8";
+        const stringDecoder = new StringDecoder(encoding);
+
         const output = buffers.reduce((response, buffer) => {
-          response += buffer.toString();
+          response += stringDecoder.write(buffer);
           return (response);
         }, "");
 

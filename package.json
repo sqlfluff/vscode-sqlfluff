@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff-extended",
   "displayName": "sqlfluff extended",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "RobertOstermann",
   "icon": "images/icon.png",
@@ -93,17 +93,27 @@
             "off"
           ],
           "default": "onType",
-          "description": "Determines if the linter is run on save, on type, or disabled."
+          "description": "Determines if the linter runs on save, on type, or disabled.",
+          "markdownEnumDescriptions": [
+            "Run the linter when the document is saved.",
+            "Run the linter when the document is typed in.",
+            "Do not run the linter."
+          ]
         },
         "sqlfluff.format.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Determines if the document formatter is enabled."
         },
+        "sqlfluff.format.executeInTerminal": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Determines if the `sqlfluff --fix` command overwrites the file contents instead of this extension. You should not change the file contents while formatting is occurring if this is enabled. This can help solve [Mojibake](https://en.wikipedia.org/wiki/Mojibake) issues. "
+        },
         "sqlfluff.format.workingDirectory": {
           "type": "string",
           "default": "",
-          "description": "Set the working directory for the sqlflull --fix command."
+          "markdownDescription": "Set the working directory for the `sqlfluff --fix` command. This defaults to the root path of the workspace."
         }
       }
     }

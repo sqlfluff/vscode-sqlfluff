@@ -11,12 +11,6 @@ export class LineDecoder {
 		this.lines = [];
 	}
 
-	public formatResultWriter(buffer: Buffer): string[] {
-		const result = buffer.toString().split("\n");
-		this.lines = this.lines.concat(result);
-		return result;
-	}
-
 	public write(buffer: Buffer): string[] {
 		const result: string[] = [];
 		const value = this.remaining
@@ -29,18 +23,19 @@ export class LineDecoder {
 		}
 
 		let start = 0;
-		let ch: number;
-		while (start < value.length && ((ch = value.charCodeAt(start)) === 13 || ch === 10)) {
+		let characterCode: number = value.charCodeAt(start);
+		while (start < value.length && (characterCode === 10 || characterCode === 13)) {
 			start++;
 		}
 
 		let idx = start;
 		while (idx < value.length) {
-			ch = value.charCodeAt(idx);
-			if (ch === 13 || ch === 10) {
+			characterCode = value.charCodeAt(idx);
+			if (characterCode === 10 || characterCode === 13) {
 				result.push(value.substring(start, idx));
 				idx++;
-				while (idx < value.length && ((ch = value.charCodeAt(idx)) === 13 || ch === 10)) {
+				characterCode = value.charCodeAt(idx);
+				while (idx < value.length && (characterCode === 10 || characterCode === 13)) {
 					idx++;
 				}
 				start = idx;
@@ -49,7 +44,7 @@ export class LineDecoder {
 			}
 		}
 
-		this.remaining = start < value.length ? value.substr(start) : "";
+		this.remaining = start < value.length ? value.substring(start) : "";
 		this.lines = this.lines.concat(result);
 
 		return result;
