@@ -65,7 +65,7 @@ export class Configuration {
 
   public static executeInTerminal(): boolean {
     return vscode.workspace
-      .getConfiguration("sqlfluff.format")
+      .getConfiguration("sqlfluff.experimental.format")
       .get("executeInTerminal");
   }
 

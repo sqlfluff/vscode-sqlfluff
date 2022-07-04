@@ -34,7 +34,7 @@ export class DocumentFormattingEditProvider {
 
         const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
         try {
-          cp.execSync(command, execOptions);
+          const output = cp.execSync(command, execOptions).toString();
           await document.save();
         } catch (error) {
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
