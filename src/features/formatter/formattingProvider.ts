@@ -1,6 +1,7 @@
 "use strict";
 
 import * as cp from "child_process";
+import * as fs from "fs";
 import * as vscode from "vscode";
 
 import { Configuration } from "../Helpers/configuration";
@@ -18,7 +19,7 @@ export class DocumentFormattingEditProvider {
     if (Configuration.formatEnabled()) {
       if (Configuration.executeInTerminal()) {
         if (document.isDirty) {
-          await document.save();
+          // await document.save();
         }
 
         let args = Configuration.formatFileArguments();
@@ -29,13 +30,36 @@ export class DocumentFormattingEditProvider {
             cwd: workingDirectory,
             env: {
               LANG: "en_US.utf-8"
-            }
+            },
           } : undefined;
 
         const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
         try {
           const output = cp.execSync(command, execOptions).toString();
-          await document.save();
+          const contents = fs.readFileSync(document.uri.fsPath.replace(/\\/g, "/"), "utf-8");
+          const lines = contents.split(/\r?\n/);
+          const lineCount = document.lineCount;
+          const lastLineRange = document.lineAt(lineCount - 1).range;
+          const endChar = lastLineRange.end.character;
+
+          if (lines[0].startsWith("NO SAFETY:")) {
+            lines.shift();
+            lines.shift();
+          }
+
+          if (lines[0].includes("ENOENT")) {
+            return [];
+          }
+
+          if (lines.length > 1 || lines[0] !== "") {
+            textEdits.push(vscode.TextEdit.replace(
+              new vscode.Range(0, 0, lineCount, endChar),
+              lines.join("\n")
+            ));
+          }
+
+          console.log(output);
+          // await document.save();
         } catch (error) {
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
         }
@@ -71,7 +95,7 @@ export class DocumentFormattingEditProvider {
 
         if (lines.length > 1 || lines[0] !== "") {
           textEdits.push(vscode.TextEdit.replace(
-            new vscode.Range(0, 0, document.lineCount, endChar),
+            new vscode.Range(0, 0, lineCount, endChar),
             lines.join("\n")
           ));
         }

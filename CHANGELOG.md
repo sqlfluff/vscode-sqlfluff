@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2022-07-04
+
+- Bugfix for the `sqlfluff.format.executeInTerminal` option.
+
 ## [0.2.1] - 2022-07-04
 
 - Add experimental note and bug notes to the `sqlfluff.format.executeInTerminal` option.
