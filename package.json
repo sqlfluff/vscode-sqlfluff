@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff-extended",
   "displayName": "sqlfluff extended",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "RobertOstermann",
   "icon": "images/icon.png",
@@ -49,6 +49,7 @@
         "sqlfluff.dialect": {
           "type": "string",
           "enum": [
+            "",
             "ansi",
             "bigquery",
             "exasol",
@@ -62,7 +63,7 @@
             "tsql",
             "teradata"
           ],
-          "default": "ansi",
+          "default": "",
           "description": "The dialect of SQL to lint."
         },
         "sqlfluff.excludeRules": {
