@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2022-07-
+
+- Handle JSON.parse exceptions gracefully.
+- Kill any currently running process in linter before starting a new process.
+
 ## [0.2.3] - 2022-07-04
 
 - Default the dialect option to empty to ensure the sqlfluff configuration is the primary source of the dialect.
