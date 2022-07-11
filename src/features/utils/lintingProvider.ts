@@ -25,6 +25,7 @@ export class LintingProvider {
 	private diagnosticCollection!: vscode.DiagnosticCollection;
 	private delayers!: { [key: string]: ThrottledDelayer<void>; };
 	private linter: Linter;
+	private childProcess: cp.ChildProcess;
 
 	constructor(linter: Linter) {
 		this.linter = linter;
@@ -89,7 +90,7 @@ export class LintingProvider {
 		let delayer = this.delayers[key];
 
 		if (!delayer) {
-			delayer = new ThrottledDelayer<void>(Configuration.runTrigger() === RunTrigger.onType ? 250 : 0);
+			delayer = new ThrottledDelayer<void>(500);
 			this.delayers[key] = delayer;
 		}
 
@@ -121,8 +122,12 @@ export class LintingProvider {
 			}
 			args = args.concat(Configuration.extraArguments());
 
-			const childProcess = cp.spawn(executable, args, options);
-			childProcess.on("error", (error: Error) => {
+			if (this.childProcess) {
+				this.childProcess.kill();
+			}
+			this.childProcess = cp.spawn(executable, args, options);
+
+			this.childProcess.on("error", (error: Error) => {
 				let message = "";
 				if (this.executableNotFound) {
 					resolve();
@@ -157,14 +162,14 @@ export class LintingProvider {
 				resolve();
 			};
 
-			if (childProcess.pid) {
+			if (this.childProcess.pid) {
 				if (Configuration.runTrigger() === RunTrigger.onType) {
-					childProcess.stdin.write(textDocument.getText());
-					childProcess.stdin.end();
+					this.childProcess.stdin.write(textDocument.getText());
+					this.childProcess.stdin.end();
 				}
 
-				childProcess.stdout.on("data", onDataEvent);
-				childProcess.stdout.on("end", onEndEvent);
+				this.childProcess.stdout.on("data", onDataEvent);
+				this.childProcess.stdout.on("end", onEndEvent);
 				resolve();
 			} else {
 				resolve();
