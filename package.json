@@ -1,9 +1,9 @@
 {
-  "name": "vscode-sqlfluff-extended",
-  "displayName": "sqlfluff extended",
-  "version": "0.2.4",
+  "name": "vscode-sqlfluff",
+  "displayName": "sqlfluff",
+  "version": "0.0.6",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
-  "publisher": "RobertOstermann",
+  "publisher": "dorzey",
   "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.59.0"
@@ -11,13 +11,13 @@
   "categories": [
     "Other"
   ],
-  "homepage": "https://github.com/RobertOstermann/vscode-sqlfluff-extended",
+  "homepage": "https://github.com/dorzey/vscode-sqlfluff-extended",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RobertOstermann/vscode-sqlfluff-extended"
+    "url": "https://github.com/dorzey/vscode-sqlfluff-extended"
   },
   "bugs": {
-    "url": "https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues"
+    "url": "https://github.com/dorzey/vscode-sqlfluff-extended/issues"
   },
   "license": "MIT",
   "keywords": [

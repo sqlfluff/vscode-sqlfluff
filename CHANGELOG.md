@@ -1,61 +1,54 @@
 # Change Log
 
-All notable changes to this project will be documented in this file.
+All notable changes to the "sqlfluff" extension will be documented in this file.
 
-## [0.2.4] - 2022-07-
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-- Handle JSON.parse exceptions gracefully.
-- Kill any currently running process in linter before starting a new process.
+## [Unreleased]
 
-## [0.2.3] - 2022-07-04
+- [#50](https://github.com/sqlfluff/vscode-sqlfluff/pull/50) refactors the extension and adds several new settings.
+- [#33](https://github.com/sqlfluff/vscode-sqlfluff/pull/33) adds basic set of automated tests
 
-- Default the dialect option to empty to ensure the sqlfluff configuration is the primary source of the dialect.
+## [0.0.5] - 2021-06-16
 
-## [0.2.2] - 2022-07-04
+### Added
 
-- Bugfix for the `sqlfluff.format.executeInTerminal` option.
+- [#9](https://github.com/sqlfluff/vscode-sqlfluff/pull/9) adds VS Code "format" capability to run "fix" in SQLFLuff
+- [#31](https://github.com/sqlfluff/vscode-sqlfluff/pull/31) updates CLI args and adds ignoreParsing option
 
-## [0.2.1] - 2022-07-04
+### Changed
 
-- Add experimental note and bug notes to the `sqlfluff.format.executeInTerminal` option.
+- [#10](https://github.com/sqlfluff/vscode-sqlfluff/pull/10) updates README and adds TESTING.md
+- [#16](https://github.com/sqlfluff/vscode-sqlfluff/pull/17) updates README
+- [#28](https://github.com/sqlfluff/vscode-sqlfluff/pull/28) dependabot bump
+- [#30](https://github.com/sqlfluff/vscode-sqlfluff/pull/30) dependabot bump
 
-## [0.2.0] - 2022-07-01
+### Removed
 
-- Add the `sqlfluff.format.executeInTerminal` option.
-- Rewrite several files to make them more readable.
+- [#26](https://github.com/sqlfluff/vscode-sqlfluff/pull/26) remove obsolete "--no-safety" flag
 
-## [0.1.9] - 2022-06-24
+## [0.0.4] - 2020-11-16
 
-- Undo rework of formatting provider to and use "utf-8" encoding to solve mojibake and other issues - [issue #3](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/3)
+### Changed
 
-## [0.1.8] - 2022-06-24
+- [#8](https://github.com/sqlfluff/vscode-sqlfluff/pull/8) fixes line number mismatch
 
-- Rework formatting provider to hopefully solve mojibake and other issues - [issue #3](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/3)
+## [0.0.3] - 2020-07-25
 
-## [0.1.7] - 2022-06-24
+### Changed
 
-- Set default working directory as root path - [issue #2](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/2)
+- Bumps lodash from 4.17.15 to 4.17.19
 
-## [0.1.6] - 2022-06-22
+## [0.0.2] - 2020-07-06
 
-- Attempt to fix formatting not working - [issue #1](https://github.com/RobertOstermann/vscode-sqlfluff-extended/issues/1)
+### Added
 
-## [0.1.5] - 2022-03-03
+- [#2](https://github.com/dorzey/vscode-sqlfluff/pull/2) support for jinja-sql
 
-- Try not to clear the file text when the sqlfluff command fails.
+### Changed
 
-## [0.1.4] - 2022-03-03
+- [#1](https://github.com/dorzey/vscode-sqlfluff/pull/1) linter.run default switched to onType
 
-- Fix dialect not correctly being used in command.
+## [0.0.1] - 2020-07-06
 
-## [0.1.3] - 2022-03-03
-
-- Add ability to exclude command as a quick fix option.
-
-## [0.1.2] - 2022-03-03
-
-- Fix formatting on save not saving the document.
-
-## [0.1.0] - 2022-01-22
-
-- Initial Release.
+### Initial release
