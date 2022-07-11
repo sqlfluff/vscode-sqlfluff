@@ -1,10 +1,6 @@
 # vscode-sqlfluff
 
-<p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=RobertOstermann.vscode-sqlfluff-extended"><img src="https://vsmarketplacebadge.apphb.com/version-short/RobertOstermann.vscode-sqlfluff-extended.svg" alt="VS Marketplace Version"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=RobertOstermann.vscode-sqlfluff-extended"><img src="https://vsmarketplacebadge.apphb.com/installs-short/RobertOstermann.vscode-sqlfluff-extended.svg" alt="VS Marketplace Installs"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=RobertOstermann.vscode-sqlfluff-extended"><img src="https://vsmarketplacebadge.apphb.com/rating-short/RobertOstermann.vscode-sqlfluff-extended.svg" alt="VS Marketplace Rating"></a>
-</p>
+![.github/workflows/ci.yml](https://github.com/dorzey/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
 
 A linter and auto-formatter for [SQLFluff](https://github.com/alanmcruickshank/sqlfluff), a popular linting tool for SQL and dbt.
 

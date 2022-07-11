@@ -7,7 +7,7 @@ export default class Process {
 
   /**
    * Creates a child process to execute a command.
-   * 
+   *
    * @param command - The command to run.
    * @param args - A list of string arguments.
    * @param options - The working directory and environment variables.
