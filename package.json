@@ -51,17 +51,23 @@
           "enum": [
             "",
             "ansi",
+            "athena",
             "bigquery",
+            "clickhouse",
+            "databricks",
+            "db2",
             "exasol",
             "hive",
             "mysql",
+            "oracle",
             "postgres",
             "redshift",
             "snowflake",
-            "spark3",
+            "soql",
+            "sparksql",
             "sqlite",
-            "tsql",
-            "teradata"
+            "teradata",
+            "tsql"
           ],
           "default": "",
           "description": "The dialect of SQL to lint."
