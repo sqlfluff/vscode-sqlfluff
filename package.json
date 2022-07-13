@@ -103,7 +103,7 @@
           "description": "Determines if the linter runs on save, on type, or disabled.",
           "markdownEnumDescriptions": [
             "Run the linter when the document is saved.",
-            "Run the linter when the document is typed in.",
+            "Run the linter when the document is typed in. Does not work when the templater is set to dbt.",
             "Do not run the linter."
           ]
         },
