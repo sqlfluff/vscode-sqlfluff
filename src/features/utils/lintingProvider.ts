@@ -113,8 +113,7 @@ export class LintingProvider {
         } : undefined;
 
       if (Configuration.runTrigger() === RunTrigger.onSave) {
-        args = Configuration.lintFileArguments();
-        args.push(textDocument.fileName);
+        args = [...Configuration.lintFileArguments(), textDocument.fileName];
       } else {
         args = Configuration.lintBufferArguments();
       }
