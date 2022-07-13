@@ -19,7 +19,7 @@ export class DocumentFormattingEditProvider {
     if (Configuration.formatEnabled()) {
       if (Configuration.executeInTerminal()) {
         if (document.isDirty) {
-          // await document.save();
+          await document.save();
         }
 
         let args = Configuration.formatFileArguments();
@@ -35,7 +35,7 @@ export class DocumentFormattingEditProvider {
 
         const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
         try {
-          const output = cp.execSync(command, execOptions).toString();
+          cp.execSync(command, execOptions);
           const contents = fs.readFileSync(document.uri.fsPath.replace(/\\/g, "/"), "utf-8");
           const lines = contents.split(/\r?\n/);
           const lineCount = document.lineCount;
@@ -58,7 +58,6 @@ export class DocumentFormattingEditProvider {
             ));
           }
 
-          console.log(output);
           // await document.save();
         } catch (error) {
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
