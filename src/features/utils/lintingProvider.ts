@@ -64,12 +64,10 @@ export class LintingProvider {
       this.documentListener.dispose();
     }
 
-    if (Configuration.runTrigger() === RunTrigger.onSave) {
+    if (Configuration.runTrigger() === RunTrigger.onType) {
       this.documentListener = vscode.workspace.onDidChangeTextDocument((e) => {
         this.triggerLint(e.document);
       });
-    } else {
-      this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
     }
     this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 
@@ -79,9 +77,9 @@ export class LintingProvider {
 
   private triggerLint(textDocument: vscode.TextDocument): void {
     if (
-      !this.linter.languageId.includes(textDocument.languageId) ||
-      this.executableNotFound ||
-      Configuration.runTrigger() === RunTrigger.off
+      !this.linter.languageId.includes(textDocument.languageId)
+      || this.executableNotFound
+      || Configuration.runTrigger() === RunTrigger.off
     ) {
       return;
     }
@@ -115,7 +113,7 @@ export class LintingProvider {
         } : undefined;
 
       if (Configuration.runTrigger() === RunTrigger.onSave) {
-        args = [...Configuration.lintFileArguments()];
+        args = Configuration.lintFileArguments();
         args.push(textDocument.fileName);
       } else {
         args = Configuration.lintBufferArguments();
