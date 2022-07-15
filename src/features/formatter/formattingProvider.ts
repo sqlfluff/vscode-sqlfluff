@@ -16,6 +16,14 @@ export class DocumentFormattingEditProvider {
     const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
     const textEdits: vscode.TextEdit[] = [];
 
+    const options = workingDirectory ?
+      {
+        cwd: workingDirectory,
+        env: {
+          LANG: "en_US.utf-8"
+        },
+      } : undefined;
+
     if (Configuration.formatEnabled()) {
       if (Configuration.executeInTerminal()) {
         if (document.isDirty) {
@@ -25,18 +33,10 @@ export class DocumentFormattingEditProvider {
         let args = Configuration.formatFileArguments();
         args = args.concat(Configuration.extraArguments());
 
-        const execOptions: cp.ExecSyncOptions = workingDirectory ?
-          {
-            cwd: workingDirectory,
-            env: {
-              LANG: "en_US.utf-8"
-            },
-          } : undefined;
-
         const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
         try {
-          cp.execSync(command, execOptions);
-          const contents = fs.readFileSync(document.uri.fsPath.replace(/\\/g, "/"), "utf-8");
+          cp.execSync(command, options);
+          const contents = fs.readFileSync(filePath, "utf-8");
           const lines = contents.split(/\r?\n/);
           const lineCount = document.lineCount;
           const lastLineRange = document.lineAt(lineCount - 1).range;
@@ -57,8 +57,6 @@ export class DocumentFormattingEditProvider {
               lines.join("\n")
             ));
           }
-
-          // await document.save();
         } catch (error) {
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
         }
@@ -68,16 +66,7 @@ export class DocumentFormattingEditProvider {
         let args = Configuration.formatBufferArguments();
         args = args.concat(Configuration.extraArguments());
 
-        const spawnOptions: cp.SpawnOptions = workingDirectory ?
-          {
-            cwd: workingDirectory,
-            env: {
-              LANG: "en_US.utf-8"
-            }
-          } : undefined;
-
-        const output = await new Process().run(command, args, spawnOptions, document);
-
+        const output = await Process.run(command, args, options, document);
         const lines = output.split(/\r?\n/);
         const lineCount = document.lineCount;
         const lastLineRange = document.lineAt(lineCount - 1).range;
@@ -89,6 +78,11 @@ export class DocumentFormattingEditProvider {
         }
 
         if (lines[0].includes("ENOENT")) {
+          return [];
+        }
+
+        if (lines[0].includes("templating/parsing errors found")) {
+          vscode.window.showErrorMessage("SQLFluff templating/parsing errors found.");
           return [];
         }
 

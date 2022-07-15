@@ -95,53 +95,15 @@ export class LintingProvider {
     delayer.trigger(() => { return this.doLint(textDocument); });
   }
 
-  private doLint(textDocument: vscode.TextDocument): Promise<void> {
+  private doLint(document: vscode.TextDocument): Promise<void> {
     return new Promise<void>((resolve) => {
       const decoder = new LineDecoder();
-      const executable = Configuration.executablePath();
-      const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+      const filePath = document.fileName.replace(/\\/g, "/");
+      const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\/g, "/");
+      const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
 
       let args: string[];
       let diagnostics: vscode.Diagnostic[] = [];
-
-      const options = rootPath ?
-        {
-          cwd: rootPath,
-          env: {
-            LANG: "en_US.utf-8"
-          }
-        } : undefined;
-
-      if (Configuration.runTrigger() === RunTrigger.onSave) {
-        args = [...Configuration.lintFileArguments(), textDocument.fileName];
-      } else {
-        args = Configuration.lintBufferArguments();
-      }
-      args = args.concat(Configuration.extraArguments());
-
-      if (this.childProcess) {
-        this.childProcess.kill();
-      }
-      this.childProcess = cp.spawn(executable, args, options);
-
-      this.childProcess.on("error", (error: Error) => {
-        let message = "";
-        if (this.executableNotFound) {
-          resolve();
-          return;
-        }
-
-        if ((<any>error).code === "ENOENT") {
-          message = `Cannot lint ${textDocument.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
-        } else {
-          message = error.message ? error.message : `Failed to run executable using path: ${executable}. Reason is unknown.`;
-        }
-
-        this.oldExecutablePath = Configuration.executablePath();
-        this.executableNotFound = true;
-        vscode.window.showInformationMessage(message);
-        resolve();
-      });
 
       const onDataEvent = (data: Buffer) => {
         decoder.write(data);
@@ -155,13 +117,52 @@ export class LintingProvider {
           diagnostics = this.linter.process(lines);
         }
 
-        this.diagnosticCollection.set(textDocument.uri, diagnostics);
+        this.diagnosticCollection.set(document.uri, diagnostics);
         resolve();
       };
 
+      const options = workingDirectory ?
+        {
+          cwd: workingDirectory,
+          env: {
+            LANG: "en_US.utf-8"
+          }
+        } : undefined;
+
+      if (Configuration.runTrigger() === RunTrigger.onSave) {
+        args = [...Configuration.lintFileArguments(), filePath];
+      } else {
+        args = Configuration.lintBufferArguments();
+      }
+      args = args.concat(Configuration.extraArguments());
+
+      if (this.childProcess) {
+        this.childProcess.kill();
+      }
+      this.childProcess = cp.spawn(Configuration.executablePath(), args, options);
+
+      this.childProcess.on("error", (error: Error) => {
+        let message = "";
+        if (this.executableNotFound) {
+          resolve();
+          return;
+        }
+
+        if ((<any>error).code === "ENOENT") {
+          message = `Cannot lint ${document.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
+        } else {
+          message = error.message ? error.message : `Failed to run executable using path: ${Configuration.executablePath()}. Reason is unknown.`;
+        }
+
+        this.oldExecutablePath = Configuration.executablePath();
+        this.executableNotFound = true;
+        vscode.window.showInformationMessage(message);
+        resolve();
+      });
+
       if (this.childProcess.pid) {
         if (Configuration.runTrigger() === RunTrigger.onType) {
-          this.childProcess.stdin.write(textDocument.getText());
+          this.childProcess.stdin.write(document.getText());
           this.childProcess.stdin.end();
         }
 

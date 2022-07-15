@@ -57,6 +57,12 @@ export class Configuration {
     return rules ? ["--rules", rules] : [];
   }
 
+  public static workingDirectory(): string {
+    return vscode.workspace
+      .getConfiguration("sqlfluff")
+      .get("workingDirectory");
+  }
+
   public static formatEnabled(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.format")
@@ -67,12 +73,6 @@ export class Configuration {
     return vscode.workspace
       .getConfiguration("sqlfluff.experimental.format")
       .get("executeInTerminal");
-  }
-
-  public static workingDirectory(): string {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get("workingDirectory");
   }
 
   public static runTrigger(): string {

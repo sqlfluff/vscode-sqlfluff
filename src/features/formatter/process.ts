@@ -3,7 +3,7 @@ import { StringDecoder } from "string_decoder";
 import { TextDocument } from "vscode";
 
 export default class Process {
-  private process: ChildProcess | null = null;
+  static process: ChildProcess | null = null;
 
   /**
    * Creates a child process to execute a command.
@@ -13,34 +13,15 @@ export default class Process {
    * @param options - The working directory and environment variables.
    * @returns The output of the child process.
    */
-  run(command: string, args: string[], options: SpawnOptions, document: TextDocument): Promise<string> {
+  static run(command: string, args: string[], options: SpawnOptions, document: TextDocument): Promise<string> {
     return new Promise((resolve) => {
       const buffers: any[] = [];
 
-      this.process = spawn(
-        command,
-        args,
-        options
-      );
-
-      if (!this.process) {
-        return;
-      }
-
-      if (this.process.pid) {
-        this.process.stdin.write(document.getText());
-        this.process.stdin.end();
-      }
-
-      this.process.stdout?.on("data", data => {
+      const onData = (data: Buffer) => {
         buffers.push(data);
-      });
+      };
 
-      this.process.on("error", (error: any) => {
-        resolve(error.message);
-      });
-
-      this.process.on("close", () => {
+      const onClose = () => {
         const encoding: BufferEncoding = "utf8";
         const stringDecoder = new StringDecoder(encoding);
 
@@ -50,7 +31,30 @@ export default class Process {
         }, "");
 
         resolve(output);
-      });
+      };
+
+      if (this.process) {
+        this.process.kill();
+      }
+
+      this.process = spawn(
+        command,
+        args,
+        options
+      );
+
+      if (this.process && this.process.pid) {
+        this.process.stdin.write(document.getText());
+        this.process.stdin.end();
+
+        this.process.stdout.on("data", onData);
+
+        this.process.on("error", (error: any) => {
+          resolve(error.message);
+        });
+
+        this.process.on("close", onClose);
+      }
     });
   }
 }
