@@ -135,7 +135,8 @@
     "postinstall": "npm run download-api",
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/src/extension.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
-    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch"
+    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
+    "deploy": "vsce publish"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
