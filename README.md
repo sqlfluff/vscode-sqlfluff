@@ -29,6 +29,15 @@ If you want to manually update the `settings.json` file, open the VS Code comman
   "sqlfluff.rules": [],
 ```
 
+## DBT Configuration
+
+DBT setup requires these settings to lint and format the document.
+
+```json
+  "sqlfluff.linter.run": "onSave",
+  "sqlfluff.experimental.format.executeInTerminal": true,
+```
+
 ### Format file
 
 By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force <path>`
