@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.6] - 2022-07-29
+
 - [#50](https://github.com/sqlfluff/vscode-sqlfluff/pull/50) refactors the extension and adds several new settings.
 - [#33](https://github.com/sqlfluff/vscode-sqlfluff/pull/33) adds basic set of automated tests
 
