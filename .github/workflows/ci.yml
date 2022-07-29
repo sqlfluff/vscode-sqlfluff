@@ -1,14 +1,14 @@
 on:
-    push:
-      branches:
-        - master
-    pull_request:
-      branches:
-        - master
-    release:
-      types:
-        - created
-  
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types:
+      - created
+
 jobs:
   build:
     strategy:
@@ -16,25 +16,25 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Install Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 10.x
-    - run: npm install
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - name: Install sqlfluff
-      run: pip install sqlfluff 
-    - name: Run tests
-      uses: GabrielBB/xvfb-action@v1.2
-      with:
-        run: npm test
-    - name: Publish
-      if: success() && startsWith( github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
-      run: npm run deploy
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: npm install
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install sqlfluff
+        run: pip install sqlfluff
+      - name: Run tests
+        uses: GabrielBB/xvfb-action@v1.2
+        with:
+          run: npm test
+      - name: Publish
+        if: success() && startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
+        run: npm run deploy
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
