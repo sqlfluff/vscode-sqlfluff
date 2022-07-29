@@ -1,63 +1,64 @@
-import { StringDecoder } from 'string_decoder';
+import { StringDecoder } from "string_decoder";
 
 export class LineDecoder {
-	private stringDecoder: StringDecoder;
-	private remaining: string;
-	private lines: string[];
+  private stringDecoder: StringDecoder;
+  private remaining: string;
+  private lines: string[];
 
-	constructor(encoding: string = 'utf8') {
-		this.stringDecoder = new StringDecoder(encoding);
-		this.remaining = "";
-		this.lines = [];
-	}
+  constructor(encoding: BufferEncoding = "utf8") {
+    this.stringDecoder = new StringDecoder(encoding);
+    this.remaining = "";
+    this.lines = [];
+  }
 
-	public formatResultWriter(buffer: Buffer): string[] {
-		const result = buffer.toString().split("\n");
-		this.lines = this.lines.concat(result);
-		return result;
-	}
-	public write(buffer: Buffer): string[] {
-		var result: string[] = [];
-		var value = this.remaining
-			? this.remaining + this.stringDecoder.write(buffer)
-			: this.stringDecoder.write(buffer);
+  public write(buffer: Buffer): string[] {
+    const result: string[] = [];
+    const value = this.remaining
+      ? this.remaining + this.stringDecoder.write(buffer)
+      : this.stringDecoder.write(buffer);
 
-		if (value.length < 1) {
-			this.lines = this.lines.concat(value);
-			return result;
-		}
-		var start = 0;
-		var ch: number;
-		while (start < value.length && ((ch = value.charCodeAt(start)) === 13 || ch === 10)) {
-			start++;
-		}
-		var idx = start;
-		while (idx < value.length) {
-			ch = value.charCodeAt(idx);
-			if (ch === 13 || ch === 10) {
-				result.push(value.substring(start, idx));
-				idx++;
-				while (idx < value.length && ((ch = value.charCodeAt(idx)) === 13 || ch === 10)) {
-					idx++;
-				}
-				start = idx;
-			} else {
-				idx++;
-			}
-		}
-		this.remaining = start < value.length ? value.substr(start) : "";
-		this.lines = this.lines.concat(result);
-		return result;
-	}
+    if (value.length < 1) {
+      this.lines = this.lines.concat(value);
+      return result;
+    }
 
-	public end(): string {
-		if (this.remaining && this.remaining.length > 0) {
-			this.lines = this.lines.concat(this.remaining);
-		}
-		return this.remaining;
-	}
-	
-	public getLines(): string[] {
-		return this.lines;
-	}
+    let start = 0;
+    let characterCode: number = value.charCodeAt(start);
+    while (start < value.length && (characterCode === 10 || characterCode === 13)) {
+      start++;
+    }
+
+    let idx = start;
+    while (idx < value.length) {
+      characterCode = value.charCodeAt(idx);
+      if (characterCode === 10 || characterCode === 13) {
+        result.push(value.substring(start, idx));
+        idx++;
+        characterCode = value.charCodeAt(idx);
+        while (idx < value.length && (characterCode === 10 || characterCode === 13)) {
+          idx++;
+        }
+        start = idx;
+      } else {
+        idx++;
+      }
+    }
+
+    this.remaining = start < value.length ? value.substring(start) : "";
+    this.lines = this.lines.concat(result);
+
+    return result;
+  }
+
+  public end(): string {
+    if (this.remaining && this.remaining.length > 0) {
+      this.lines = this.lines.concat(this.remaining);
+    }
+
+    return this.remaining;
+  }
+
+  public getLines(): string[] {
+    return this.lines;
+  }
 }

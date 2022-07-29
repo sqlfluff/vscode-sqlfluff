@@ -1,101 +1,100 @@
 "use strict";
 
 import * as cp from "child_process";
-
-import { TextEdit, Range } from "vscode";
+import * as fs from "fs";
 import * as vscode from "vscode";
 
-import { LinterConfiguration } from "../utils/lintingProvider";
-import { LineDecoder } from "../utils/lineDecoder";
-import { resolve } from "path";
+import { Configuration } from "../Helpers/configuration";
+import Process from "./process";
 
 export class DocumentFormattingEditProvider {
-  public linterConfigurationFunc: () => LinterConfiguration;
-
-  constructor(linterConfigurationFunc: () => LinterConfiguration) {
-    this.linterConfigurationFunc = linterConfigurationFunc;
-    vscode.workspace.onDidChangeConfiguration(linterConfigurationFunc, this);
-  }
-
-  provideDocumentFormattingEdits(
+  async provideDocumentFormattingEdits(
     document: vscode.TextDocument
-  ): vscode.TextEdit[] {
-    const textEdits: TextEdit[] = [];
-    const linterConfiguration = this.linterConfigurationFunc();
+  ): Promise<vscode.TextEdit[]> {
+    const filePath = document.fileName.replace(/\\/g, "/");
+    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\/g, "/");
+    const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
+    const textEdits: vscode.TextEdit[] = [];
 
-    if (linterConfiguration.formatterEnabled) {
-      let executable = linterConfiguration.executable;
-      let tmp = linterConfiguration.bufferArgs;
-
-      // let args: string[] = ["fix", "--force", document.fileName];
-      let args: string[] = ["fix", "--force", "-"];
-      let options = vscode.workspace.rootPath
-        ? { cwd: vscode.workspace.rootPath }
-        : undefined;
-
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: "SQLFluff is formatting the file.",
-          cancellable: false,
+    const options = workingDirectory ?
+      {
+        cwd: workingDirectory,
+        env: {
+          LANG: "en_US.utf-8"
         },
-        async (progress, token) => {
-          let childProcess = cp.spawn(executable, args, options);
-          childProcess.on("error", (error: Error) => {
-            let message: string = "";
-            if ((<any>error).code === "ENOENT") {
-              message = `Cannot lint ${document.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
-            } else {
-              message = error.message
-                ? error.message
-                : `Failed to run executable using path: ${executable}. Reason is unknown.`;
-            }
-            vscode.window.showInformationMessage(message);
-          });
-          let decoder = new LineDecoder();
-          let onDataEvent = (data: Buffer) => {
-            decoder.formatResultWriter(data);
-          };
+      } : undefined;
 
-          let onEndEvent = () => {
-            decoder.end();
-            let lines = decoder.getLines();
-            if (lines && lines.length > 0) {
-              const editor = vscode.window.activeTextEditor;
-              if (editor) {
-                const document = editor.document;
-                const selection = editor.selection;
-
-                editor.edit((editBuilder) => {
-                  const lineCount = document.lineCount;
-                  let lastLineRange = document.lineAt(lineCount - 1).range;
-                  const endChar = lastLineRange.end.character;
-                  if (lines[0].startsWith("NO SAFETY:")) {
-                    lines.shift();
-                    lines.shift();
-                  }
-                  editBuilder.replace(
-                    new Range(0, 0, document.lineCount, endChar),
-                    lines.join("\n")
-                  );
-                });
-              }
-            }
-            resolve();
-          };
-
-          if (childProcess.pid) {
-            childProcess.stdin.write(document.getText());
-            childProcess.stdin.end();
-            childProcess.stdout.on("data", onDataEvent);
-            childProcess.stdout.on("end", onEndEvent);
-            resolve();
-          } else {
-            resolve();
-          }
+    if (Configuration.formatEnabled()) {
+      if (Configuration.executeInTerminal()) {
+        if (document.isDirty) {
+          await document.save();
         }
-      );
+
+        let args = Configuration.formatFileArguments();
+        args = args.concat(Configuration.extraArguments());
+
+        const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
+        try {
+          cp.execSync(command, options);
+          const contents = fs.readFileSync(filePath, "utf-8");
+          const lines = contents.split(/\r?\n/);
+          const lineCount = document.lineCount;
+          const lastLineRange = document.lineAt(lineCount - 1).range;
+          const endChar = lastLineRange.end.character;
+
+          if (lines[0].startsWith("NO SAFETY:")) {
+            lines.shift();
+            lines.shift();
+          }
+
+          if (lines[0].includes("ENOENT")) {
+            return [];
+          }
+
+          if (lines.length > 1 || lines[0] !== "") {
+            textEdits.push(vscode.TextEdit.replace(
+              new vscode.Range(0, 0, lineCount, endChar),
+              lines.join("\n")
+            ));
+          }
+        } catch (error) {
+          vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
+        }
+      } else {
+        const command = Configuration.executablePath();
+
+        let args = Configuration.formatBufferArguments();
+        args = args.concat(Configuration.extraArguments());
+
+        const output = await Process.run(command, args, options, document);
+        const lines = output.split(/\r?\n/);
+        const lineCount = document.lineCount;
+        const lastLineRange = document.lineAt(lineCount - 1).range;
+        const endChar = lastLineRange.end.character;
+
+        if (lines[0].startsWith("NO SAFETY:")) {
+          lines.shift();
+          lines.shift();
+        }
+
+        if (lines[0].includes("ENOENT")) {
+          return [];
+        }
+
+        if (lines[0].includes("templating/parsing errors found")) {
+          vscode.window.showErrorMessage("SQLFluff templating/parsing errors found.");
+          return [];
+        }
+
+        if (lines.length > 1 || lines[0] !== "") {
+          textEdits.push(vscode.TextEdit.replace(
+            new vscode.Range(0, 0, lineCount, endChar),
+            lines.join("\n")
+          ));
+        }
+      }
     }
+
     return textEdits;
   }
 }

@@ -1,192 +1,177 @@
-'use strict';
+"use strict";
+import * as cp from "child_process";
+import * as vscode from "vscode";
 
-import * as cp from 'child_process';
-
-import * as vscode from 'vscode';
-
-import { ThrottledDelayer } from './async';
-import { LineDecoder } from './lineDecoder';
-import { stringify } from 'querystring';
+import { Configuration } from "../Helpers/configuration";
+import { ThrottledDelayer } from "./async";
+import { LineDecoder } from "./lineDecoder";
 
 enum RunTrigger {
-	onSave,
-	onType,
-	off
-}
-
-namespace RunTrigger {
-	export let strings = {
-		onSave: 'onSave',
-		onType: 'onType',
-		off: 'off'
-	};
-	export let from = function(value: string): RunTrigger {
-		if (value === 'onType') {
-			return RunTrigger.onType;
-		} else if (value === 'onSave') {
-			return RunTrigger.onSave;
-		} else {
-			return RunTrigger.off;
-		}
-	};
-}
-
-export interface LinterConfiguration {
-	executable:string,
-	fileArgs:string[],
-	bufferArgs:string[],
-	extraArgs:string[],
-	runTrigger:string,
-	formatterEnabled:boolean,
+  onSave = "onSave",
+  onType = "onType",
+  off = "off"
 }
 
 export interface Linter {
-	languageId: Array<string>,
-	loadConfiguration:()=>LinterConfiguration | null,
-	process:(output:string[])=>vscode.Diagnostic[]	
+  languageId: Array<string>,
+  process: (output: string[]) => vscode.Diagnostic[];
 }
 
 export class LintingProvider {
-	
-	public linterConfiguration!: LinterConfiguration;
+  public oldExecutablePath: string;
 
-	private executableNotFound: boolean;
-	
-	private documentListener!: vscode.Disposable;
-	private diagnosticCollection!: vscode.DiagnosticCollection;
-	private delayers!: { [key: string]: ThrottledDelayer<void> };
-	
-	
-	private linter:Linter;
-	constructor(linter:Linter) {
-		this.linter = linter;
-		this.executableNotFound = false;
-	}
+  private executableNotFound: boolean;
+  private documentListener!: vscode.Disposable;
+  private diagnosticCollection!: vscode.DiagnosticCollection;
+  private delayers!: { [key: string]: ThrottledDelayer<void>; };
+  private linter: Linter;
+  private childProcess: cp.ChildProcess;
 
-	public activate(subscriptions: vscode.Disposable[]) {
-		this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
-		subscriptions.push(this);
-		vscode.workspace.onDidChangeConfiguration(this.loadConfiguration, this, subscriptions);
-		this.loadConfiguration();
+  constructor(linter: Linter) {
+    this.linter = linter;
+    this.executableNotFound = false;
+  }
 
-		vscode.workspace.onDidOpenTextDocument(this.triggerLint, this, subscriptions);
-		vscode.workspace.onDidCloseTextDocument((textDocument)=> {
-			this.diagnosticCollection.delete(textDocument.uri);
-			delete this.delayers[textDocument.uri.toString()];
-		}, null, subscriptions);
+  public activate(subscriptions: vscode.Disposable[]) {
+    this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
+    subscriptions.push(this);
+    vscode.workspace.onDidChangeConfiguration(this.loadConfiguration, this, subscriptions);
+    this.loadConfiguration();
 
-		// Lint all open documents documents
-		vscode.workspace.textDocuments.forEach(this.triggerLint, this);
-	}
+    vscode.workspace.onDidOpenTextDocument(this.triggerLint, this, subscriptions);
+    vscode.workspace.onDidCloseTextDocument((textDocument) => {
+      this.diagnosticCollection.delete(textDocument.uri);
+      delete this.delayers[textDocument.uri.toString()];
+    }, null, subscriptions);
 
-	public dispose(): void {
-		this.diagnosticCollection.clear();
-		this.diagnosticCollection.dispose();
-	}
+    // Lint all open documents documents
+    vscode.workspace.textDocuments.forEach(this.triggerLint, this);
+  }
 
-	private loadConfiguration(): void {
-		let oldExecutable = this.linterConfiguration && this.linterConfiguration.executable;
-		const config = this.linter.loadConfiguration();
-		if(config){
-			this.linterConfiguration = config;
-		}
-		
-		this.delayers = Object.create(null);
-		if (this.executableNotFound) {
-			this.executableNotFound = oldExecutable === this.linterConfiguration.executable;
-		}
-		if (this.documentListener) {
-			this.documentListener.dispose();
-		}
-		if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onType) {
-			this.documentListener = vscode.workspace.onDidChangeTextDocument((e) => {
-				this.triggerLint(e.document);
-			});
-		} else {
-			this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
-		}		
-		this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
-		// Configuration has changed. Reevaluate all documents.
-		vscode.workspace.textDocuments.forEach(this.triggerLint, this);
-	}
+  public dispose(): void {
+    this.diagnosticCollection.clear();
+    this.diagnosticCollection.dispose();
+  }
 
-	private triggerLint(textDocument: vscode.TextDocument): void {
-		if (!this.linter.languageId.includes(textDocument.languageId) || this.executableNotFound || RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.off){
-			return;
-		}
-		let key = textDocument.uri.toString();
-		let delayer = this.delayers[key];
-		if (!delayer) {
-			delayer = new ThrottledDelayer<void>(RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onType ? 250 : 0);
-			this.delayers[key] = delayer;
-		}
-		delayer.trigger(() => {return this.doLint(textDocument);} );
-	}
+  private loadConfiguration(): void {
+    this.delayers = Object.create(null);
 
-	private doLint(textDocument: vscode.TextDocument): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			let executable = this.linterConfiguration.executable;
-			let filePath = textDocument.fileName;
-			let decoder = new LineDecoder();
-			let decoded = [];
-			let diagnostics: vscode.Diagnostic[] = [];
-			
-			let options = vscode.workspace.rootPath ? {
-				 cwd: vscode.workspace.rootPath,
-				 env: {
-					 LANG: 'en_US.utf-8'
-				 }
-				} : undefined;
-			let args: string[];
-			if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onSave) {
-				args = this.linterConfiguration.fileArgs.slice(0);
-				args.push(textDocument.fileName);
-			} else {
-				args = this.linterConfiguration.bufferArgs;
-			}
-			args = args.concat(this.linterConfiguration.extraArgs);
+    if (this.executableNotFound) {
+      this.executableNotFound = this.oldExecutablePath === Configuration.executablePath();
+    }
 
-			let childProcess = cp.spawn(executable, args, options);
-			childProcess.on('error', (error: Error) => {
-				if (this.executableNotFound) {
-					resolve();
-					return;
-				}
-				let message: string = "";
-				if ((<any>error).code === 'ENOENT') {
-					message = `Cannot lint ${textDocument.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
-				} else {
-					message = error.message ? error.message : `Failed to run executable using path: ${executable}. Reason is unknown.`;
-				}
-				vscode.window.showInformationMessage(message);
-				this.executableNotFound = true;
-				resolve();
-			});
+    if (this.documentListener) {
+      this.documentListener.dispose();
+    }
 
-			let onDataEvent = (data:Buffer) => {
-				decoder.write(data);
-			};
-			let onEndEvent = () => {
-				decoder.end();
-				let lines = decoder.getLines();
-				if (lines && lines.length > 0) {
-					diagnostics = this.linter.process(lines);
-				}					
-				this.diagnosticCollection.set(textDocument.uri, diagnostics);
-				resolve();
-			};
-			
-			if (childProcess.pid) {
-				if (RunTrigger.from(this.linterConfiguration.runTrigger) === RunTrigger.onType) {
-					childProcess.stdin.write(textDocument.getText());
-					childProcess.stdin.end();
-				}
-				childProcess.stdout.on('data', onDataEvent);
-				childProcess.stdout.on('end', onEndEvent);
-				resolve();
-			} else {
-				resolve();
-			}
-		});
-	}
+    if (Configuration.runTrigger() === RunTrigger.onType) {
+      this.documentListener = vscode.workspace.onDidChangeTextDocument((e) => {
+        this.triggerLint(e.document);
+      });
+    }
+    this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
+
+    // Configuration has changed. Reevaluate all documents.
+    vscode.workspace.textDocuments.forEach(this.triggerLint, this);
+  }
+
+  private triggerLint(textDocument: vscode.TextDocument): void {
+    if (
+      !this.linter.languageId.includes(textDocument.languageId)
+      || this.executableNotFound
+      || Configuration.runTrigger() === RunTrigger.off
+    ) {
+      return;
+    }
+
+    const key = textDocument.uri.toString();
+    let delayer = this.delayers[key];
+
+    if (!delayer) {
+      delayer = new ThrottledDelayer<void>(500);
+      this.delayers[key] = delayer;
+    }
+
+    delayer.trigger(() => { return this.doLint(textDocument); });
+  }
+
+  private doLint(document: vscode.TextDocument): Promise<void> {
+    return new Promise<void>((resolve) => {
+      const decoder = new LineDecoder();
+      const filePath = document.fileName.replace(/\\/g, "/");
+      const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\/g, "/");
+      const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
+
+      let args: string[];
+      let diagnostics: vscode.Diagnostic[] = [];
+
+      const onDataEvent = (data: Buffer) => {
+        decoder.write(data);
+      };
+
+      const onEndEvent = () => {
+        decoder.end();
+
+        const lines = decoder.getLines();
+        if (lines && lines.length > 0) {
+          diagnostics = this.linter.process(lines);
+        }
+
+        this.diagnosticCollection.set(document.uri, diagnostics);
+        resolve();
+      };
+
+      const options = workingDirectory ?
+        {
+          cwd: workingDirectory,
+          env: {
+            LANG: "en_US.utf-8"
+          }
+        } : undefined;
+
+      if (Configuration.runTrigger() === RunTrigger.onSave) {
+        args = [...Configuration.lintFileArguments(), filePath];
+      } else {
+        args = Configuration.lintBufferArguments();
+      }
+      args = args.concat(Configuration.extraArguments());
+
+      if (this.childProcess) {
+        this.childProcess.kill();
+      }
+      this.childProcess = cp.spawn(Configuration.executablePath(), args, options);
+
+      this.childProcess.on("error", (error: Error) => {
+        let message = "";
+        if (this.executableNotFound) {
+          resolve();
+          return;
+        }
+
+        if ((<any>error).code === "ENOENT") {
+          message = `Cannot lint ${document.fileName}. The executable was not found. Use the 'Executable Path' setting to configure the location of the executable`;
+        } else {
+          message = error.message ? error.message : `Failed to run executable using path: ${Configuration.executablePath()}. Reason is unknown.`;
+        }
+
+        this.oldExecutablePath = Configuration.executablePath();
+        this.executableNotFound = true;
+        vscode.window.showInformationMessage(message);
+        resolve();
+      });
+
+      if (this.childProcess.pid) {
+        if (Configuration.runTrigger() === RunTrigger.onType) {
+          this.childProcess.stdin.write(document.getText());
+          this.childProcess.stdin.end();
+        }
+
+        this.childProcess.stdout.on("data", onDataEvent);
+        this.childProcess.stdout.on("end", onEndEvent);
+        resolve();
+      } else {
+        resolve();
+      }
+    });
+  }
 }

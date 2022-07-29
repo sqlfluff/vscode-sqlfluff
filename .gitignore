@@ -1,5 +1,8 @@
 out
 node_modules
+package-lock.json
 .vscode-test/
 *.vsix
 .DS_Store
+/vscode.d.ts
+/vscode.proposed.d.ts

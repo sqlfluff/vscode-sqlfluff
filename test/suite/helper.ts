@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export const activate = async (docUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
     // The extensionId is `publisher.name` from package.json
-    const ext = vscode.extensions.getExtension('vscode-sqlfluff');
+    const ext = vscode.extensions.getExtension("vscode-sqlfluff");
     await ext?.activate();
     try {
         const document = await vscode.workspace.openTextDocument(docUri);
@@ -22,7 +22,7 @@ export const format = async (document: vscode.TextDocument | undefined) => {
             await vscode.commands.executeCommand("editor.action.formatDocument");
             await sleep(2000);
             await document.save();
-            await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+            await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
         } catch (e) {
             console.error(e);
         }

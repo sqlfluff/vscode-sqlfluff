@@ -6,6 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+- [#50](https://github.com/sqlfluff/vscode-sqlfluff/pull/50) refactors the extension and adds several new settings.
 - [#33](https://github.com/sqlfluff/vscode-sqlfluff/pull/33) adds basic set of automated tests
 
 ## [0.0.5] - 2021-06-16
@@ -25,7 +26,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Removed
 
 - [#26](https://github.com/sqlfluff/vscode-sqlfluff/pull/26) remove obsolete "--no-safety" flag
-
 
 ## [0.0.4] - 2020-11-16
 

@@ -1,71 +1,107 @@
-'use strict';
-import * as vscode from 'vscode';
-import { workspace, Disposable, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
+"use strict";
+import * as vscode from "vscode";
+import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
-import { LintingProvider, LinterConfiguration, Linter } from './utils/lintingProvider';
-import { DocumentFormattingEditProvider } from './formatter/formattingProvider';
+import { DocumentFormattingEditProvider } from "./formatter/formattingProvider";
+import { Linter, LintingProvider } from "./utils/lintingProvider";
 
-export class SqlFluffLinterProvider implements Linter {
+export class SQLFluffLinterProvider implements Linter {
+  public languageId = ["sql", "jinja-sql", "sql-bigquery"];
 
-	public languageId = ['sql', 'jinja-sql'];
+  public activate(subscriptions: Disposable[]) {
+    const provider = new LintingProvider(this);
+    provider.activate(subscriptions);
+  }
 
-	public activate(subscriptions: Disposable[]) {
-		let provider = new LintingProvider(this);
-		provider.activate(subscriptions);
-	}
+  public process(lines: string[]): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+    lines.forEach((line) => {
+      let filePaths: Array<FilePath>;
+      try {
+        filePaths = JSON.parse(line);
+      } catch (e) {
+        // JSON.parse may fail if sqlfluff compilation prints non-JSON formatted messages
+        console.warn(e);
+      }
 
-	public loadConfiguration(): LinterConfiguration {
-		let section = workspace.getConfiguration();
+      if (filePaths) {
+        filePaths.forEach((filePath: FilePath) => {
+          filePath.violations.forEach((violation: Violation) => {
+            const diagnostic = new Diagnostic(
+              new Range(
+                violation.line_no - 1,
+                violation.line_pos,
+                violation.line_no - 1,
+                violation.line_pos
+              ),
+              violation.description,
+              DiagnosticSeverity.Error,
+            );
+            diagnostic.code = violation.code;
+            diagnostic.source = "sqlfluff";
+            diagnostics.push(diagnostic);
+          });
+        });
+      }
+    });
 
-		const linterConfiguration = {
-			executable: section.get<string>('sql.linter.executablePath', 'sqlfluff'),
-			fileArgs: ['lint', '--format', 'json'],
-			bufferArgs: ['lint', '--format', 'json', '-'],
-			extraArgs: section.get<boolean>(
-				'sql.linter.ignoreParsing', true) ? ['--ignore', 'parsing'] : [],
-			runTrigger: section.get<string>('sql.linter.run', 'onType'),
-			formatterEnabled: section.get<boolean>('sql.format.enable', true),
-		};
-
-		return linterConfiguration;
-	}
-
-	public process(lines: string[]): Diagnostic[] {
-		let diagnostics: Diagnostic[] = [];
-		lines.forEach((line) => {
-			let filePaths: Array<FilePath> = JSON.parse(line);
-
-			filePaths.forEach((filePath: FilePath) => {
-				filePath.violations.forEach((violation: Violation) => {
-					diagnostics.push({
-						range: new Range(violation.line_no-1, violation.line_pos, violation.line_no-1, violation.line_pos),
-						severity: DiagnosticSeverity.Error,
-						message: violation.description,
-						code: violation.code,
-						source: 'sqlfluff'
-					});
-				});
-			});
-
-		});
-		return diagnostics;
-	}
+    return diagnostics;
+  }
 }
 
 interface FilePath {
-	violations: Array<Violation>
+  violations: Array<Violation>;
 }
 
-export class SqlFLuffDocumentFormattingEditProvider {
-	activate(): vscode.DocumentFormattingEditProvider {
-		const configuration = new SqlFluffLinterProvider().loadConfiguration;
-		return new DocumentFormattingEditProvider(configuration);
-	}
+export class SQLFLuffDocumentFormattingEditProvider {
+  activate(): vscode.DocumentFormattingEditProvider {
+    return new DocumentFormattingEditProvider();
+  }
 }
 
 interface Violation {
-	line_no: number,
-	line_pos: number,
-	description: string,
-	code: string,
+  line_no: number,
+  line_pos: number,
+  description: string,
+  code: string,
 }
+
+export class SQLFluffQuickFix implements vscode.CodeActionProvider {
+  public static readonly providedCodeActionKind = [
+    vscode.CodeActionKind.QuickFix,
+  ];
+
+  provideCodeActions(
+    document: vscode.TextDocument,
+    range: vscode.Range | vscode.Selection,
+    context: vscode.CodeActionContext,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    token: vscode.CancellationToken
+  ): vscode.CodeAction[] {
+    // for each diagnostic entry that has the matching `code`, create a code action command
+    return context.diagnostics.map((diagnostic) =>
+      this.createCodeAction(diagnostic)
+    );
+  }
+
+  private createCodeAction(
+    diagnostic: vscode.Diagnostic
+  ): vscode.CodeAction {
+    const action = new vscode.CodeAction(
+      `Exclude Rule ${diagnostic.code}`,
+      vscode.CodeActionKind.QuickFix
+    );
+    action.command = {
+      command: EXCLUDE_RULE,
+      title: `Exclude Rule ${diagnostic.code}`,
+      tooltip: `This will exclude the rule ${diagnostic.code} in settings.json`,
+      arguments: [diagnostic.code]
+    };
+    action.diagnostics = [diagnostic];
+    action.isPreferred = true;
+
+    return action;
+  }
+}
+
+export const EXCLUDE_RULE = "sqlfluff.quickfix.command";
