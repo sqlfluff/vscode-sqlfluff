@@ -32,34 +32,43 @@ export class DocumentFormattingEditProvider {
 
         let args = Configuration.formatFileArguments();
         args = args.concat(Configuration.extraArguments());
+        args.push(filePath);
 
-        const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
-        try {
-          cp.execSync(command, options);
+        let childProcessReturn = cp.spawnSync(Configuration.executablePath(), args, options);
+        
+        if ((childProcessReturn.status === 0) || (childProcessReturn.status === 1)) {
           const contents = fs.readFileSync(filePath, "utf-8");
           const lines = contents.split(/\r?\n/);
           const lineCount = document.lineCount;
           const lastLineRange = document.lineAt(lineCount - 1).range;
           const endChar = lastLineRange.end.character;
-
+  
           if (lines[0].startsWith("NO SAFETY:")) {
             lines.shift();
             lines.shift();
           }
-
+  
           if (lines[0].includes("ENOENT")) {
             return [];
           }
-
+  
           if (lines.length > 1 || lines[0] !== "") {
             textEdits.push(vscode.TextEdit.replace(
               new vscode.Range(0, 0, lineCount, endChar),
               lines.join("\n")
             ));
           }
-        } catch (error) {
+          if (childProcessReturn.status === 0){
+            // exit code 0 means sqlfluff fixed all violations.
+            vscode.window.showInformationMessage("File formatted successfully.");
+          } else {
+            // exit code 1 means sqlfluff fixed all fixable violations but there still exists unfixable violations
+            vscode.window.showInformationMessage("File formatted successfully. Some unfixable violations found.");
+          }
+        } else {
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
         }
+
       } else {
         const command = Configuration.executablePath();
 
