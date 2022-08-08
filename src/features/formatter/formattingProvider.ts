@@ -60,10 +60,10 @@ export class DocumentFormattingEditProvider {
           }
           if (childProcessReturn.status === 0){
             // exit code 0 means sqlfluff fixed all violations.
-            vscode.window.showInformationMessage("File formatted successfully.");
+            vscode.window.showInformationMessage("SQLFluff Formatting Succeeded.");
           } else {
             // exit code 1 means sqlfluff fixed all fixable violations but there still exists unfixable violations
-            vscode.window.showInformationMessage("File formatted successfully. Some unfixable violations found.");
+            vscode.window.showInformationMessage("SQLFluff Formatting Succeeded. Some Unfixable Violations Found.");
           }
         } else {
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
