@@ -11,13 +11,13 @@
   "categories": [
     "Other"
   ],
-  "homepage": "https://github.com/dorzey/vscode-sqlfluff-extended",
+  "homepage": "https://github.com/dorzey/vscode-sqlfluff",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dorzey/vscode-sqlfluff-extended"
+    "url": "https://github.com/dorzey/vscode-sqlfluff"
   },
   "bugs": {
-    "url": "https://github.com/dorzey/vscode-sqlfluff-extended/issues"
+    "url": "https://github.com/dorzey/vscode-sqlfluff/issues"
   },
   "license": "MIT",
   "keywords": [
