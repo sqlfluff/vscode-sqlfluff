@@ -3,11 +3,12 @@ import * as vscode from "vscode";
 import { EXCLUDE_RULE, SQLFLuffDocumentFormattingEditProvider, SQLFluffLinterProvider, SQLFluffQuickFix } from "./features/sqlFluffLinter";
 
 export const activate = (context: vscode.ExtensionContext) => {
-  new SQLFluffLinterProvider().activate(context.subscriptions);
+  const outputChannel = vscode.window.createOutputChannel("SQLFluff");
+  new SQLFluffLinterProvider(outputChannel).activate(context.subscriptions);
 
-  vscode.languages.registerDocumentFormattingEditProvider("sql", new SQLFLuffDocumentFormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new SQLFLuffDocumentFormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new SQLFLuffDocumentFormattingEditProvider().activate());
+  vscode.languages.registerDocumentFormattingEditProvider("sql", new SQLFLuffDocumentFormattingEditProvider(outputChannel).activate());
+  vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new SQLFLuffDocumentFormattingEditProvider(outputChannel).activate());
+  vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new SQLFLuffDocumentFormattingEditProvider(outputChannel).activate());
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider("sql", new SQLFluffQuickFix(), {

@@ -69,12 +69,6 @@ export class Configuration {
       .get("enabled");
   }
 
-  public static executeInTerminal(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.experimental.format")
-      .get("executeInTerminal");
-  }
-
   public static runTrigger(): string {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
@@ -82,19 +76,19 @@ export class Configuration {
   }
 
   public static lintBufferArguments(): string[] {
-    return ["lint", "--format", "json", "-"];
+    return ["--format", "json"];
   }
 
   public static lintFileArguments(): string[] {
-    return ["lint", "--format", "json"];
+    return ["--format", "json"];
   }
 
   public static formatBufferArguments(): string[] {
-    return ["fix", "--force", "-"];
+    return ["--force"];
   }
 
   public static formatFileArguments(): string[] {
-    return ["fix", "--force"];
+    return ["--force"];
   }
 
   public static extraArguments(): string[] {

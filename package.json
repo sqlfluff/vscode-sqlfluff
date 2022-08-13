@@ -102,11 +102,6 @@
           "default": true,
           "description": "Determines if the document formatter is enabled."
         },
-        "sqlfluff.experimental.format.executeInTerminal": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Determines if the `sqlfluff fix` command overwrites the file contents instead of this extension. You should not change the file contents while formatting is occurring if this is enabled. May lead to problems if `editor.formatOnSave = true`. This allows formatting to work when the templater is set to dbt. This can help solve [Mojibake](https://en.wikipedia.org/wiki/Mojibake) issues."
-        },
         "sqlfluff.linter.run": {
           "type": "string",
           "enum": [
@@ -117,7 +112,7 @@
           "default": "onType",
           "description": "Determines if the linter runs on save, on type, or disabled.",
           "markdownEnumDescriptions": [
-            "Run the linter when the document is typed in. Does not work when the templater is set to dbt.",
+            "Run the linter when the document is typed in. Does not work when the templater is set to dbt, does not evaluate .sqlfluff files nested deeper than the root.",
             "Run the linter when the document is saved.",
             "Do not run the linter."
           ]

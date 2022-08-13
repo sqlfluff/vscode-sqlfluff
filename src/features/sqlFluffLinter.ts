@@ -2,14 +2,19 @@
 import * as vscode from "vscode";
 import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
-import { DocumentFormattingEditProvider } from "./formatter/formattingProvider";
-import { Linter, LintingProvider } from "./utils/lintingProvider";
+import { DocumentFormattingEditProvider } from "./providers/format";
+import { Linter, LintingProvider } from "./providers/lint";
 
 export class SQLFluffLinterProvider implements Linter {
   public languageId = ["sql", "jinja-sql", "sql-bigquery"];
+  public outputChannel: vscode.OutputChannel;
+
+  constructor(outputChannel: vscode.OutputChannel) {
+    this.outputChannel = outputChannel;
+  }
 
   public activate(subscriptions: Disposable[]) {
-    const provider = new LintingProvider(this);
+    const provider = new LintingProvider(this.outputChannel, this);
     provider.activate(subscriptions);
   }
 
@@ -21,6 +26,7 @@ export class SQLFluffLinterProvider implements Linter {
         filePaths = JSON.parse(line);
       } catch (e) {
         // JSON.parse may fail if sqlfluff compilation prints non-JSON formatted messages
+        this.outputChannel.append(e.toString());
         console.warn(e);
       }
 
@@ -54,8 +60,13 @@ interface FilePath {
 }
 
 export class SQLFLuffDocumentFormattingEditProvider {
+  public outputChannel: vscode.OutputChannel;
+
+  constructor(outputChannel: vscode.OutputChannel) {
+    this.outputChannel = outputChannel;
+  }
   activate(): vscode.DocumentFormattingEditProvider {
-    return new DocumentFormattingEditProvider();
+    return new DocumentFormattingEditProvider(this.outputChannel);
   }
 }
 

@@ -35,7 +35,6 @@ DBT setup requires these settings to lint and format the document.
 
 ```json
   "sqlfluff.linter.run": "onSave",
-  "sqlfluff.experimental.format.executeInTerminal": true,
 ```
 
 ### Format file
