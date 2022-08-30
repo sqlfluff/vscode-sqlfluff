@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -127,16 +127,18 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run -S esbuild-base -- --minify",
-    "compile": "rimraf out && tsc -p ./",
+    "compile": "rimraf out && tsc -p ./ && npm run postbuild",
     "watch": "rimraf out && tsc -watch -p ./",
     "pretest": "npm run compile",
     "test": "node ./out/test/runTest.js",
     "download-api": "vscode-dts dev",
     "postdownload-api": "vscode-dts main",
-    "postinstall": "npm run download-api",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --ext ts --fix",
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/src/extension.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
+    "postbuild": "copyfiles \"./test/suite/test_sql/**/*.sql\" \"./out\" && copyfiles \"./test/.sqlfluff\" \"./out\"",
     "deploy": "vsce publish"
   },
   "devDependencies": {
@@ -146,7 +148,7 @@
     "@types/vscode": "^1.59.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.13.0",
-    "cpy-cli": "^4.0.0",
+    "copyfiles": "^2.4.1",
     "esbuild": "^0.14.24",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
@@ -158,5 +160,11 @@
     "vsce": "^2.6.7",
     "vscode-dts": "^0.3.3",
     "vscode-test": "^1.3.0"
+  },
+  "__metadata": {
+    "id": "dd94e113-0773-42ed-9bc0-2f4b55bc7185",
+    "publisherDisplayName": "dorzey",
+    "publisherId": "db31b9db-3aa2-44a0-8541-71cab84423a9",
+    "isPreReleaseVersion": false
   }
 }

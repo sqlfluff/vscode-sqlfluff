@@ -12,6 +12,12 @@ export const activate = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider("sql", new SQLFluffQuickFix(), {
       providedCodeActionKinds: SQLFluffQuickFix.providedCodeActionKind
+    }),
+    vscode.languages.registerCodeActionsProvider("sql-bigquery", new SQLFluffQuickFix(), {
+      providedCodeActionKinds: SQLFluffQuickFix.providedCodeActionKind
+    }),
+    vscode.languages.registerCodeActionsProvider("jinja-sql", new SQLFluffQuickFix(), {
+      providedCodeActionKinds: SQLFluffQuickFix.providedCodeActionKind
     })
   );
 

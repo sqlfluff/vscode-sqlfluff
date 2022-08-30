@@ -11,8 +11,8 @@ export class DocumentFormattingEditProvider {
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument
   ): Promise<vscode.TextEdit[]> {
-    const filePath = document.fileName.replace(/\\/g, "/");
-    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\/g, "/");
+    const filePath = document.fileName.replace(/\\+/g, "/");
+    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\+/g, "/");
     const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
     const textEdits: vscode.TextEdit[] = [];
 
