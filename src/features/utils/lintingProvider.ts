@@ -98,8 +98,8 @@ export class LintingProvider {
   private doLint(document: vscode.TextDocument): Promise<void> {
     return new Promise<void>((resolve) => {
       const decoder = new LineDecoder();
-      const filePath = document.fileName.replace(/\\/g, "/");
-      const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\/g, "/");
+      const filePath = document.fileName.replace(/\\+/g, "/");
+      const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\+/g, "/");
       const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
 
       let args: string[];

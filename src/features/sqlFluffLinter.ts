@@ -17,8 +17,9 @@ export class SQLFluffLinterProvider implements Linter {
     const diagnostics: Diagnostic[] = [];
     lines.forEach((line) => {
       let filePaths: Array<FilePath>;
+      const normalizedLine = line.replace(/\\+/g, "/");
       try {
-        filePaths = JSON.parse(line);
+        filePaths = JSON.parse(normalizedLine);
       } catch (e) {
         // JSON.parse may fail if sqlfluff compilation prints non-JSON formatted messages
         console.warn(e);
