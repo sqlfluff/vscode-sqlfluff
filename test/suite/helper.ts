@@ -1,14 +1,18 @@
 import * as vscode from "vscode";
 
-export const activate = async (docUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
-    // The extensionId is `publisher.name` from package.json
-    const ext = vscode.extensions.getExtension("vscode-sqlfluff");
-    await ext?.activate();
-    try {
-        const document = await vscode.workspace.openTextDocument(docUri);
-        const editor = await vscode.window.showTextDocument(document);
+export const SLEEP_TIME = 10000;
 
-        await sleep(2000); // Wait for server activation
+export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
+    // The extensionId is `publisher.name` from package.json
+    const extension = vscode.extensions.getExtension("vscode-sqlfluff");
+    await extension?.activate();
+    try {
+        await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+        const document = await vscode.workspace.openTextDocument(documentUri);
+        await vscode.window.showTextDocument(document);
+        await document.save();
+
+        await sleep(SLEEP_TIME); // Wait for server activation
 
         return document;
     } catch (e) {
@@ -16,31 +20,35 @@ export const activate = async (docUri: vscode.Uri): Promise<vscode.TextDocument 
     }
 };
 
-export const format = async (document: vscode.TextDocument | undefined) => {
-    if (document) {
-        try {
-            await vscode.commands.executeCommand("editor.action.formatDocument");
-            await sleep(2000);
-            await document.save();
-            await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-        } catch (e) {
-            console.error(e);
-        }
+export const format = async (documentUri: vscode.Uri) => {
+    try {
+        await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+        const document = await vscode.workspace.openTextDocument(documentUri);
+        await vscode.window.showTextDocument(document);
+        await vscode.commands.executeCommand("editor.action.formatDocument");
+        await sleep(SLEEP_TIME);
+        await document.save();
+
+        await sleep(SLEEP_TIME); // Wait for server activation
+
+        return document;
+    } catch (e) {
+        console.error(e);
     }
 };
 
-const sleep = async (ms: number): Promise<any> => {
+export const sleep = async (ms: number): Promise<any> => {
     return new Promise(resolve => {
         return setTimeout(resolve, ms);
     });
 };
 
-export const getDocUri = (p: string) => {
+export const getDocumentUri = (p: string) => {
     return vscode.Uri.file(__dirname + p);
 };
 
-export const toRange = (sLine: number, sChar: number, eLine: number, eChar: number) => {
-    const start = new vscode.Position(sLine, sChar);
-    const end = new vscode.Position(eLine, eChar);
+export const toRange = (startLine: number, StartCharacter: number, endLine: number, endCharacter: number) => {
+    const start = new vscode.Position(startLine, StartCharacter);
+    const end = new vscode.Position(endLine, endCharacter);
     return new vscode.Range(start, end);
 };
