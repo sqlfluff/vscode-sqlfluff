@@ -1,41 +1,44 @@
 "use strict";
 
-import * as cp from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
 
-import { Configuration } from "../Helpers/configuration";
-import Process from "./process";
+import { Configuration } from "../helpers/configuration";
+import { SQLFluff, SQLFluffCommand } from "../helpers/sqlfluff";
+import { normalize, Utilities } from "../helpers/utilities";
 
-export class DocumentFormattingEditProvider {
+export class FormattingProvider {
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument
   ): Promise<vscode.TextEdit[]> {
-    const filePath = document.fileName.replace(/\\+/g, "/");
-    const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\+/g, "/");
-    const workingDirectory = Configuration.workingDirectory() ? Configuration.workingDirectory() : rootPath;
+    const filePath = normalize(document.fileName);
+    const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
 
-    const options = workingDirectory ?
-      {
-        cwd: workingDirectory,
-        env: {
-          LANG: "en_US.utf-8"
-        },
-      } : undefined;
+    Utilities.appendHyphenatedLine();
+    Utilities.outputChannel.appendLine(`Format triggered for ${filePath}`);
 
     if (Configuration.formatEnabled()) {
+      // TODO: Remove this conditional and always save the document.
       if (Configuration.executeInTerminal()) {
         if (document.isDirty) {
+          // FIXME: This causes problems when editor.formatOnSave is set to true.
           await document.save();
         }
 
-        let args = Configuration.formatFileArguments();
-        args = args.concat(Configuration.extraArguments());
-
-        const command = `${Configuration.executablePath()} ${args.join(" ")} ${filePath}`;
         try {
-          cp.execSync(command, options);
+          const result = await SQLFluff.run(
+            workingDirectory,
+            SQLFluffCommand.FIX,
+            Configuration.formatFileArguments(),
+            { targetFileFullPath: filePath },
+          );
+
+          if (!result.succeeded) {
+            throw new Error("Command failed to execute, check logs for details");
+          }
+
           const contents = fs.readFileSync(filePath, "utf-8");
           const lines = contents.split(/\r?\n/);
           const lineCount = document.lineCount;
@@ -58,16 +61,23 @@ export class DocumentFormattingEditProvider {
             ));
           }
         } catch (error) {
+          Utilities.outputChannel.appendLine("\n--------------------Formatting Error--------------------\n");
+          Utilities.outputChannel.appendLine(error);
           vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
         }
       } else {
-        const command = Configuration.executablePath();
+        const result = await SQLFluff.run(
+          workingDirectory,
+          SQLFluffCommand.FIX,
+          Configuration.formatFileArguments(),
+          { fileContents: document.getText() },
+        );
 
-        let args = Configuration.formatBufferArguments();
-        args = args.concat(Configuration.extraArguments());
+        if (!result.succeeded) {
+          throw new Error("Command failed to execute, check logs for details");
+        }
 
-        const output = await Process.run(command, args, options, document);
-        const lines = output.split(/\r?\n/);
+        const lines = result.lines;
         const lineCount = document.lineCount;
         const lastLineRange = document.lineAt(lineCount - 1).range;
         const endChar = lastLineRange.end.character;
@@ -93,6 +103,8 @@ export class DocumentFormattingEditProvider {
           ));
         }
       }
+    } else {
+      Utilities.outputChannel.appendLine("Format not enabled in the settings. Skipping Format.");
     }
 
     return textEdits;

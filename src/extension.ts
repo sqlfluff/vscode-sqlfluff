@@ -1,23 +1,23 @@
 import * as vscode from "vscode";
 
-import { EXCLUDE_RULE, SQLFLuffDocumentFormattingEditProvider, SQLFluffLinterProvider, SQLFluffQuickFix } from "./features/sqlFluffLinter";
+import { EXCLUDE_RULE, FormattingEditProvider, LinterProvider, QuickFixProvider } from "./features/linter";
 
 export const activate = (context: vscode.ExtensionContext) => {
-  new SQLFluffLinterProvider().activate(context.subscriptions);
+  new LinterProvider().activate(context.subscriptions);
 
-  vscode.languages.registerDocumentFormattingEditProvider("sql", new SQLFLuffDocumentFormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new SQLFLuffDocumentFormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new SQLFLuffDocumentFormattingEditProvider().activate());
+  vscode.languages.registerDocumentFormattingEditProvider("sql", new FormattingEditProvider().activate());
+  vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new FormattingEditProvider().activate());
+  vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new FormattingEditProvider().activate());
 
   context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider("sql", new SQLFluffQuickFix(), {
-      providedCodeActionKinds: SQLFluffQuickFix.providedCodeActionKind
+    vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
+      providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
     }),
-    vscode.languages.registerCodeActionsProvider("sql-bigquery", new SQLFluffQuickFix(), {
-      providedCodeActionKinds: SQLFluffQuickFix.providedCodeActionKind
+    vscode.languages.registerCodeActionsProvider("sql-bigquery", new QuickFixProvider(), {
+      providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
     }),
-    vscode.languages.registerCodeActionsProvider("jinja-sql", new SQLFluffQuickFix(), {
-      providedCodeActionKinds: SQLFluffQuickFix.providedCodeActionKind
+    vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
+      providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
     })
   );
 
@@ -41,4 +41,3 @@ function toggleRule(rule: string) {
 
   return configuration.update("excludeRules", excludeRulesArray, vscode.ConfigurationTarget.Global);
 }
-
