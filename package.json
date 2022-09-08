@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -95,7 +95,7 @@
         "sqlfluff.workingDirectory": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. This defaults to the root path of the workspace."
+          "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
         },
         "sqlfluff.format.enabled": {
           "type": "boolean",

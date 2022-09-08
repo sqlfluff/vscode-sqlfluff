@@ -4,7 +4,13 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## [0.0.8] - 2022-09-08
+
+- This release rewrites some of the extension code, but should leave the functionality the same.
+- There is now an output channel (SQLFluff) that contains additional information about the commands and can help with debugging.
+- The `executablePath` and `config` settings can now make use of configuration variables.
+- (https://github.com/sqlfluff/vscode-sqlfluff/pull/59) Fix issues with spawned procs, stdin use, env, and output.
+- Takes inspiration from (https://github.com/sqlfluff/vscode-sqlfluff/pull/56) Fix issues with spawned procs, stdin use, env, and output.
 
 ## [0.0.7] - 2022-08-30
 

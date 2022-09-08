@@ -17,7 +17,7 @@ Edit your VS Code `settings.json` file manually or through the user interface.
 If you want to manually update the `settings.json` file, open the VS Code command palette and type in `settings.json`. Select `Preferences: Open Settings`. Then, you can add any of the following configuration options to `settings.json`.
 
 ```json
-  "sqlfluff.config": "",
+  "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
   "sqlfluff.dialect": "mysql",
   "sqlfluff.excludeRules": ["L009"],
   "sqlfluff.executablePath": "sqlfluff",
@@ -36,6 +36,7 @@ DBT setup requires these settings to lint and format the document.
 ```json
   "sqlfluff.linter.run": "onSave",
   "sqlfluff.experimental.format.executeInTerminal": true,
+  "editor.formatOnSave": false,
 ```
 
 ### Format file
@@ -43,6 +44,27 @@ DBT setup requires these settings to lint and format the document.
 By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force <path>`
 
 ![plugin configuration](./media/format_config.gif)
+
+### VSCode Variables
+
+The `executablePath` and `config` settings can use some VSCode variables.
+This is achieved by using the format `${variableName}` in the settings.
+Here are a few useful ones.
+
+- workspaceFolder: the path of the folder opened in VS Code
+- workspaceFolderBasename: the last portion of the path of the folder opened in VS Code
+- fileDirname: the current opened file's dirname
+
+And here are a few that are probably useless.
+
+- file: the current opened file
+- relativeFile: the current opened file relative to workspaceFolder
+- fileBasename: the last portion of the path to the file
+- fileBasenameNoExtension: the last portion of the path to the file with no extension
+- fileExtname: the current opened file's extension
+- lineNumber: the current selected line number in the active file
+- selectedText: the current selected text in the active file
+- execPath: the path to the running VS Code executable
 
 ## Credits / Links
 

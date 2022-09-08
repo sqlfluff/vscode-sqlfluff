@@ -1,16 +1,26 @@
+import * as path from "path";
 import * as vscode from "vscode";
+
+import Variables from "./types/variables";
+import { normalize, Utilities } from "./utilities";
 
 export class Configuration {
   public static executablePath(): string {
-    return vscode.workspace
+    let executablePath: string = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("executablePath");
+      .get("executablePath") || "sqlfluff";
+
+    executablePath = Utilities.interpolateString(executablePath, Configuration.variables());
+
+    return executablePath;
   }
 
   private static config(): string[] {
-    const config: string = vscode.workspace
+    let config: string = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("config");
+      .get("config") || "";
+
+    config = Utilities.interpolateString(config, Configuration.variables());
 
     return config ? ["--config", config] : [];
   }
@@ -57,10 +67,11 @@ export class Configuration {
     return rules ? ["--rules", rules] : [];
   }
 
-  public static workingDirectory(): string {
-    return vscode.workspace
+  public static workingDirectory(rootPath: string): string {
+    const workingDirectory: string = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("workingDirectory");
+    return workingDirectory ? workingDirectory : rootPath;
   }
 
   public static formatEnabled(): boolean {
@@ -81,20 +92,12 @@ export class Configuration {
       .get("run");
   }
 
-  public static lintBufferArguments(): string[] {
-    return ["lint", "--format", "json", "-"];
-  }
-
   public static lintFileArguments(): string[] {
-    return ["lint", "--format", "json"];
-  }
-
-  public static formatBufferArguments(): string[] {
-    return ["fix", "--force", "-"];
+    return ["--format", "json"];
   }
 
   public static formatFileArguments(): string[] {
-    return ["fix", "--force"];
+    return ["--force"];
   }
 
   public static extraArguments(): string[] {
@@ -108,5 +111,55 @@ export class Configuration {
     extraArguments = extraArguments.concat(this.rules());
 
     return extraArguments;
+  }
+
+  /**
+   * @returns The variables for a terminal
+   */
+  static variables(): Variables {
+    const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
+
+    const editor = vscode.window.activeTextEditor;
+    const fileName = editor ? normalize(editor.document.fileName) : null;
+
+    const vars: Variables = {
+      // - the path of the folder opened in VS Code
+      workspaceFolder: rootPath,
+
+      // - the last portion of the path of the folder opened in VS Code
+      workspaceFolderBasename: (rootPath) ? path.basename(rootPath) : null,
+
+      // - the current opened file
+      file: fileName,
+
+      // - the current opened file relative to workspaceFolder
+      relativeFile: (vscode.window.activeTextEditor && rootPath) ? normalize(path.relative(
+        rootPath,
+        fileName
+      )) : null,
+
+      // - the last portion of the path to the file
+      fileBasename: fileName ? path.basename(fileName) : null,
+
+      // - the last portion of the path to the file with no file extension
+      fileBasenameNoExtension: fileName ? path.parse(path.basename(fileName)).name : null,
+
+      // - the current opened file's dirname
+      fileDirname: fileName ? path.dirname(fileName) : null,
+
+      // - the current opened file's extension
+      fileExtname: fileName ? path.parse(path.basename(fileName)).ext : null,
+
+      // - the current selected line number in the active file
+      lineNumber: (editor) ? editor.selection.active.line + 1 : null,
+
+      // - the current selected text in the active file
+      selectedText: (editor) ? editor.document.getText(editor.selection) : null,
+
+      // - the path to the running VS Code executable
+      execPath: process.execPath
+    };
+
+    return vars;
   }
 }
