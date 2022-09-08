@@ -4,7 +4,7 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## [0.0.8] - 2022-09-08
 
 - This release rewrites some of the extension code, but should leave the functionality the same.
 - There is now an output channel (SQLFluff) that contains additional information about the commands and can help with debugging.
