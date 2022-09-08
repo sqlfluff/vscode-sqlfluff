@@ -2,7 +2,7 @@
 import * as vscode from "vscode";
 import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
-import { normalize } from "./helpers/utilities";
+import { normalize } from "./helper/utilities";
 import { FormattingProvider } from "./providers/format";
 import { Linter, LintingProvider } from "./providers/lint";
 

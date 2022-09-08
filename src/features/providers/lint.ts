@@ -1,10 +1,10 @@
 "use strict";
 import * as vscode from "vscode";
 
-import { ThrottledDelayer } from "../helpers/async";
-import { Configuration } from "../helpers/configuration";
-import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../helpers/sqlfluff";
-import { normalize, Utilities } from "../helpers/utilities";
+import { ThrottledDelayer } from "../helper/async";
+import { Configuration } from "../helper/configuration";
+import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../helper/sqlfluff";
+import { normalize, Utilities } from "../helper/utilities";
 
 enum RunTrigger {
   onSave = "onSave",
