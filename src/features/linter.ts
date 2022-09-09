@@ -33,12 +33,20 @@ export class LinterProvider implements Linter {
       if (filePaths) {
         filePaths.forEach((filePath: FilePath) => {
           filePath.violations.forEach((violation: Violation) => {
-            const range = new Range(
+            const path = filePath.filepath;
+            const editorPath = normalize(vscode.window.activeTextEditor.document.uri.fsPath);
+            const violationPosition = new vscode.Position(violation.line_no - 1, violation.line_pos - 1);
+            let range = new Range(
               violation.line_no - 1,
-              violation.line_pos,
+              violation.line_pos - 1,
               violation.line_no - 1,
-              violation.line_pos
+              violation.line_pos - 1
             );
+
+            if (editorPath.includes(path)) {
+              range = vscode.window.activeTextEditor.document.getWordRangeAtPosition(violationPosition) || range;
+            }
+
             const diagnostic = new Diagnostic(
               range,
               violation.description,
@@ -47,11 +55,6 @@ export class LinterProvider implements Linter {
             diagnostic.code = violation.code;
             diagnostic.source = "sqlfluff";
             diagnostics.push(diagnostic);
-
-            const hover = new vscode.Hover(
-              "[rule L007](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.Rule_L007)",
-              range
-            );
           });
         });
       }
@@ -62,6 +65,7 @@ export class LinterProvider implements Linter {
 }
 
 interface FilePath {
+  filepath: string;
   violations: Array<Violation>;
 }
 

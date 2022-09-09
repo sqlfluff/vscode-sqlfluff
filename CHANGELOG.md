@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.9] - 2022-09-08
+
+- Add the quick fix option to view the SQLFluff documention on the SQLFluff website.
+- Fix the diagnostics so the quick fix can be triggered by any location on the problem word.
+
 ## [0.0.8] - 2022-09-08
 
 - This release rewrites some of the extension code, but should leave the functionality the same.
