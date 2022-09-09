@@ -7,6 +7,7 @@ import { FormattingProvider } from "./providers/format";
 import { Linter, LintingProvider } from "./providers/lint";
 
 export const EXCLUDE_RULE = "sqlfluff.quickfix.command";
+export const VIEW_DOCUMENTATION = "sqlfluff.quickfix.viewDocumentation";
 
 export class LinterProvider implements Linter {
   public languageId = ["sql", "jinja-sql", "sql-bigquery"];
@@ -32,19 +33,25 @@ export class LinterProvider implements Linter {
       if (filePaths) {
         filePaths.forEach((filePath: FilePath) => {
           filePath.violations.forEach((violation: Violation) => {
+            const range = new Range(
+              violation.line_no - 1,
+              violation.line_pos,
+              violation.line_no - 1,
+              violation.line_pos
+            );
             const diagnostic = new Diagnostic(
-              new Range(
-                violation.line_no - 1,
-                violation.line_pos,
-                violation.line_no - 1,
-                violation.line_pos
-              ),
+              range,
               violation.description,
               DiagnosticSeverity.Error,
             );
             diagnostic.code = violation.code;
             diagnostic.source = "sqlfluff";
             diagnostics.push(diagnostic);
+
+            const hover = new vscode.Hover(
+              "[rule L007](https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.Rule_L007)",
+              range
+            );
           });
         });
       }
@@ -84,9 +91,15 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
     _token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     // for each diagnostic entry that has the matching `code`, create a code action command
-    return context.diagnostics.map((diagnostic) =>
+    const codeActions = context.diagnostics.map((diagnostic) =>
       this.createCodeAction(diagnostic)
     );
+
+    const documentationActions = context.diagnostics.map((diagnostic) =>
+      this.createDocumentationAction(diagnostic)
+    );
+
+    return [...codeActions, ...documentationActions];
   }
 
   private createCodeAction(
@@ -104,6 +117,25 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
     };
     action.diagnostics = [diagnostic];
     action.isPreferred = true;
+
+    return action;
+  }
+
+  private createDocumentationAction(
+    diagnostic: vscode.Diagnostic
+  ): vscode.CodeAction {
+    const action = new vscode.CodeAction(
+      `View Documentation for Rule ${diagnostic.code}`,
+      vscode.CodeActionKind.QuickFix
+    );
+    action.command = {
+      command: VIEW_DOCUMENTATION,
+      title: `View Documentation for Rule ${diagnostic.code}`,
+      tooltip: `This will open the SQLFluff documentation for rule ${diagnostic.code}`,
+      arguments: [diagnostic.code]
+    };
+    action.diagnostics = [diagnostic];
+    action.isPreferred = false;
 
     return action;
   }

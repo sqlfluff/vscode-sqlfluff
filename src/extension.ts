@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { EXCLUDE_RULE, FormattingEditProvider, LinterProvider, QuickFixProvider } from "./features/linter";
+import { EXCLUDE_RULE, FormattingEditProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
 
 export const activate = (context: vscode.ExtensionContext) => {
   new LinterProvider().activate(context.subscriptions);
@@ -22,6 +22,7 @@ export const activate = (context: vscode.ExtensionContext) => {
   );
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, toggleRule));
+  context.subscriptions.push(vscode.commands.registerCommand(VIEW_DOCUMENTATION, showDocumentation));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -40,4 +41,10 @@ function toggleRule(rule: string) {
   });
 
   return configuration.update("excludeRules", excludeRulesArray, vscode.ConfigurationTarget.Global);
+}
+
+function showDocumentation(rule: string) {
+  const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.Rule_${rule}`;
+
+  return vscode.env.openExternal(vscode.Uri.parse(path));
 }
