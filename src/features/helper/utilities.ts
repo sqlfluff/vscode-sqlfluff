@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 export function normalize(path: string): string {
-  return path.replace(/\\+/g, "/");
+  return path.replace(/\\{2,}/g, "/");
 }
 
 export class Utilities {
