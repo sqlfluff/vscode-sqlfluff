@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.0] - 2022-09-12
+
+- Add a hover provider to view the documentation from the SQLFluff site.
+- [#60](https://github.com/sqlfluff/vscode-sqlfluff/pull/60) New JSON escaping normalization.
+
 ## [0.0.9] - 2022-09-08
 
 - Add the quick fix option to view the SQLFluff documention on the SQLFluff website.
