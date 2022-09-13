@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use strict";
 import * as vscode from "vscode";
 import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
@@ -21,7 +22,7 @@ export class LinterProvider implements Linter {
     const diagnostics: Diagnostic[] = [];
     lines.forEach((line) => {
       let filePaths: Array<FilePath>;
-      const normalizedLine = normalize(line);
+      const normalizedLine = normalize(line, true);
       try {
         filePaths = JSON.parse(normalizedLine);
       } catch (e) {
@@ -91,7 +92,6 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
     _document: vscode.TextDocument,
     _range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     // for each diagnostic entry that has the matching `code`, create a code action command
@@ -99,11 +99,12 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
       this.createCodeAction(diagnostic)
     );
 
-    const documentationActions = context.diagnostics.map((diagnostic) =>
-      this.createDocumentationAction(diagnostic)
-    );
+    return codeActions;
+    // const documentationActions = context.diagnostics.map((diagnostic) =>
+    //   this.createDocumentationAction(diagnostic)
+    // );
 
-    return [...codeActions, ...documentationActions];
+    // return [...codeActions, ...documentationActions];
   }
 
   private createCodeAction(
@@ -142,5 +143,36 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
     action.isPreferred = false;
 
     return action;
+  }
+}
+
+export class HoverProvider implements vscode.HoverProvider {
+  provideHover(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    _token: vscode.CancellationToken
+  ): vscode.ProviderResult<vscode.Hover> {
+    const diagnostics = vscode.languages.getDiagnostics(document.uri);
+
+    let hover: vscode.Hover = undefined;
+    diagnostics.forEach(diagnostic => {
+      if (hover) return;
+      if (position.isAfterOrEqual(diagnostic.range.start) && position.isBeforeOrEqual(diagnostic.range.end)) {
+        hover = this.createHover(diagnostic);
+      }
+    });
+
+    return hover;
+  }
+
+  private createHover(
+    diagnostic: vscode.Diagnostic
+  ): vscode.Hover {
+    const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.Rule_${diagnostic.code}`;
+    const markdownString = new vscode.MarkdownString();
+
+    markdownString.appendMarkdown(`[View Documentation](${path}) for Rule ${diagnostic.code}.\n`);
+
+    return new vscode.Hover(markdownString);
   }
 }

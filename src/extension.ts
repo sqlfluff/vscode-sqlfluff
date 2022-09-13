@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { EXCLUDE_RULE, FormattingEditProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
+import { EXCLUDE_RULE, FormattingEditProvider, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
 
 export const activate = (context: vscode.ExtensionContext) => {
   new LinterProvider().activate(context.subscriptions);
@@ -18,7 +18,10 @@ export const activate = (context: vscode.ExtensionContext) => {
     }),
     vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
       providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-    })
+    }),
+    vscode.languages.registerHoverProvider("sql", new HoverProvider()),
+    vscode.languages.registerHoverProvider("sql-bigquery", new HoverProvider()),
+    vscode.languages.registerHoverProvider("jinja-sql", new HoverProvider()),
   );
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, toggleRule));
