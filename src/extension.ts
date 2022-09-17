@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { EXCLUDE_RULE, FormattingEditProvider, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
+import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, FormattingEditProvider, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
 
 export const activate = (context: vscode.ExtensionContext) => {
   new LinterProvider().activate(context.subscriptions);
@@ -25,6 +25,7 @@ export const activate = (context: vscode.ExtensionContext) => {
   );
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, toggleRule));
+  context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, toggleRuleWorkspace));
   context.subscriptions.push(vscode.commands.registerCommand(VIEW_DOCUMENTATION, showDocumentation));
 };
 
@@ -33,17 +34,34 @@ export const deactivate: any = () => { };
 
 function toggleRule(rule: string) {
   const configuration = vscode.workspace.getConfiguration("sqlfluff");
-  const excludeRulesArray: string[] = configuration.get("excludeRules");
+  const excludeRules: any = configuration.inspect("excludeRules");
+  const excludeRulesArray = excludeRules.globalValue ?? [];
 
   if (!excludeRulesArray.includes(rule)) {
     excludeRulesArray.push(rule);
   }
 
-  excludeRulesArray.sort((x, y) => {
+  excludeRulesArray.sort((x: string, y: string) => {
     return parseInt(x.substring(1)) - parseInt(y.substring(1));
   });
 
   return configuration.update("excludeRules", excludeRulesArray, vscode.ConfigurationTarget.Global);
+}
+
+function toggleRuleWorkspace(rule: string) {
+  const configuration = vscode.workspace.getConfiguration("sqlfluff");
+  const excludeRules: any = configuration.inspect("excludeRules");
+  const excludeRulesArray = excludeRules.workspaceValue ?? [];
+
+  if (!excludeRulesArray.includes(rule)) {
+    excludeRulesArray.push(rule);
+  }
+
+  excludeRulesArray.sort((x: string, y: string) => {
+    return parseInt(x.substring(1)) - parseInt(y.substring(1));
+  });
+
+  return configuration.update("excludeRules", excludeRulesArray, vscode.ConfigurationTarget.Workspace);
 }
 
 function showDocumentation(rule: string) {

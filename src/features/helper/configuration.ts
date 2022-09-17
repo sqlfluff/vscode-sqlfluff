@@ -34,9 +34,13 @@ export class Configuration {
   }
 
   private static excludeRules(): string[] {
-    const excludeRulesArray: string[] = vscode.workspace
+    const excludeRulesConfiguration: any = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("excludeRules");
+      .inspect("excludeRules");
+
+    const excludeRulesGlobalArray = excludeRulesConfiguration.globalValue ?? [];
+    const excludeRulesWorkspaceArray = excludeRulesConfiguration.workspaceValue ?? [];
+    const excludeRulesArray = [...excludeRulesGlobalArray, ...excludeRulesWorkspaceArray];
 
     const excludeRules = excludeRulesArray.join(",");
     return excludeRules ? ["--exclude-rules", excludeRules] : [];
@@ -59,9 +63,13 @@ export class Configuration {
   }
 
   private static rules(): string[] {
-    const rulesArray: string[] = vscode.workspace
+    const rulesConfiguration: any = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("rules");
+      .inspect("rules");
+
+    const rulesGlobalArray = rulesConfiguration.globalValue ?? [];
+    const rulesWorkspaceArray = rulesConfiguration.workspaceValue ?? [];
+    const rulesArray = [...rulesGlobalArray, ...rulesWorkspaceArray];
 
     const rules = rulesArray.join(",");
     return rules ? ["--rules", rules] : [];

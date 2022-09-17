@@ -7,7 +7,8 @@ import { normalize } from "./helper/utilities";
 import { FormattingProvider } from "./providers/format";
 import { Linter, LintingProvider } from "./providers/lint";
 
-export const EXCLUDE_RULE = "sqlfluff.quickfix.command";
+export const EXCLUDE_RULE = "sqlfluff.quickfix.excludeRule";
+export const EXCLUDE_RULE_WORKSPACE = "sqlfluff.quickfix.excludeRuleWorkspace";
 export const VIEW_DOCUMENTATION = "sqlfluff.quickfix.viewDocumentation";
 
 export class LinterProvider implements Linter {
@@ -95,52 +96,33 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
     _token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     // for each diagnostic entry that has the matching `code`, create a code action command
-    const codeActions = context.diagnostics.map((diagnostic) =>
-      this.createCodeAction(diagnostic)
+    const excludeRulesGlobal = context.diagnostics.map((diagnostic) =>
+      this.createCodeAction(diagnostic, true)
     );
 
-    return codeActions;
-    // const documentationActions = context.diagnostics.map((diagnostic) =>
-    //   this.createDocumentationAction(diagnostic)
-    // );
+    const excludeRulesWorkspace = context.diagnostics.map((diagnostic) =>
+      this.createCodeAction(diagnostic, false)
+    );
 
-    // return [...codeActions, ...documentationActions];
+    return [...excludeRulesGlobal, ...excludeRulesWorkspace];
   }
 
   private createCodeAction(
-    diagnostic: vscode.Diagnostic
+    diagnostic: vscode.Diagnostic,
+    global: boolean
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
-      `Exclude Rule ${diagnostic.code}`,
+      `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`,
       vscode.CodeActionKind.QuickFix
     );
     action.command = {
-      command: EXCLUDE_RULE,
-      title: `Exclude Rule ${diagnostic.code}`,
-      tooltip: `This will exclude the rule ${diagnostic.code} in settings.json`,
+      command: global ? EXCLUDE_RULE : EXCLUDE_RULE_WORKSPACE,
+      title: `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`,
+      tooltip: `This will exclude the rule ${diagnostic.code} in the ${global ? "Global" : "Workspace"} Settings`,
       arguments: [diagnostic.code]
     };
     action.diagnostics = [diagnostic];
     action.isPreferred = true;
-
-    return action;
-  }
-
-  private createDocumentationAction(
-    diagnostic: vscode.Diagnostic
-  ): vscode.CodeAction {
-    const action = new vscode.CodeAction(
-      `View Documentation for Rule ${diagnostic.code}`,
-      vscode.CodeActionKind.QuickFix
-    );
-    action.command = {
-      command: VIEW_DOCUMENTATION,
-      title: `View Documentation for Rule ${diagnostic.code}`,
-      tooltip: `This will open the SQLFluff documentation for rule ${diagnostic.code}`,
-      arguments: [diagnostic.code]
-    };
-    action.diagnostics = [diagnostic];
-    action.isPreferred = false;
 
     return action;
   }
