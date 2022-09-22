@@ -63,7 +63,9 @@ export class FormattingProvider {
         } catch (error) {
           Utilities.outputChannel.appendLine("\n--------------------Formatting Error--------------------\n");
           Utilities.outputChannel.appendLine(error);
-          vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
+          if (!Configuration.suppressNotifications()) {
+            vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
+          }
         }
       } else {
         const result = await SQLFluff.run(
@@ -92,7 +94,9 @@ export class FormattingProvider {
         }
 
         if (lines[0].includes("templating/parsing errors found")) {
-          vscode.window.showErrorMessage("SQLFluff templating/parsing errors found.");
+          if (!Configuration.suppressNotifications()) {
+            vscode.window.showErrorMessage("SQLFluff templating/parsing errors found.");
+          }
           return [];
         }
 

@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.2] - 2022-09-21
+
+- Add `suppressNotifications` setting to hide notification messages.
+- Solve issue [#54](https://github.com/sqlfluff/vscode-sqlfluff/issues/54) thanks to from XiChu2333's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/55)
+
 ## [0.1.1] - 2022-09-12
 
 - Add quickfix option to exclude the rule from the workspace settings instead of the global settings.

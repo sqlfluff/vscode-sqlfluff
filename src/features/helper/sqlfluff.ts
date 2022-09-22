@@ -84,12 +84,13 @@ export class SQLFluff {
           Utilities.appendHyphenatedLine();
         }
 
-        if (stderrLines?.length > 0) {
+        if (stderrLines?.length > 0 && !Configuration.suppressNotifications()) {
           vscode.window.showErrorMessage(stderrLines.join("\n"));
         }
 
         return resolve({
-          succeeded: code === 0 || code === 65, // 0 = all good, 65 = lint passed, but found errors
+          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+          succeeded: code === 0 || code === 1 || code === 65,
           lines: stdoutLines,
         });
       };
@@ -145,7 +146,10 @@ export class SQLFluff {
           message = "The sqlfluff executable was not found. Use the 'Executable Path' setting to configure the location of the executable, or add it to your PATH.";
         }
 
-        vscode.window.showErrorMessage(message);
+        if (!Configuration.suppressNotifications()) {
+          vscode.window.showErrorMessage(message);
+        }
+
         resolve({ succeeded: false, lines: [] });
       });
     });

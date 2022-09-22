@@ -75,12 +75,19 @@ export class Configuration {
     return rules ? ["--rules", rules] : [];
   }
 
+  public static suppressNotifications(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff")
+      .get("suppressNotifications");
+  }
+
   public static workingDirectory(rootPath: string): string {
     const workingDirectory: string = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("workingDirectory");
     return workingDirectory ? workingDirectory : rootPath;
   }
+
 
   public static formatEnabled(): boolean {
     return vscode.workspace

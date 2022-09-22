@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -91,6 +91,11 @@
           "type": "array",
           "default": [],
           "description": "Narrow the search to only specific rules. The rules from the global settings and workspace settings are combined."
+        },
+        "sqlfluff.suppressNotifications": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide notification messages. The output channel will still be populated."
         },
         "sqlfluff.workingDirectory": {
           "type": "string",
