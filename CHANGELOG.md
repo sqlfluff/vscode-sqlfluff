@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.3] - 2022-10-02
+
+- Add [Datacoves.com](https://datacoves.com/) to the new **Sponsors** section.
+
 ## [0.1.2] - 2022-09-21
 
 - Add `suppressNotifications` setting to hide notification messages.

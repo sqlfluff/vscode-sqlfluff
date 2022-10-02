@@ -8,6 +8,11 @@ A linter and auto-formatter for [SQLFluff](https://github.com/alanmcruickshank/s
 
 You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection. Please note that not all linting violations are automatically fixable.
 
+## Sponsors
+
+<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
+The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).
+
 ## Configuration
 
 The extension expects sqlfluff to be installed and already added to the path. If it is installed but cannot be found, add the path to your preferences as seen below. Find the path by typing `which sqlfluff` into your terminal.
