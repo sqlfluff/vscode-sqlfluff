@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -102,6 +102,11 @@
           "default": "",
           "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
         },
+        "sqlfluff.format.arguments": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff fix` command."
+        },
         "sqlfluff.format.enabled": {
           "type": "boolean",
           "default": true,
@@ -111,6 +116,11 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Determines if the `sqlfluff fix` command overwrites the file contents instead of this extension. You should not change the file contents while formatting is occurring if this is enabled. May lead to problems if `editor.formatOnSave = true`. This allows formatting to work when the templater is set to dbt. This can help solve [Mojibake](https://en.wikipedia.org/wiki/Mojibake) issues."
+        },
+        "sqlfluff.linter.arguments": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff lint` command."
         },
         "sqlfluff.linter.run": {
           "type": "string",

@@ -26,10 +26,12 @@ If you want to manually update the `settings.json` file, open the VS Code comman
   "sqlfluff.dialect": "mysql",
   "sqlfluff.excludeRules": ["L009"],
   "sqlfluff.executablePath": "sqlfluff",
+  "sqlfluff.format.arguments": ["--FIX-EVEN-UNPARSABLE"],
   "sqlfluff.format.enabled": true,
   "sqlfluff.format.workingDirectory": "",
   "sqlfluff.ignoreLocalConfig": false,
   "sqlfluff.ignoreParsing": false,
+  "sqlfluff.linter.arguments": [],
   "sqlfluff.linter.run": "onType",
   "sqlfluff.rules": [],
 ```

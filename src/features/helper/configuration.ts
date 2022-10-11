@@ -46,6 +46,12 @@ export class Configuration {
     return excludeRules ? ["--exclude-rules", excludeRules] : [];
   }
 
+  static fixArguments(): string[] {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get<Array<string>>("arguments", []);
+  }
+
   private static ignoreLocalConfig(): string[] {
     const ignoreLocalConfig = vscode.workspace
       .getConfiguration("sqlfluff")
@@ -60,6 +66,12 @@ export class Configuration {
       .get("ignoreParsing");
 
     return ignoreParsing ? ["--ignore", "parsing"] : [];
+  }
+
+  static lintArguments(): string[] {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get<Array<string>>("arguments", []);
   }
 
   private static rules(): string[] {
@@ -108,11 +120,17 @@ export class Configuration {
   }
 
   public static lintFileArguments(): string[] {
-    return ["--format", "json"];
+    let extraArguments = ["--format", "json"];
+    extraArguments = extraArguments.concat(this.lintArguments());
+
+    return extraArguments;
   }
 
   public static formatFileArguments(): string[] {
-    return ["--force"];
+    let extraArguments = ["--force"];
+    extraArguments = extraArguments.concat(this.fixArguments());
+
+    return extraArguments;
   }
 
   public static extraArguments(): string[] {
