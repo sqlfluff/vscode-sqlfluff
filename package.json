@@ -140,7 +140,7 @@
         "sqlfluff.osmosis.enabled": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Enable this if `dbt-osmosis` is installed."
+          "markdownDescription": "Enable this if `dbt-osmosis` is installed. This disables all other options except for `sqlfluff.config`."
         },
         "sqlfluff.osmosis.host": {
           "type": "string",
