@@ -1,5 +1,5 @@
 import * as childProcess from "child_process";
-import path = require("path");
+import * as path from "path";
 import { StringDecoder } from "string_decoder";
 import * as vscode from "vscode";
 

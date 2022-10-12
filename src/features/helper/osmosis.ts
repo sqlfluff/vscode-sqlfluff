@@ -2,6 +2,7 @@ import AbortController from "node-abort-controller";
 import fetch, { Response } from "node-fetch";
 
 import { Configuration } from "./configuration";
+import { Utilities } from "./utilities";
 
 export interface OsmosisRunResult {
   column_names: string[],
@@ -88,11 +89,17 @@ export class Osmosis {
         encodeURI(this.getURL()),
         {
           method: "POST",
-          body: JSON.stringify(data),
-          signal: abortController.signal
+          signal: abortController.signal,
+          body: JSON.stringify(data)
         }
       );
-    } catch (e) {
+    } catch (error) {
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint error response:");
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine(error);
+      Utilities.appendHyphenatedLine();
+
       clearTimeout(timeoutHandler);
       return failedToReachServerError;
     }

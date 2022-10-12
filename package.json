@@ -165,7 +165,7 @@
     "postdownload-api": "vscode-dts main",
     "lint": "eslint src --ext ts",
     "lint:fix": "eslint src --ext ts --fix",
-    "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/src/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/src/extension.js --external:vscode --format=cjs --keep-names --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "postbuild": "copyfiles \"./test/suite/test_sql/**/*.sql\" \"./out\" && copyfiles \"./test/.sqlfluff\" \"./out\"",
