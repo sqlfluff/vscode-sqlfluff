@@ -1,3 +1,4 @@
+import AbortController from "node-abort-controller";
 import fetch, { Response } from "node-fetch";
 
 import { Configuration } from "./configuration";
