@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
+import { RunTrigger } from "../providers/lint";
 import Variables from "./types/variables";
 import { normalize, Utilities } from "./utilities";
 
@@ -8,21 +9,17 @@ export class Configuration {
   public static executablePath(): string {
     let executablePath: string = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("executablePath") || "sqlfluff";
+      .get<string>("executablePath", "sqlfluff");
 
     executablePath = Utilities.interpolateString(executablePath, Configuration.variables());
 
     return executablePath;
   }
 
-  private static config(): string[] {
-    let config: string = vscode.workspace
+  public static config(): string {
+    return vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("config") || "";
-
-    config = Utilities.interpolateString(config, Configuration.variables());
-
-    return config ? ["--config", config] : [];
+      .get<string>("config", "");
   }
 
   private static dialect(): string[] {
@@ -46,18 +43,16 @@ export class Configuration {
     return excludeRules ? ["--exclude-rules", excludeRules] : [];
   }
 
-  static fixArguments(): string[] {
+  public static fixArguments(): string[] {
     return vscode.workspace
       .getConfiguration("sqlfluff.format")
       .get<Array<string>>("arguments", []);
   }
 
-  private static ignoreLocalConfig(): string[] {
-    const ignoreLocalConfig = vscode.workspace
+  public static ignoreLocalConfig(): boolean {
+    return vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("ignoreLocalConfig");
-
-    return ignoreLocalConfig ? ["--ignore-local-config"] : [];
+      .get<boolean>("ignoreLocalConfig");
   }
 
   private static ignoreParsing(): string[] {
@@ -68,7 +63,7 @@ export class Configuration {
     return ignoreParsing ? ["--ignore", "parsing"] : [];
   }
 
-  static lintArguments(): string[] {
+  public static lintArguments(): string[] {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
       .get<Array<string>>("arguments", []);
@@ -90,34 +85,40 @@ export class Configuration {
   public static suppressNotifications(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("suppressNotifications");
+      .get<boolean>("suppressNotifications", false);
   }
 
   public static workingDirectory(rootPath: string): string {
     const workingDirectory: string = vscode.workspace
       .getConfiguration("sqlfluff")
-      .get("workingDirectory");
+      .get<string>("workingDirectory", "");
+
     return workingDirectory ? workingDirectory : rootPath;
   }
 
+  /* Format */
 
   public static formatEnabled(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.format")
-      .get("enabled");
+      .get<boolean>("enabled", true);
   }
 
   public static executeInTerminal(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.experimental.format")
-      .get("executeInTerminal");
+      .get<boolean>("executeInTerminal", false);
   }
+
+  /* Linter */
 
   public static runTrigger(): string {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
-      .get("run");
+      .get<string>("run", RunTrigger.onType);
   }
+
+  /* Arguments */
 
   public static lintFileArguments(): string[] {
     let extraArguments = ["--format", "json"];
@@ -136,20 +137,40 @@ export class Configuration {
   public static extraArguments(): string[] {
     let extraArguments = [];
 
-    extraArguments = extraArguments.concat(this.config());
+    extraArguments = Configuration.config() ? extraArguments.concat(["--config", this.config()]) : extraArguments;
     extraArguments = extraArguments.concat(this.dialect());
     extraArguments = extraArguments.concat(this.excludeRules());
-    extraArguments = extraArguments.concat(this.ignoreLocalConfig());
+    extraArguments = Configuration.ignoreLocalConfig() ? extraArguments.concat(["--ignore-local-config"]) : extraArguments;
     extraArguments = extraArguments.concat(this.ignoreParsing());
     extraArguments = extraArguments.concat(this.rules());
 
     return extraArguments;
   }
 
+  /* Osmosis */
+
+  public static osmosisEnabled(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.osmosis")
+      .get<boolean>("enabled", false);
+  }
+
+  public static osmosisHost(): string {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.osmosis")
+      .get<string>("host", "localhost");
+  }
+
+  public static osmosisPort(): number {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.osmosis")
+      .get<number>("port", 8581);
+  }
+
   /**
    * @returns The variables for a terminal
    */
-  static variables(): Variables {
+  private static variables(): Variables {
     const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
 
     const editor = vscode.window.activeTextEditor;

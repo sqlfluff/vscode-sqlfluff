@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 
 import { Configuration } from "./configuration";
 import { LineDecoder } from "./lineDecoder";
+import { Osmosis } from "./osmosis";
 import { normalize, Utilities } from "./utilities";
 
 export enum SQLFluffCommand {
@@ -25,7 +26,7 @@ export interface SQLFluffCommandOptions {
 export class SQLFluff {
   static process: childProcess.ChildProcess;
 
-  public static run(cwd: string, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
+  public static async run(cwd: string, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
     if (!options.fileContents && !options.targetFileFullPath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
@@ -36,6 +37,48 @@ export class SQLFluff {
     }
 
     const normalizedCwd = normalize(cwd);
+    const shouldUseStdin = !!options.fileContents?.length;
+    const finalArgs = [
+      command,
+      ...args,
+      ...Configuration.extraArguments(),
+    ];
+
+    if (shouldUseStdin) {
+      Utilities.outputChannel.appendLine("Reading from stdin, not file, input may be dirty/partial");
+      finalArgs.push("-");
+    } else {
+      Utilities.outputChannel.appendLine("Reading from file, not stdin");
+      // we want to use relative path to the file so intermediate sqlfluff config files can be found
+      const normalizedTargetFileFullPath = normalize(options.targetFileFullPath);
+      const targetFileRelativePath = path.relative(normalizedCwd, normalizedTargetFileFullPath);
+      finalArgs.push(targetFileRelativePath);
+    }
+
+    if (Configuration.osmosisEnabled() && command === SQLFluffCommand.LINT) {
+      const response: any = await Osmosis.lint(
+        // TODO: Find a way to correctly pass in the file contents for the sql query param
+        undefined, // shouldUseStdin ? options.fileContents : undefined,
+        options.targetFileFullPath,
+        Configuration.config(),
+        Configuration.ignoreLocalConfig()
+      );
+      // const output = `{"filepath": "${options.targetFileFullPath}", violations: ${response.result ? JSON.stringify(response.result) : "[]"}}`;
+      const output = [{
+        filepath: options.targetFileFullPath,
+        violations: response.result ?? []
+      }];
+
+      return new Promise<SQLFluffCommandOutput>((resolve) => {
+        const code = response?.data?.code ? response.data.code : (response?.error?.code ? response.error.code : -1);
+
+        resolve({
+          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+          succeeded: code === 0 || code === 1 || code === 65,
+          lines: [JSON.stringify(output)]
+        });
+      });
+    }
 
     return new Promise<SQLFluffCommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();
@@ -94,25 +137,6 @@ export class SQLFluff {
           lines: stdoutLines,
         });
       };
-
-      const shouldUseStdin = !!options.fileContents?.length;
-
-      const finalArgs = [
-        command,
-        ...args,
-        ...Configuration.extraArguments(),
-      ];
-
-      if (shouldUseStdin) {
-        Utilities.outputChannel.appendLine("Reading from stdin, not file, input may be dirty/partial");
-        finalArgs.push("-");
-      } else {
-        Utilities.outputChannel.appendLine("Reading from file, not stdin");
-        // we want to use relative path to the file so intermediate sqlfluff config files can be found
-        const normalizedTargetFileFullPath = normalize(options.targetFileFullPath);
-        const targetFileRelativePath = path.relative(normalizedCwd, normalizedTargetFileFullPath);
-        finalArgs.push(targetFileRelativePath);
-      }
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
       Utilities.outputChannel.appendLine(Configuration.executablePath() + " " + finalArgs.join(" "));

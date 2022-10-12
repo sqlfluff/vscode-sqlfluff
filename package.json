@@ -136,6 +136,21 @@
             "Run the linter when the document is saved.",
             "Do not run the linter."
           ]
+        },
+        "sqlfluff.osmosis.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable this if `dbt-osmosis` is installed."
+        },
+        "sqlfluff.osmosis.host": {
+          "type": "string",
+          "default": "localhost",
+          "description": "The host for the osmosis server."
+        },
+        "sqlfluff.osmosis.port": {
+          "type": "number",
+          "default": 8581,
+          "description": "The port for the osmosis server."
         }
       }
     }
@@ -160,6 +175,7 @@
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.21",
+    "@types/node-fetch": "^2.6.2",
     "@types/vscode": "^1.59.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.13.0",
@@ -181,5 +197,9 @@
     "publisherDisplayName": "dorzey",
     "publisherId": "db31b9db-3aa2-44a0-8541-71cab84423a9",
     "isPreReleaseVersion": false
+  },
+  "dependencies": {
+    "node-abort-controller": "^2.0.0",
+    "node-fetch": "^2.6.7"
   }
 }
