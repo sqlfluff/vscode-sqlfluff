@@ -68,7 +68,7 @@ export class Osmosis {
         code: OsmosisErrorCode.FailedToReachServer,
         message: "Query failed to reach dbt sync server.",
         data: {
-          "error": `Is the server listening on http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}?`,
+          "error": `Is the server listening on the http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()} address?`,
         },
       }
     };
