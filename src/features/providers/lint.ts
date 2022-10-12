@@ -6,7 +6,7 @@ import { Configuration } from "../helper/configuration";
 import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../helper/sqlfluff";
 import { normalize, Utilities } from "../helper/utilities";
 
-enum RunTrigger {
+export enum RunTrigger {
   onSave = "onSave",
   onType = "onType",
   off = "off"
@@ -100,6 +100,7 @@ export class LintingProvider {
       options.targetFileFullPath = filePath;
     } else {
       options.fileContents = document.getText();
+      options.targetFileFullPath = filePath;
     }
 
     const result = await SQLFluff.run(
