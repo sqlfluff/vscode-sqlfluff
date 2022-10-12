@@ -79,8 +79,8 @@ export class SQLFluff {
       Utilities.appendHyphenatedLine();
 
       return new Promise<SQLFluffCommandOutput>((resolve) => {
-        const code = response?.data?.code ? response.data.code : (response?.error?.code ? response.error.code : 0);
-        const succeeded = code === 0 || code === 1 || code === 65;
+        const code = response?.error?.code ?? 0;
+        const succeeded = code === 0;
         if (!succeeded && !Configuration.suppressNotifications()) {
           const message = response?.error?.message ?? "DBT-Osmosis linting error.";
           const detail = response?.error?.data?.error ?? "";
