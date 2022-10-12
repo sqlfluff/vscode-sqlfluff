@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import fetch, { Response } from "node-fetch";
 
 import { Configuration } from "./configuration";
 
@@ -37,52 +37,57 @@ export interface OsmosisErrorContainer {
   };
 }
 
-const failedToReachServerError: OsmosisErrorContainer = {
-  error: {
-    code: OsmosisErrorCode.FailedToReachServer,
-    message: "Query failed to reach dbt sync server",
-    data: {
-      // "error": `Is the server listening on http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()} address?`,
-      "error": "Is the server listening?",
-    },
-  }
-};
-
 export class Osmosis {
-  static async lint<T>(sql: string | undefined, sql_path: string, extra_config_path: string, ignoreLocalConfig: boolean, timeout = 25000) {
+  private sql: string | undefined;
+  private sql_path: string;
+  private extra_config_path: string;
+
+  constructor(sql: string | undefined, sql_path: string, extra_config_path: string) {
+    this.sql = sql;
+    this.sql_path = sql_path;
+    this.extra_config_path = extra_config_path;
+  }
+
+  public getURL(): string {
+    let url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql_path=${this.sql_path}`;
+    if (this.sql !== undefined) {
+      url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql=${this.sql}`;
+    }
+
+    if (this.extra_config_path) {
+      url += `&extra_config_path=${this.extra_config_path}`;
+    }
+
+    return url;
+  }
+
+  public async lint<T>(timeout = 25000) {
+    const failedToReachServerError: OsmosisErrorContainer = {
+      error: {
+        code: OsmosisErrorCode.FailedToReachServer,
+        message: "Query failed to reach dbt sync server.",
+        data: {
+          "error": `Is the server listening on http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}?`,
+        },
+      }
+    };
+
     const abortController = new AbortController();
     const timeoutHandler = setTimeout(() => {
       abortController.abort();
     }, timeout);
-    let response;
-    // const axios = require("axios").default; // eslint-disable-line @typescript-eslint/no-var-requires
-
-    let url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql_path=${sql_path}`;
-    // TODO: Passing in the sql currently does not work very well.
-    if (sql !== undefined) {
-      url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql=${sql}&extra_config_path=${extra_config_path}`;
-    }
-
-    if (extra_config_path) {
-      url += `&extra_config_path=${extra_config_path}`;
-    }
-    // TODO: Far as I can tell this is not implemented yet.
-    if (ignoreLocalConfig) {
-      url += `&ignore_local_config=${ignoreLocalConfig}`;
-    }
+    let response: Response;
 
     const data = {
-      sql,
-      extra_config_path,
-      ignoreLocalConfig,
-      signal: abortController.signal
+      sql: this.sql,
     };
+
     try {
       response = await fetch(
-        url,
+        encodeURI(this.getURL()),
         {
           method: "POST",
-          ...data,
+          body: JSON.stringify(data),
           signal: abortController.signal
         }
       );

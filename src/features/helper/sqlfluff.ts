@@ -44,6 +44,7 @@ export class SQLFluff {
       ...Configuration.extraArguments(),
     ];
 
+    Utilities.appendHyphenatedLine();
     if (shouldUseStdin) {
       Utilities.outputChannel.appendLine("Reading from stdin, not file, input may be dirty/partial");
       finalArgs.push("-");
@@ -56,25 +57,40 @@ export class SQLFluff {
     }
 
     if (Configuration.osmosisEnabled() && command === SQLFluffCommand.LINT) {
-      const response: any = await Osmosis.lint(
-        // TODO: Find a way to correctly pass in the file contents for the sql query param
-        undefined, // shouldUseStdin ? options.fileContents : undefined,
+      const osmosis = new Osmosis(
+        shouldUseStdin ? options.fileContents : undefined,
         options.targetFileFullPath,
         Configuration.config(),
-        Configuration.ignoreLocalConfig()
       );
-      // const output = `{"filepath": "${options.targetFileFullPath}", violations: ${response.result ? JSON.stringify(response.result) : "[]"}}`;
+
+      Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
+      Utilities.outputChannel.appendLine(osmosis.getURL());
+      Utilities.appendHyphenatedLine();
+
+      const response: any = await osmosis.lint();
       const output = [{
         filepath: options.targetFileFullPath,
         violations: response.result ?? []
       }];
 
+      Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint output:");
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
+      Utilities.appendHyphenatedLine();
+
       return new Promise<SQLFluffCommandOutput>((resolve) => {
-        const code = response?.data?.code ? response.data.code : (response?.error?.code ? response.error.code : -1);
+        const code = response?.data?.code ? response.data.code : (response?.error?.code ? response.error.code : 0);
+        const succeeded = code === 0 || code === 1 || code === 65;
+        if (!succeeded && !Configuration.suppressNotifications()) {
+          const message = response?.error?.message ?? "DBT-Osmosis linting error.";
+          const detail = response?.error?.data?.error ?? "";
+
+          vscode.window.showErrorMessage([message, detail].join("\n"));
+        }
 
         resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
-          succeeded: code === 0 || code === 1 || code === 65,
+          succeeded: succeeded,
           lines: [JSON.stringify(output)]
         });
       });

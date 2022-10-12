@@ -6,6 +6,27 @@ import Variables from "./types/variables";
 import { normalize, Utilities } from "./utilities";
 
 export class Configuration {
+  /** Initialize the configuration options that require a reload upon change. */
+  static initialize(): void {
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (
+        event.affectsConfiguration("sqlfluff.osmosis.enabled")
+      ) {
+        const action = "Reload";
+        vscode.window
+          .showInformationMessage(
+            "Reload window for configuration change to take effect.",
+            action
+          )
+          .then(selectedAction => {
+            if (selectedAction === action) {
+              vscode.commands.executeCommand("workbench.action.reloadWindow");
+            }
+          });
+      }
+    });
+  }
+
   public static executablePath(): string {
     let executablePath: string = vscode.workspace
       .getConfiguration("sqlfluff")

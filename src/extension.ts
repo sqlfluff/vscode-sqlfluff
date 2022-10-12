@@ -1,24 +1,31 @@
 import * as vscode from "vscode";
 
+import { Configuration } from "./features/helper/configuration";
 import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, FormattingEditProvider, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
 
 export const activate = (context: vscode.ExtensionContext) => {
+  Configuration.initialize();
   new LinterProvider().activate(context.subscriptions);
 
   vscode.languages.registerDocumentFormattingEditProvider("sql", new FormattingEditProvider().activate());
   vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new FormattingEditProvider().activate());
   vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new FormattingEditProvider().activate());
 
+  if (!Configuration.osmosisEnabled()) {
+    context.subscriptions.push(
+      vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+      }),
+      vscode.languages.registerCodeActionsProvider("sql-bigquery", new QuickFixProvider(), {
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+      }),
+      vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+      })
+    );
+  }
+
   context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
-      providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-    }),
-    vscode.languages.registerCodeActionsProvider("sql-bigquery", new QuickFixProvider(), {
-      providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-    }),
-    vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
-      providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-    }),
     vscode.languages.registerHoverProvider("sql", new HoverProvider()),
     vscode.languages.registerHoverProvider("sql-bigquery", new HoverProvider()),
     vscode.languages.registerHoverProvider("jinja-sql", new HoverProvider()),
