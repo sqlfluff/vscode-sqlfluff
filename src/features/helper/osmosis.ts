@@ -53,7 +53,7 @@ export class Osmosis {
   public getURL(): string {
     let url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql_path=${this.sql_path}`;
     if (this.sql !== undefined) {
-      url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql=${this.sql}`;
+      url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?`;
     }
 
     if (this.extra_config_path) {
@@ -80,17 +80,13 @@ export class Osmosis {
     }, timeout);
     let response: Response;
 
-    const data = {
-      sql: this.sql,
-    };
-
     try {
       response = await fetch(
         encodeURI(this.getURL()),
         {
           method: "POST",
           signal: abortController.signal,
-          body: JSON.stringify(data)
+          body: this.sql
         }
       );
     } catch (error) {
