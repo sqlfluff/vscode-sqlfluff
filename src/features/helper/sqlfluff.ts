@@ -65,6 +65,11 @@ export class SQLFluff {
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
       Utilities.outputChannel.appendLine(osmosis.getURL());
+      if (shouldUseStdin) {
+        Utilities.outputChannel.appendLine("\n-----Request Body-----\n");
+        Utilities.outputChannel.appendLine(options.fileContents);
+      }
+
       Utilities.appendHyphenatedLine();
 
       const response: any = await osmosis.lint();
