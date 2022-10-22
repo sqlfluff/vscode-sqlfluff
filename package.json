@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -121,6 +121,36 @@
           "type": "array",
           "default": [],
           "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff lint` command."
+        },
+        "sqlfluff.linter.diagnosticSeverity": {
+          "type": ["string"],
+          "enum": ["error", "warning", "information", "hint"],
+          "default": "error",
+          "markdownDescription": "Set the default diagnostic severity of the linting results."
+        },
+        "sqlfluff.linter.diagnosticSeverityByRule": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule",
+              "severity"
+            ],
+            "properties": {
+              "rule": {
+                "type": "string",
+                "markdownDescription": "The specific rule for the diagnostic severity."
+              },
+              "severity": {
+                "type": "string",
+                "enum": ["error", "warning", "information", "hint"],
+                "markdownDescription": "Set the diagnostic severity for the given rule."
+              }
+            }
+          },
+          "markdownDescription": "Set the diagnostic severity of individual linting results."
         },
         "sqlfluff.linter.run": {
           "type": "string",

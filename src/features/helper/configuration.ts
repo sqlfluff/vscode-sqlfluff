@@ -1,7 +1,9 @@
 import * as path from "path";
 import * as vscode from "vscode";
+import { DiagnosticSeverity } from "vscode";
 
 import { RunTrigger } from "../providers/lint";
+import { DiagnosticSetting } from "./types/diagnosticSetting";
 import Variables from "./types/variables";
 import { normalize, Utilities } from "./utilities";
 
@@ -139,18 +141,64 @@ export class Configuration {
       .get<string>("run", RunTrigger.onType);
   }
 
+  public static diagnosticSeverity(): number {
+    const diagnosticSeverity = vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get<string>("diagnosticSeverity", "error");
+
+    switch (diagnosticSeverity) {
+      case "error":
+        return DiagnosticSeverity.Error;
+      case "warning":
+        return DiagnosticSeverity.Warning;
+      case "hint":
+        return DiagnosticSeverity.Hint;
+      case "information":
+        return DiagnosticSeverity.Information;
+    }
+
+    return DiagnosticSeverity.Error;
+  }
+
+  public static diagnosticSeverityByRule(violation: string): number {
+    const diagnosticSeverityByRule = vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get<DiagnosticSetting[]>("diagnosticSeverityByRule", []);
+
+    let diagnosticSeverity = undefined;
+    for (const diagnosticSetting of diagnosticSeverityByRule) {
+      const rule = diagnosticSetting?.rule ?? undefined;
+      const severity = diagnosticSetting?.severity ?? undefined;
+      if (violation === rule) {
+        diagnosticSeverity = severity;
+        break;
+      }
+    }
+
+    switch (diagnosticSeverity) {
+      case "error":
+        return DiagnosticSeverity.Error;
+      case "warning":
+        return DiagnosticSeverity.Warning;
+      case "hint":
+        return DiagnosticSeverity.Hint;
+      case "information":
+        return DiagnosticSeverity.Information;
+    }
+
+    return this.diagnosticSeverity();
+  }
+
   /* Arguments */
 
   public static lintFileArguments(): string[] {
-    let extraArguments = ["--format", "json"];
-    extraArguments = extraArguments.concat(this.lintArguments());
+    const extraArguments = [...this.lintArguments(), "--format", "json"]
 
     return extraArguments;
   }
 
   public static formatFileArguments(): string[] {
-    let extraArguments = ["--force"];
-    extraArguments = extraArguments.concat(this.fixArguments());
+    const extraArguments = [...this.fixArguments(), "--force"];
 
     return extraArguments;
   }

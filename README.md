@@ -26,14 +26,25 @@ If you want to manually update the `settings.json` file, open the VS Code comman
   "sqlfluff.dialect": "mysql",
   "sqlfluff.excludeRules": ["L009"],
   "sqlfluff.executablePath": "sqlfluff",
-  "sqlfluff.format.arguments": ["--FIX-EVEN-UNPARSABLE"],
-  "sqlfluff.format.enabled": true,
-  "sqlfluff.format.workingDirectory": "",
   "sqlfluff.ignoreLocalConfig": false,
   "sqlfluff.ignoreParsing": false,
+  "sqlfluff.rules": [],
+  "sqlfluff.suppressNotifications": false,
+  "sqlfluff.workingDirectory": "",
+  /* Linter */
   "sqlfluff.linter.arguments": [],
   "sqlfluff.linter.run": "onType",
-  "sqlfluff.rules": [],
+  "sqlfluff.linter.diagnosticSeverity": "error",
+  "sqlfluff.linter.diagnosticSeverityByRule": [
+    {
+      "rule": "L010",
+      "severity": "warning"
+    }
+  ],
+  /* Formatter */
+  "sqlfluff.format.arguments": ["--FIX-EVEN-UNPARSABLE"],
+  "sqlfluff.format.enabled": true,
+
 ```
 
 ## DBT Configuration

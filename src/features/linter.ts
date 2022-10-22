@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
+import { Configuration } from "./helper/configuration";
 import { normalize } from "./helper/utilities";
 import { FormattingProvider } from "./providers/format";
 import { Linter, LintingProvider } from "./providers/lint";
@@ -49,10 +50,12 @@ export class LinterProvider implements Linter {
               range = vscode.window.activeTextEditor.document.getWordRangeAtPosition(violationPosition) || range;
             }
 
+            const diagnosticSeverity = Configuration.diagnosticSeverityByRule(violation.code);
+
             const diagnostic = new Diagnostic(
               range,
               violation.description,
-              DiagnosticSeverity.Error,
+              diagnosticSeverity,
             );
             diagnostic.code = violation.code;
             diagnostic.source = "sqlfluff";
