@@ -24,16 +24,17 @@ export interface SQLFluffCommandOptions {
 }
 
 export class SQLFluff {
-  static process: childProcess.ChildProcess;
+  static processes: childProcess.ChildProcess[] = [];
 
   public static async run(cwd: string, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
     if (!options.fileContents && !options.targetFileFullPath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
 
-    if (SQLFluff.process) {
-      SQLFluff.process.kill("SIGKILL");
-      SQLFluff.process = undefined;
+    while (SQLFluff.processes.length > 10) {
+      await new Promise(sleep => setTimeout(sleep, 100));
+      // const process = SQLFluff.processes.shift()
+      // process.kill("SIGKILL");
     }
 
     const normalizedCwd = normalize(cwd);
@@ -119,7 +120,7 @@ export class SQLFluff {
         stderrLines.push(data.toString("utf8"));
       };
 
-      const onCloseEvent = (code: number, signal: any) => {
+      const onCloseEvent = (code: number, signal: any, process: childProcess.ChildProcess) => {
         Utilities.outputChannel.appendLine(`Received close event, code ${code} signal ${signal}`);
         Utilities.outputChannel.appendLine("Raw stdout output:");
 
@@ -152,6 +153,8 @@ export class SQLFluff {
           vscode.window.showErrorMessage(stderrLines.join("\n"));
         }
 
+        this.processes = this.processes.filter(childProcess => childProcess !== process)
+
         return resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
           succeeded: code === 0 || code === 1 || code === 65,
@@ -163,26 +166,27 @@ export class SQLFluff {
       Utilities.outputChannel.appendLine(Configuration.executablePath() + " " + finalArgs.join(" "));
       Utilities.appendHyphenatedLine();
 
-      SQLFluff.process = childProcess.spawn(Configuration.executablePath(), finalArgs, {
+      const process = childProcess.spawn(Configuration.executablePath(), finalArgs, {
         cwd: normalizedCwd,
       });
+      SQLFluff.processes.push(process);
 
-      if (SQLFluff.process.pid) {
-        SQLFluff.process.stdout.on("data", onStdoutDataEvent);
-        SQLFluff.process.stderr.on("data", onStderrDataEvent);
-        SQLFluff.process.on("close", onCloseEvent);
+      if (process.pid) {
+        process.stdout.on("data", onStdoutDataEvent);
+        process.stderr.on("data", onStderrDataEvent);
+        process.on("close", (code, number) => onCloseEvent(code, number, process));
         if (shouldUseStdin) {
-          SQLFluff.process.stdin.write(options.fileContents);
-          SQLFluff.process.stdin.end();
+          process.stdin.write(options.fileContents);
+          process.stdin.end();
         }
       }
 
-      SQLFluff.process.on("message", (message) => {
+      process.on("message", (message) => {
         Utilities.outputChannel.appendLine("Received message from child process");
         Utilities.outputChannel.appendLine(message.toString());
       });
 
-      SQLFluff.process.on("error", (error: Error) => {
+      process.on("error", (error: Error) => {
         Utilities.outputChannel.appendLine("Child process threw error");
         Utilities.outputChannel.appendLine(error.toString());
         let { message } = error;

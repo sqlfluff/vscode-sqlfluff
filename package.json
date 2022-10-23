@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -34,6 +34,22 @@
   ],
   "main": "./out/src/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "sqlfluff.lint",
+        "title": "SQLFluff Lint",
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+      },
+      {
+        "command": "sqlfluff.lintProject",
+        "title": "SQLFluff Lint Project"
+      },
+      {
+        "command": "sqlfluff.fix",
+        "title": "SQLFluff Fix",
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+      }
+    ],
     "configuration": {
       "properties": {
         "sqlfluff.config": {
@@ -122,8 +138,13 @@
           "default": [],
           "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff lint` command."
         },
+        "sqlfluff.linter.delay": {
+          "type": "number",
+          "default": 100,
+          "markdownDescription": "Set the delay (milliseconds) before running the linter when using `sqlfluff.linter.run = 'onType'`."
+        },
         "sqlfluff.linter.diagnosticSeverity": {
-          "type": ["string"],
+          "type": "string",
           "enum": ["error", "warning", "information", "hint"],
           "default": "error",
           "markdownDescription": "Set the default diagnostic severity of the linting results."

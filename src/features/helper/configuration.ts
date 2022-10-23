@@ -141,6 +141,12 @@ export class Configuration {
       .get<string>("run", RunTrigger.onType);
   }
 
+  public static delay(): number {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get<number>("delay", 100);
+  }
+
   public static diagnosticSeverity(): number {
     const diagnosticSeverity = vscode.workspace
       .getConfiguration("sqlfluff.linter")

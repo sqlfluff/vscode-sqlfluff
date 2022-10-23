@@ -1,11 +1,13 @@
 import * as vscode from "vscode";
 
+import { FormattingEditProvider } from "./features/formatter";
 import { Configuration } from "./features/helper/configuration";
-import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, FormattingEditProvider, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
+import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
 
 export const activate = (context: vscode.ExtensionContext) => {
   Configuration.initialize();
-  new LinterProvider().activate(context.subscriptions);
+  const linterProvider = new LinterProvider();
+  const lintingProvider = linterProvider.activate(context.subscriptions);
 
   vscode.languages.registerDocumentFormattingEditProvider("sql", new FormattingEditProvider().activate());
   vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new FormattingEditProvider().activate());
@@ -34,6 +36,40 @@ export const activate = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, toggleRuleWorkspace));
   context.subscriptions.push(vscode.commands.registerCommand(VIEW_DOCUMENTATION, showDocumentation));
+
+  const lintCommand = "sqlfluff.lint";
+  const lintCommandHandler = () => {
+    if (vscode.window.activeTextEditor) {
+			const currentDocument = vscode.window.activeTextEditor.document;
+      if (currentDocument) {
+        lintingProvider.doLint(currentDocument);
+      }
+    }
+  }
+
+  const lintProjectCommand = "sqlfluff.lintProject";
+  const lintProjectCommandHandler = () => {
+    if (vscode.window.activeTextEditor) {
+			const currentDocument = vscode.window.activeTextEditor.document;
+      if (currentDocument) {
+        lintingProvider.lintProject(true);
+      }
+    }
+  }
+
+  const fixCommand = "sqlfluff.fix";
+  const fixCommandHandler = () => {
+    if (vscode.window.activeTextEditor) {
+			const currentDocument = vscode.window.activeTextEditor.document;
+      if (currentDocument) {
+        vscode.commands.executeCommand("editor.action.formatDocument")
+      }
+    }
+  }
+
+  context.subscriptions.push(vscode.commands.registerCommand(lintCommand, lintCommandHandler));
+  context.subscriptions.push(vscode.commands.registerCommand(lintProjectCommand, lintProjectCommandHandler));
+  context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

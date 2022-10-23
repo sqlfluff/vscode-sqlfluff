@@ -111,6 +111,10 @@ export class FormattingProvider {
       Utilities.outputChannel.appendLine("Format not enabled in the settings. Skipping Format.");
     }
 
+    if (Configuration.executeInTerminal()) {
+      await new Promise(sleep => setTimeout(sleep, 250));
+    }
+
     return textEdits;
   }
 }

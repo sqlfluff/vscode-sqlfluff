@@ -5,19 +5,31 @@ import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
 
 import { Configuration } from "./helper/configuration";
 import { normalize } from "./helper/utilities";
-import { FormattingProvider } from "./providers/format";
 import { Linter, LintingProvider } from "./providers/lint";
 
 export const EXCLUDE_RULE = "sqlfluff.quickfix.excludeRule";
 export const EXCLUDE_RULE_WORKSPACE = "sqlfluff.quickfix.excludeRuleWorkspace";
 export const VIEW_DOCUMENTATION = "sqlfluff.quickfix.viewDocumentation";
 
+interface FilePath {
+  filepath: string;
+  violations: Array<Violation>;
+}
+
+interface Violation {
+  line_no: number,
+  line_pos: number,
+  description: string,
+  code: string,
+}
+
 export class LinterProvider implements Linter {
   public languageId = ["sql", "jinja-sql", "sql-bigquery"];
 
-  public activate(subscriptions: Disposable[]) {
+  public activate(subscriptions: Disposable[]): LintingProvider {
     const provider = new LintingProvider(this);
     provider.activate(subscriptions);
+    return provider;
   }
 
   public process(lines: string[]): Diagnostic[] {
@@ -67,24 +79,6 @@ export class LinterProvider implements Linter {
 
     return diagnostics;
   }
-}
-
-interface FilePath {
-  filepath: string;
-  violations: Array<Violation>;
-}
-
-export class FormattingEditProvider {
-  activate(): vscode.DocumentFormattingEditProvider {
-    return new FormattingProvider();
-  }
-}
-
-interface Violation {
-  line_no: number,
-  line_pos: number,
-  description: string,
-  code: string,
 }
 
 export class QuickFixProvider implements vscode.CodeActionProvider {

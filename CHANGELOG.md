@@ -4,6 +4,12 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.6] - 2022-10-22
+
+- Add `linter.delay` configuration option.
+- SQLFluff now lints all files when VSCode is loaded or a config is changed.
+- Add `SQLFluff Lint` and `SQLFluff Fix` commands.
+
 ## [0.1.5] - 2022-10-22
 
 - Add `linter.severity` configuration option.

@@ -17,6 +17,9 @@ export interface Linter {
   process: (output: string[]) => vscode.Diagnostic[];
 }
 
+const filePattern = "**/*.{sql,sql-bigquery,jinja-sql}"
+const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql)$/;
+
 export class LintingProvider {
   private executableNotFound: boolean;
   private documentListener!: vscode.Disposable;
@@ -41,8 +44,8 @@ export class LintingProvider {
       delete this.delayers[textDocument.uri.toString()];
     }, null, subscriptions);
 
-    // Lint all open documents documents
-    vscode.workspace.textDocuments.forEach(this.triggerLint, this);
+    // Lint all documents in the workspace.
+    this.lintProject();
   }
 
   public dispose(): void {
@@ -64,15 +67,27 @@ export class LintingProvider {
     }
     this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 
-    // Configuration has changed. Reevaluate all documents.
-    vscode.workspace.textDocuments.forEach(this.triggerLint, this);
+    // Configuration has changed. Lint all documents in the workspace.
+    this.lintProject();
   }
 
-  private triggerLint(textDocument: vscode.TextDocument): void {
+  public lintProject(forceLint = false): void {
+    vscode.workspace.findFiles(filePattern).then(files => {
+      for (const file of files) {
+        if (fileRegex.exec(file.path)) {
+          vscode.workspace.openTextDocument(file.path).then((document) => {
+           this.triggerLint(document, forceLint);
+          });
+        }
+      }
+    });
+  }
+
+  private triggerLint(textDocument: vscode.TextDocument, forceLint = false): void {
     if (
       !this.linter.languageId.includes(textDocument.languageId)
       || this.executableNotFound
-      || Configuration.runTrigger() === RunTrigger.off
+      || (Configuration.runTrigger() === RunTrigger.off && !forceLint)
     ) {
       return;
     }
@@ -81,14 +96,20 @@ export class LintingProvider {
     let delayer = this.delayers[key];
 
     if (!delayer) {
-      delayer = new ThrottledDelayer<void>(500);
+      if (Configuration.runTrigger() === RunTrigger.onType) {
+        delayer = new ThrottledDelayer<void>(Configuration.delay());
+      } else {
+        delayer = new ThrottledDelayer<void>(0);
+      }
       this.delayers[key] = delayer;
     }
 
-    delayer.trigger(() => { return this.doLint(textDocument); });
+    delayer.trigger(() => {
+      return this.doLint(textDocument);
+    });
   }
 
-  private async doLint(document: vscode.TextDocument): Promise<void> {
+  public async doLint(document: vscode.TextDocument): Promise<void> {
     const filePath = normalize(document.fileName);
     const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
     const workingDirectory = Configuration.workingDirectory(rootPath);
