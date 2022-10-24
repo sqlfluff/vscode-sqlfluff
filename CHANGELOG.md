@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.7] - 2022-10-22=4
+
+- Add `linter.lintEntireProject` configuration option that defaults to `false`.
+
 ## [0.1.6] - 2022-10-22
 
 - Add `linter.delay` configuration option.

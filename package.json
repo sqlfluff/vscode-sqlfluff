@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -172,6 +172,11 @@
             }
           },
           "markdownDescription": "Set the diagnostic severity of individual linting results."
+        },
+        "sqlfluff.linter.lintEntireProject": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Determines if the linter will lint the entire project on startup and configuration changes."
         },
         "sqlfluff.linter.run": {
           "type": "string",

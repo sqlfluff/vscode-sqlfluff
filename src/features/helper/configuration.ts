@@ -135,12 +135,6 @@ export class Configuration {
 
   /* Linter */
 
-  public static runTrigger(): string {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get<string>("run", RunTrigger.onType);
-  }
-
   public static delay(): number {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
@@ -193,6 +187,18 @@ export class Configuration {
     }
 
     return this.diagnosticSeverity();
+  }
+
+  public static lintEntireProject(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get<boolean>("lintEntireProject", false);
+  }
+
+  public static runTrigger(): string {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get<string>("run", RunTrigger.onType);
   }
 
   /* Arguments */

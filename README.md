@@ -41,6 +41,7 @@ If you want to manually update the `settings.json` file, open the VS Code comman
       "severity": "warning"
     }
   ],
+  "sqlfluff.linter.lintEntireProject": true,
   /* Formatter */
   "sqlfluff.format.arguments": ["--FIX-EVEN-UNPARSABLE"],
   "sqlfluff.format.enabled": true,

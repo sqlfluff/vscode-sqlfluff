@@ -45,7 +45,7 @@ export class LintingProvider {
     }, null, subscriptions);
 
     // Lint all documents in the workspace.
-    this.lintProject();
+    if (Configuration.lintEntireProject()) this.lintProject();
   }
 
   public dispose(): void {
@@ -68,7 +68,7 @@ export class LintingProvider {
     this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 
     // Configuration has changed. Lint all documents in the workspace.
-    this.lintProject();
+    if (Configuration.lintEntireProject()) this.lintProject();
   }
 
   public lintProject(forceLint = false): void {
