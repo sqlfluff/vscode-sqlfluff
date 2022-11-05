@@ -62,7 +62,7 @@ export class LintingProvider {
 
     if (Configuration.runTrigger() === RunTrigger.onType) {
       this.documentListener = vscode.workspace.onDidChangeTextDocument((e) => {
-        this.triggerLint(e.document);
+        this.triggerLint(e.document, false, true);
       });
     }
     this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
@@ -83,7 +83,7 @@ export class LintingProvider {
     });
   }
 
-  private triggerLint(textDocument: vscode.TextDocument, forceLint = false): void {
+  private triggerLint(textDocument: vscode.TextDocument, forceLint = false, currentDocument = false): void {
     if (
       !this.linter.languageId.includes(textDocument.languageId)
       || this.executableNotFound
@@ -105,11 +105,11 @@ export class LintingProvider {
     }
 
     delayer.trigger(() => {
-      return this.doLint(textDocument);
+      return this.doLint(textDocument, currentDocument);
     });
   }
 
-  public async doLint(document: vscode.TextDocument): Promise<void> {
+  public async doLint(document: vscode.TextDocument, currentDocument: boolean): Promise<void> {
     const filePath = normalize(document.fileName);
     const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
     const workingDirectory = Configuration.workingDirectory(rootPath);
@@ -117,7 +117,7 @@ export class LintingProvider {
     const args: string[] = [...Configuration.lintFileArguments()];
     const options: SQLFluffCommandOptions = {};
 
-    if (Configuration.runTrigger() === RunTrigger.onSave) {
+    if (Configuration.runTrigger() === RunTrigger.onSave || !currentDocument) {
       options.targetFileFullPath = filePath;
     } else {
       options.fileContents = document.getText();

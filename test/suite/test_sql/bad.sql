@@ -1,3 +1,3 @@
 -- 割引金額
-SELECT a from b;
+SELECT c.a from b c -- noqa: L031
 

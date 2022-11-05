@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { ExcludeRules } from "./features/commands/excludeRules";
 import { FormattingEditProvider } from "./features/formatter";
 import { Configuration } from "./features/helper/configuration";
 import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
@@ -33,8 +34,8 @@ export const activate = (context: vscode.ExtensionContext) => {
     vscode.languages.registerHoverProvider("jinja-sql", new HoverProvider()),
   );
 
-  context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, toggleRule));
-  context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, toggleRuleWorkspace));
+  context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
+  context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));
   context.subscriptions.push(vscode.commands.registerCommand(VIEW_DOCUMENTATION, showDocumentation));
 
   const lintCommand = "sqlfluff.lint";
@@ -42,7 +43,7 @@ export const activate = (context: vscode.ExtensionContext) => {
     if (vscode.window.activeTextEditor) {
 			const currentDocument = vscode.window.activeTextEditor.document;
       if (currentDocument) {
-        lintingProvider.doLint(currentDocument);
+        lintingProvider.doLint(currentDocument, true);
       }
     }
   }
@@ -74,38 +75,6 @@ export const activate = (context: vscode.ExtensionContext) => {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const deactivate: any = () => { };
-
-function toggleRule(rule: string) {
-  const configuration = vscode.workspace.getConfiguration("sqlfluff");
-  const excludeRules: any = configuration.inspect("excludeRules");
-  const excludeRulesArray = excludeRules.globalValue ?? [];
-
-  if (!excludeRulesArray.includes(rule)) {
-    excludeRulesArray.push(rule);
-  }
-
-  excludeRulesArray.sort((x: string, y: string) => {
-    return parseInt(x.substring(1)) - parseInt(y.substring(1));
-  });
-
-  return configuration.update("excludeRules", excludeRulesArray, vscode.ConfigurationTarget.Global);
-}
-
-function toggleRuleWorkspace(rule: string) {
-  const configuration = vscode.workspace.getConfiguration("sqlfluff");
-  const excludeRules: any = configuration.inspect("excludeRules");
-  const excludeRulesArray = excludeRules.workspaceValue ?? [];
-
-  if (!excludeRulesArray.includes(rule)) {
-    excludeRulesArray.push(rule);
-  }
-
-  excludeRulesArray.sort((x: string, y: string) => {
-    return parseInt(x.substring(1)) - parseInt(y.substring(1));
-  });
-
-  return configuration.update("excludeRules", excludeRulesArray, vscode.ConfigurationTarget.Workspace);
-}
 
 function showDocumentation(rule: string) {
   const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.Rule_${rule}`;

@@ -4,7 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [0.1.7] - 2022-10-22=4
+## [0.1.8] - 2022-11-04
+
+- Implement quick fix options to add the `--noqa` or `--noqa: <rule>` to the linter.
+
+## [0.1.7] - 2022-10-24
 
 - Add `linter.lintEntireProject` configuration option that defaults to `false`.
 

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use strict";
 import * as vscode from "vscode";
-import { Diagnostic, DiagnosticSeverity, Disposable, Range } from "vscode";
+import { Diagnostic, Disposable } from "vscode";
 
 import { Configuration } from "./helper/configuration";
 import { normalize } from "./helper/utilities";
@@ -50,15 +50,12 @@ export class LinterProvider implements Linter {
           filePath.violations.forEach((violation: Violation) => {
             const path = filePath.filepath;
             const editorPath = normalize(vscode.window.activeTextEditor.document.uri.fsPath);
-            const violationPosition = new vscode.Position(violation.line_no - 1, violation.line_pos - 1);
-            let range = new Range(
-              violation.line_no - 1,
-              violation.line_pos - 1,
-              violation.line_no - 1,
-              violation.line_pos - 1
-            );
+            const line = violation.line_no - 1 > 0 ? violation.line_no - 1 : 0;
+            const character = violation.line_pos - 1 > 0 ? violation.line_pos - 1 : 0;
+            const violationPosition = new vscode.Position(line, character);
+            let range = new vscode.Range(line, character, line, character);
 
-            if (editorPath.includes(path)) {
+            if (editorPath.includes(path) || path === "stdin") {
               range = vscode.window.activeTextEditor.document.getWordRangeAtPosition(violationPosition) || range;
             }
 
@@ -87,34 +84,43 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
   ];
 
   provideCodeActions(
-    _document: vscode.TextDocument,
+    document: vscode.TextDocument,
     _range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
     _token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     // for each diagnostic entry that has the matching `code`, create a code action command
     const excludeRulesGlobal = context.diagnostics.map((diagnostic) =>
-      this.createCodeAction(diagnostic, true)
+      this.createExcludeRulesCodeAction(diagnostic, true)
     );
 
     const excludeRulesWorkspace = context.diagnostics.map((diagnostic) =>
-      this.createCodeAction(diagnostic, false)
+      this.createExcludeRulesCodeAction(diagnostic, false)
     );
 
-    return [...excludeRulesGlobal, ...excludeRulesWorkspace];
+    const noqaSingleRules = context.diagnostics.map((diagnostic) =>
+      this.createNoqaCodeFix(document, diagnostic, false)
+    );
+
+    const noqaAllRules = context.diagnostics.map((diagnostic) =>
+      this.createNoqaCodeFix(document, diagnostic, true)
+    );
+
+    return [...excludeRulesGlobal, ...excludeRulesWorkspace, ...noqaSingleRules, ...noqaAllRules];
   }
 
-  private createCodeAction(
+  private createExcludeRulesCodeAction(
     diagnostic: vscode.Diagnostic,
     global: boolean
   ): vscode.CodeAction {
+    const title = `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`;
     const action = new vscode.CodeAction(
-      `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`,
+      title,
       vscode.CodeActionKind.QuickFix
     );
     action.command = {
       command: global ? EXCLUDE_RULE : EXCLUDE_RULE_WORKSPACE,
-      title: `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`,
+      title: title,
       tooltip: `This will exclude the rule ${diagnostic.code} in the ${global ? "Global" : "Workspace"} Settings`,
       arguments: [diagnostic.code]
     };
@@ -122,6 +128,51 @@ export class QuickFixProvider implements vscode.CodeActionProvider {
     action.isPreferred = true;
 
     return action;
+  }
+
+  private createNoqaCodeFix(
+    document: vscode.TextDocument,
+    diagnostic: vscode.Diagnostic,
+    allRules: boolean
+  ): vscode.CodeAction {
+    const title = allRules ? "Ignore all rules for this line" : `Ignore rule ${diagnostic.code} for this line`;
+    const fix = new vscode.CodeAction(
+      title,
+      vscode.CodeActionKind.QuickFix
+    );
+    fix.edit = new vscode.WorkspaceEdit();
+    const line = document.lineAt(diagnostic.range.start.line);
+    const endPosition = new vscode.Position(line.range.end.line, line.range.end.character > 0 ? line.range.end.character : 0);
+    const noqaREGEX = /\s*-- noqa(?::(\s?\w\d{3},?)*)?.*/;
+
+    const noqa = noqaREGEX.exec(line.text)
+    if (noqa) {
+      const startNoqa = new vscode.Position(line.lineNumber, line.text.length - noqa[0].length);
+      const rangeNoqa = new vscode.Range(startNoqa, endPosition);
+      if (allRules) {
+        fix.edit.replace(document.uri, rangeNoqa, " -- noqa");
+      } else {
+        if (noqa.length > 1) {
+          if (noqa[1]) {
+            if (noqa[1].endsWith(",")) {
+              fix.edit.insert(document.uri, endPosition, ` ${diagnostic.code}`);
+            } else {
+              fix.edit.insert(document.uri, endPosition, `, ${diagnostic.code}`);
+            }
+          } else {
+            fix.edit.insert(document.uri, endPosition, `: ${diagnostic.code}`)
+          }
+        }
+      }
+    } else {
+      if (allRules) {
+        fix.edit.insert(document.uri, endPosition, " -- noqa");
+      } else {
+        fix.edit.insert(document.uri, endPosition, ` -- noqa: ${diagnostic.code}`);
+      }
+    }
+
+    return fix;
   }
 }
 
