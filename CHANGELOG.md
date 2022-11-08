@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.9] - 2022-11-08
+
+- Re-order the quick fix options.
+- Implement `sqlfluff.codeActions` options to disable code actions.
+
 ## [0.1.8] - 2022-11-04
 
 - Implement quick fix options to add the `--noqa` or `--noqa: <rule>` to the linter.

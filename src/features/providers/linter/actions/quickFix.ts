@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 
 import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE } from "../../../commands/excludeRules";
+import Configuration from "../../../helper/configuration";
 
 export default class QuickFixProvider implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKind = [
@@ -14,21 +15,36 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     context: vscode.CodeActionContext,
     token: vscode.CancellationToken
   ): vscode.CodeAction[] {
-    const noqaSingleRules = context.diagnostics.map((diagnostic) =>
-      this.createNoqaCodeFix(document, diagnostic, false)
-    );
+    let noqaSingleRules = [];
+    let noqaAllRules = [];
+    let excludeRulesGlobal = [];
+    let excludeRulesWorkspace = [];
 
-    const noqaAllRules = context.diagnostics.map((diagnostic) =>
-      this.createNoqaCodeFix(document, diagnostic, true)
-    );
+    if (Configuration.noqaEnabled()) {
+      noqaSingleRules = context.diagnostics.map((diagnostic) => {
+        if (Configuration.noqaDisabledRules().includes(diagnostic.code.toString())) return;
+        return this.createNoqaCodeFix(document, diagnostic, false);
+      }
+      );
 
-    const excludeRulesGlobal = context.diagnostics.map((diagnostic) =>
-      this.createExcludeRulesCodeAction(diagnostic, true)
-    );
+      noqaAllRules = context.diagnostics.map((diagnostic) => {
+        if (Configuration.noqaDisabledRules().includes(diagnostic.code.toString())) return;
+        return this.createNoqaCodeFix(document, diagnostic, true);
+      }
+      );
+    }
 
-    const excludeRulesWorkspace = context.diagnostics.map((diagnostic) =>
-      this.createExcludeRulesCodeAction(diagnostic, false)
-    );
+    if (Configuration.excludeRulesWorkspace()) {
+      excludeRulesWorkspace = context.diagnostics.map((diagnostic) =>
+        this.createExcludeRulesCodeAction(diagnostic, false)
+      );
+    }
+
+    if (Configuration.excludeRulesGlobal()) {
+      excludeRulesGlobal = context.diagnostics.map((diagnostic) =>
+        this.createExcludeRulesCodeAction(diagnostic, true)
+      );
+    }
 
     return [...noqaSingleRules, ...noqaAllRules, ...excludeRulesWorkspace, ...excludeRulesGlobal];
   }
@@ -49,7 +65,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     const line = document.lineAt(diagnostic.range.start.line);
     const endPosition = new vscode.Position(line.range.end.line, line.range.end.character > 0 ? line.range.end.character : 0);
     const noqaREGEX = /\s*-- noqa(?::(\s?\w\d{3},?)*)?.*/;
-    const noqa = noqaREGEX.exec(line.text)
+    const noqa = noqaREGEX.exec(line.text);
     if (noqa) {
       const startNoqa = new vscode.Position(line.lineNumber, line.text.length - noqa[0].length);
       const rangeNoqa = new vscode.Range(startNoqa, endPosition);
@@ -64,7 +80,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
               fix.edit.insert(document.uri, endPosition, `, ${diagnostic.code}`);
             }
           } else {
-            fix.edit.insert(document.uri, endPosition, `: ${diagnostic.code}`)
+            fix.edit.insert(document.uri, endPosition, `: ${diagnostic.code}`);
           }
         }
       }

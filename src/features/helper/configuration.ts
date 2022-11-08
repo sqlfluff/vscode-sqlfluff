@@ -69,7 +69,7 @@ export default class Configuration {
   public static fixArguments(): string[] {
     return vscode.workspace
       .getConfiguration("sqlfluff.format")
-      .get<Array<string>>("arguments", []);
+      .get<string[]>("arguments", []);
   }
 
   public static ignoreLocalConfig(): boolean {
@@ -89,7 +89,7 @@ export default class Configuration {
   public static lintArguments(): string[] {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
-      .get<Array<string>>("arguments", []);
+      .get<string[]>("arguments", []);
   }
 
   private static rules(): string[] {
@@ -119,6 +119,40 @@ export default class Configuration {
     return workingDirectory ? workingDirectory : rootPath;
   }
 
+  /* Code Actions */
+
+  public static excludeRulesWorkspace(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.codeActions.excludeRules")
+      .get<boolean>("workspace", true);
+  }
+
+  public static excludeRulesGlobal(): boolean {
+    return vscode.workspace
+      .getConfiguration("sqlfluff.codeActions.excludeRules")
+      .get<boolean>("global", true);
+  }
+
+  public static noqaEnabled(): boolean {
+    const noqa = vscode.workspace
+      .getConfiguration("sqlfluff.codeActions")
+      .get<string[]|boolean>("noqa", true);
+
+    if (noqa === false) return noqa;
+    return true;
+  }
+
+  public static noqaDisabledRules(): string[] {
+    const defaultDisabledRules = ["L015", "L017", "L019", "L030", "L032", "L034", "L035", "L037", "L038", "L040", "L041", "L042", "L043", "L044", "L054", "L058", "L063", "L064"];
+    const noqa = vscode.workspace
+      .getConfiguration("sqlfluff.codeActions")
+      .get<string[]|boolean>("noqa", defaultDisabledRules);
+
+    if (typeof noqa === "boolean") return [];
+
+    return noqa;
+  }
+
   /* Format */
 
   public static formatEnabled(): boolean {
@@ -134,7 +168,6 @@ export default class Configuration {
   }
 
   /* Linter */
-
   public static delay(): number {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
