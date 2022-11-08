@@ -3,10 +3,10 @@ import * as path from "path";
 import { StringDecoder } from "string_decoder";
 import * as vscode from "vscode";
 
-import { Configuration } from "./configuration";
+import Configuration from "./configuration";
 import { LineDecoder } from "./lineDecoder";
 import { Osmosis } from "./osmosis";
-import { normalize, Utilities } from "./utilities";
+import Utilities from "./utilities";
 
 export enum SQLFluffCommand {
   LINT = "lint",
@@ -37,7 +37,7 @@ export class SQLFluff {
       // process.kill("SIGKILL");
     }
 
-    const normalizedCwd = normalize(cwd);
+    const normalizedCwd = Utilities.normalizePath(cwd);
     const shouldUseStdin = !!options.fileContents?.length;
     const finalArgs = [
       command,
@@ -52,7 +52,7 @@ export class SQLFluff {
     } else {
       Utilities.outputChannel.appendLine("Reading from file, not stdin");
       // we want to use relative path to the file so intermediate sqlfluff config files can be found
-      const normalizedTargetFileFullPath = normalize(options.targetFileFullPath);
+      const normalizedTargetFileFullPath = Utilities.normalizePath(options.targetFileFullPath);
       const targetFileRelativePath = path.relative(normalizedCwd, normalizedTargetFileFullPath);
       finalArgs.push(targetFileRelativePath);
     }

@@ -1,5 +1,8 @@
 import * as vscode from "vscode";
 
+export const EXCLUDE_RULE = "sqlfluff.quickfix.excludeRule";
+export const EXCLUDE_RULE_WORKSPACE = "sqlfluff.quickfix.excludeRuleWorkspace";
+
 export class ExcludeRules {
   static toggleRule(rule: string) {
     const configuration = vscode.workspace.getConfiguration("sqlfluff");

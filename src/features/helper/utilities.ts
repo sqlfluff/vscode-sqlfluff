@@ -1,14 +1,6 @@
 import * as vscode from "vscode";
 
-export function normalize(path: string, allowEscapes = false): string {
-  if (allowEscapes) {
-    return path.replace(/\\{2,}/g, "/");
-  }
-
-  return path.replace(/\\+/g, "/");
-}
-
-export class Utilities {
+export default class Utilities {
   static outputChannel = vscode.window.createOutputChannel("SQLFluff");
 
   public static appendHyphenatedLine() {
@@ -25,6 +17,14 @@ export class Utilities {
       command = command.replace(match[0], arg);
     }
     return command;
+  }
+
+  public static normalizePath(path: string, allowEscapes = false): string {
+    if (allowEscapes) {
+      return path.replace(/\\{2,}/g, "/");
+    }
+
+    return path.replace(/\\+/g, "/");
   }
 
   public static async sleep(milliseconds: number) {

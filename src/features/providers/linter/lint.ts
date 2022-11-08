@@ -1,26 +1,16 @@
-"use strict";
 import * as vscode from "vscode";
 
-import { ThrottledDelayer } from "../helper/async";
-import { Configuration } from "../helper/configuration";
-import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../helper/sqlfluff";
-import { normalize, Utilities } from "../helper/utilities";
-
-export enum RunTrigger {
-  onSave = "onSave",
-  onType = "onType",
-  off = "off"
-}
-
-export interface Linter {
-  languageId: Array<string>,
-  process: (output: string[]) => vscode.Diagnostic[];
-}
+import { ThrottledDelayer } from "../../helper/async";
+import Configuration from "../../helper/configuration";
+import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../../helper/sqlfluff";
+import Linter from "../../helper/types/linter";
+import RunTrigger from "../../helper/types/runTrigger";
+import Utilities from "../../helper/utilities";
 
 const filePattern = "**/*.{sql,sql-bigquery,jinja-sql}"
 const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql)$/;
 
-export class LintingProvider {
+export default class LintingProvider {
   private executableNotFound: boolean;
   private documentListener!: vscode.Disposable;
   private diagnosticCollection!: vscode.DiagnosticCollection;
@@ -110,8 +100,8 @@ export class LintingProvider {
   }
 
   public async doLint(document: vscode.TextDocument, currentDocument: boolean): Promise<void> {
-    const filePath = normalize(document.fileName);
-    const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const filePath = Utilities.normalizePath(document.fileName);
+    const rootPath = Utilities.normalizePath(vscode.workspace.workspaceFolders[0].uri.fsPath);
     const workingDirectory = Configuration.workingDirectory(rootPath);
 
     const args: string[] = [...Configuration.lintFileArguments()];

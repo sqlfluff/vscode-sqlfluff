@@ -1,18 +1,16 @@
-"use strict";
-
 import * as fs from "fs";
 import * as vscode from "vscode";
 
-import { Configuration } from "../helper/configuration";
-import { SQLFluff, SQLFluffCommand } from "../helper/sqlfluff";
-import { normalize, Utilities } from "../helper/utilities";
+import Configuration from "../../helper/configuration";
+import { SQLFluff, SQLFluffCommand } from "../../helper/sqlfluff";
+import Utilities from "../../helper/utilities";
 
 export class FormattingProvider {
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument
   ): Promise<vscode.TextEdit[]> {
-    const filePath = normalize(document.fileName);
-    const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const filePath = Utilities.normalizePath(document.fileName);
+    const rootPath = Utilities.normalizePath(vscode.workspace.workspaceFolders[0].uri.fsPath);
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
 

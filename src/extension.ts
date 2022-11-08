@@ -1,12 +1,16 @@
 import * as vscode from "vscode";
 
-import { ExcludeRules } from "./features/commands/excludeRules";
+import { EXCLUDE_RULE,EXCLUDE_RULE_WORKSPACE,ExcludeRules } from "./features/commands/excludeRules";
+import { Documentation, VIEW_DOCUMENTATION } from "./features/commands/showDocumentation";
 import { FormattingEditProvider } from "./features/formatter";
-import { Configuration } from "./features/helper/configuration";
-import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, HoverProvider, LinterProvider, QuickFixProvider, VIEW_DOCUMENTATION } from "./features/linter";
+import Configuration from "./features/helper/configuration";
+import LinterProvider from "./features/linter";
+import HoverProvider from "./features/providers/linter/actions/hover";
+import QuickFixProvider from "./features/providers/linter/actions/quickFix";
 
 export const activate = (context: vscode.ExtensionContext) => {
   Configuration.initialize();
+
   const linterProvider = new LinterProvider();
   const lintingProvider = linterProvider.activate(context.subscriptions);
 
@@ -36,7 +40,7 @@ export const activate = (context: vscode.ExtensionContext) => {
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));
-  context.subscriptions.push(vscode.commands.registerCommand(VIEW_DOCUMENTATION, showDocumentation));
+  context.subscriptions.push(vscode.commands.registerCommand(VIEW_DOCUMENTATION, Documentation.showDocumentation));
 
   const lintCommand = "sqlfluff.lint";
   const lintCommandHandler = () => {
@@ -75,9 +79,3 @@ export const activate = (context: vscode.ExtensionContext) => {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const deactivate: any = () => { };
-
-function showDocumentation(rule: string) {
-  const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.Rule_${rule}`;
-
-  return vscode.env.openExternal(vscode.Uri.parse(path));
-}

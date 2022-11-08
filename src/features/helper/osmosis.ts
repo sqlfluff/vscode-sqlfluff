@@ -1,8 +1,8 @@
 import AbortController from "node-abort-controller";
 import fetch, { Response } from "node-fetch";
 
-import { Configuration } from "./configuration";
-import { Utilities } from "./utilities";
+import Configuration from "./configuration";
+import Utilities from "./utilities";
 
 export interface OsmosisRunResult {
   column_names: string[],

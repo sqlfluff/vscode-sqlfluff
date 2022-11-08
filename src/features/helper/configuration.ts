@@ -2,12 +2,12 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { DiagnosticSeverity } from "vscode";
 
-import { RunTrigger } from "../providers/lint";
-import { DiagnosticSetting } from "./types/diagnosticSetting";
+import DiagnosticSetting from "./types/diagnosticSetting";
+import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
-import { normalize, Utilities } from "./utilities";
+import Utilities from "./utilities";
 
-export class Configuration {
+export default class Configuration {
   /** Initialize the configuration options that require a reload upon change. */
   static initialize(): void {
     vscode.workspace.onDidChangeConfiguration((event) => {
@@ -252,10 +252,10 @@ export class Configuration {
    * @returns The variables for a terminal
    */
   private static variables(): Variables {
-    const rootPath = normalize(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const rootPath = Utilities.normalizePath(vscode.workspace.workspaceFolders[0].uri.fsPath);
 
     const editor = vscode.window.activeTextEditor;
-    const fileName = editor ? normalize(editor.document.fileName) : null;
+    const fileName = editor ? Utilities.normalizePath(editor.document.fileName) : null;
 
     const vars: Variables = {
       // - the path of the folder opened in VS Code
@@ -268,7 +268,7 @@ export class Configuration {
       file: fileName,
 
       // - the current opened file relative to workspaceFolder
-      relativeFile: (vscode.window.activeTextEditor && rootPath) ? normalize(path.relative(
+      relativeFile: (vscode.window.activeTextEditor && rootPath) ? Utilities.normalizePath(path.relative(
         rootPath,
         fileName
       )) : null,
