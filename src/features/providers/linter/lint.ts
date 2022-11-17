@@ -2,12 +2,12 @@ import * as vscode from "vscode";
 
 import { ThrottledDelayer } from "../../helper/async";
 import Configuration from "../../helper/configuration";
-import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../../helper/sqlfluff";
 import Linter from "../../helper/types/linter";
 import RunTrigger from "../../helper/types/runTrigger";
 import Utilities from "../../helper/utilities";
+import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../sqlfluff";
 
-const filePattern = "**/*.{sql,sql-bigquery,jinja-sql}"
+const filePattern = "**/*.{sql,sql-bigquery,jinja-sql}";
 const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql)$/;
 
 export default class LintingProvider {
@@ -66,7 +66,7 @@ export default class LintingProvider {
       for (const file of files) {
         if (fileRegex.exec(file.path)) {
           vscode.workspace.openTextDocument(file.path).then((document) => {
-           this.triggerLint(document, forceLint);
+            this.triggerLint(document, forceLint);
           });
         }
       }

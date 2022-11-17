@@ -3,10 +3,10 @@ import * as path from "path";
 import { StringDecoder } from "string_decoder";
 import * as vscode from "vscode";
 
-import Configuration from "./configuration";
-import { LineDecoder } from "./lineDecoder";
-import { Osmosis } from "./osmosis";
-import Utilities from "./utilities";
+import Configuration from "../helper/configuration";
+import { LineDecoder } from "../helper/lineDecoder";
+import { Osmosis } from "../helper/osmosis";
+import Utilities from "../helper/utilities";
 
 export enum SQLFluffCommand {
   LINT = "lint",
@@ -153,7 +153,7 @@ export class SQLFluff {
           vscode.window.showErrorMessage(stderrLines.join("\n"));
         }
 
-        this.processes = this.processes.filter(childProcess => childProcess !== process)
+        this.processes = this.processes.filter(childProcess => childProcess !== process);
 
         return resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors

@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 
 import Configuration from "../../helper/configuration";
-import { SQLFluff, SQLFluffCommand } from "../../helper/sqlfluff";
 import Utilities from "../../helper/utilities";
+import { SQLFluff, SQLFluffCommand } from "../sqlfluff";
 
 export class FormattingProvider {
   async provideDocumentFormattingEdits(
