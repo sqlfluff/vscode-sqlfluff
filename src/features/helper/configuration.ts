@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { DiagnosticSeverity } from "vscode";
 
 import DiagnosticSetting from "./types/diagnosticSetting";
+import EnvironmentVariable from "./types/environmentVariable";
 import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
 import Utilities from "./utilities";
@@ -27,6 +28,23 @@ export default class Configuration {
           });
       }
     });
+  }
+
+  public static environmentVariables(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+    const environmentVariables = vscode.workspace
+      .getConfiguration("sqlfluff")
+      .get<EnvironmentVariable[]>("environmentVariables", []);
+
+    const environment = env;
+    for (const variable of environmentVariables) {
+      const key = variable?.key ?? undefined;
+      const value = variable?.value ?? undefined;
+      if (key && value) {
+        environment[key] = value;
+      }
+    }
+
+    return environment;
   }
 
   public static executablePath(): string {

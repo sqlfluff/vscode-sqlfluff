@@ -33,9 +33,6 @@ export default class LintingProvider {
       this.diagnosticCollection.delete(textDocument.uri);
       delete this.delayers[textDocument.uri.toString()];
     }, null, subscriptions);
-
-    // Lint all documents in the workspace.
-    if (Configuration.lintEntireProject()) this.lintProject();
   }
 
   public dispose(): void {
@@ -57,20 +54,25 @@ export default class LintingProvider {
     }
     this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 
-    // Configuration has changed. Lint all documents in the workspace.
-    if (Configuration.lintEntireProject()) this.lintProject();
+    // Lint all documents in the workspace.
+    if (Configuration.lintEntireProject()) this.lintProject(true);
   }
 
-  public lintProject(forceLint = false): void {
-    vscode.workspace.findFiles(filePattern).then(files => {
-      for (const file of files) {
-        if (fileRegex.exec(file.path)) {
-          vscode.workspace.openTextDocument(file.path).then((document) => {
-            this.triggerLint(document, forceLint);
-          });
+  public async lintProject(forceLint = false): Promise<void> {
+    const files = await vscode.workspace.findFiles(filePattern);
+
+    for (const file of files) {
+      if (fileRegex.exec(file.path)) {
+        while (SQLFluff.childProcesses.length > 4) {
+          await new Promise(sleep => setTimeout(sleep, 1000));
         }
+
+        const document = await vscode.workspace.openTextDocument(file.path);
+        this.triggerLint(document, forceLint);
+        // TODO: Wait for child process to be created before continuing with loop.
+        await new Promise(sleep => setTimeout(sleep, 500));
       }
-    });
+    }
   }
 
   private triggerLint(textDocument: vscode.TextDocument, forceLint = false, currentDocument = false): void {
@@ -87,7 +89,8 @@ export default class LintingProvider {
 
     if (!delayer) {
       if (Configuration.runTrigger() === RunTrigger.onType) {
-        delayer = new ThrottledDelayer<void>(Configuration.delay());
+        const delay = forceLint ? 0 : Configuration.delay();
+        delayer = new ThrottledDelayer<void>(delay);
       } else {
         delayer = new ThrottledDelayer<void>(0);
       }

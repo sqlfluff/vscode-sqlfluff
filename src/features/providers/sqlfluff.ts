@@ -1,4 +1,4 @@
-import * as childProcess from "child_process";
+import * as CProcess from "child_process";
 import * as path from "path";
 import { StringDecoder } from "string_decoder";
 import * as vscode from "vscode";
@@ -24,17 +24,17 @@ export interface SQLFluffCommandOptions {
 }
 
 export class SQLFluff {
-  static processes: childProcess.ChildProcess[] = [];
+  static childProcesses: CProcess.ChildProcess[] = [];
 
   public static async run(cwd: string | undefined, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
     if (!options.fileContents && !options.targetFileFullPath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
 
-    while (SQLFluff.processes.length > 10) {
-      await new Promise(sleep => setTimeout(sleep, 100));
-      // const process = SQLFluff.processes.shift()
-      // process.kill("SIGKILL");
+    // This is an unlikely scenario, but we should limit the amount of processes happening at once.
+    while (SQLFluff.childProcesses.length > 10) {
+      const process = SQLFluff.childProcesses.shift();
+      process?.kill("SIGKILL");
     }
 
     const normalizedCwd = cwd ? Utilities.normalizePath(cwd) : undefined;
@@ -124,7 +124,7 @@ export class SQLFluff {
         stderrLines.push(data.toString("utf8"));
       };
 
-      const onCloseEvent = (code: number | null, signal: any, process: childProcess.ChildProcess) => {
+      const onCloseEvent = (code: number | null, signal: any, process: CProcess.ChildProcess) => {
         Utilities.outputChannel.appendLine(`Received close event, code ${code} signal ${signal}`);
         Utilities.outputChannel.appendLine("Raw stdout output:");
 
@@ -157,7 +157,7 @@ export class SQLFluff {
           vscode.window.showErrorMessage(stderrLines.join("\n"));
         }
 
-        this.processes = this.processes.filter(childProcess => childProcess !== process);
+        this.childProcesses = this.childProcesses.filter(childProcess => childProcess !== process);
 
         return resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
@@ -170,27 +170,31 @@ export class SQLFluff {
       Utilities.outputChannel.appendLine(Configuration.executablePath() + " " + finalArgs.join(" "));
       Utilities.appendHyphenatedLine();
 
-      const process = childProcess.spawn(Configuration.executablePath(), finalArgs, {
-        cwd: normalizedCwd,
-      });
-      SQLFluff.processes.push(process);
+      const environmentVariables = Configuration.environmentVariables(process.env);
 
-      if (process.pid) {
-        process.stdout.on("data", onStdoutDataEvent);
-        process.stderr.on("data", onStderrDataEvent);
-        process.on("close", (code, number) => onCloseEvent(code, number, process));
+      const childProcess = CProcess.spawn(Configuration.executablePath(), finalArgs, {
+        cwd: normalizedCwd,
+        env: environmentVariables
+      });
+
+      SQLFluff.childProcesses.push(childProcess);
+
+      if (childProcess.pid) {
+        childProcess.stdout.on("data", onStdoutDataEvent);
+        childProcess.stderr.on("data", onStderrDataEvent);
+        childProcess.on("close", (code, number) => onCloseEvent(code, number, childProcess));
         if (shouldUseStdin) {
-          process.stdin.write(options.fileContents);
-          process.stdin.end();
+          childProcess.stdin.write(options.fileContents);
+          childProcess.stdin.end();
         }
       }
 
-      process.on("message", (message) => {
+      childProcess.on("message", (message) => {
         Utilities.outputChannel.appendLine("Received message from child process");
         Utilities.outputChannel.appendLine(message.toString());
       });
 
-      process.on("error", (error: Error) => {
+      childProcess.on("error", (error: Error) => {
         Utilities.outputChannel.appendLine("Child process threw error");
         Utilities.outputChannel.appendLine(error.toString());
         let { message } = error;

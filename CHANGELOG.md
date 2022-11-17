@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.0.1] - 2022-11-17
+
+- Add a `sqlfluff.environmentVariables` configuration setting to allow users to set their own environment variables.
+- Improve the `lintEntireProject` setup to limit the amount of files that are linted at any one time to 5 files.
+
 ## [2.0.0] - 2022-11-17
 
 - Allow the extension to work while not in a workspace.

@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -56,6 +56,34 @@
           "type": "string",
           "default": "",
           "description": "Specify an additional configuration file that overrides the standard configuration files."
+        },
+        "sqlfluff.environmentVariables": {
+          "type": "array",
+          "default": [
+            {
+              "key": "EXAMPLE_KEY",
+              "value": "example_value"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "markdownDescription": "The key for the environment variable."
+              },
+              "value": {
+                "type": "string",
+                "markdownDescription": "The value for the environment variable."
+              }
+            }
+          },
+          "markdownDescription": "Set the environment variables for the linter and formatter."
         },
         "sqlfluff.executablePath": {
           "type": "string",
