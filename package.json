@@ -11,13 +11,13 @@
   "categories": [
     "Other"
   ],
-  "homepage": "https://github.com/dorzey/vscode-sqlfluff",
+  "homepage": "https://github.com/sqlfluff/vscode-sqlfluff",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dorzey/vscode-sqlfluff"
+    "url": "https://github.com/sqlfluff/vscode-sqlfluff"
   },
   "bugs": {
-    "url": "https://github.com/dorzey/vscode-sqlfluff/issues"
+    "url": "https://github.com/sqlfluff/vscode-sqlfluff/issues"
   },
   "license": "MIT",
   "keywords": [
@@ -295,14 +295,14 @@
     "vscode-dts": "^0.3.3",
     "vscode-test": "^1.3.0"
   },
+  "dependencies": {
+    "node-abort-controller": "^2.0.0",
+    "node-fetch": "^2.6.7"
+  },
   "__metadata": {
     "id": "dd94e113-0773-42ed-9bc0-2f4b55bc7185",
     "publisherDisplayName": "dorzey",
     "publisherId": "db31b9db-3aa2-44a0-8541-71cab84423a9",
     "isPreReleaseVersion": false
-  },
-  "dependencies": {
-    "node-abort-controller": "^2.0.0",
-    "node-fetch": "^2.6.7"
   }
 }
