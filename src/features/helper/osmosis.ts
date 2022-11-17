@@ -41,10 +41,10 @@ export interface OsmosisErrorContainer {
 
 export class Osmosis {
   private sql: string | undefined;
-  private sql_path: string;
+  private sql_path: string | undefined;
   private extra_config_path: string;
 
-  constructor(sql: string | undefined, sql_path: string, extra_config_path: string) {
+  constructor(sql: string | undefined, sql_path: string | undefined, extra_config_path: string) {
     this.sql = sql;
     this.sql_path = sql_path;
     this.extra_config_path = extra_config_path;
@@ -93,7 +93,7 @@ export class Osmosis {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint error response:");
       Utilities.appendHyphenatedLine();
-      Utilities.outputChannel.appendLine(error);
+      Utilities.outputChannel.appendLine(error as string);
       Utilities.appendHyphenatedLine();
 
       clearTimeout(timeoutHandler);

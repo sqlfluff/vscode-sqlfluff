@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 
+import Variables from "./types/variables";
+
 export default class Utilities {
   static outputChannel = vscode.window.createOutputChannel("SQLFluff");
 
@@ -7,15 +9,21 @@ export default class Utilities {
     Utilities.outputChannel.appendLine("\n------------------------------------------------------------\n");
   }
 
-  public static interpolateString(command: string, data: object): string {
-    let match: RegExpExecArray;
+  static interpolateString(command: string, variables: Variables): string {
     const regex = /\$\{([^\}]+)\}/g; // eslint-disable-line no-useless-escape
-    while (match = regex.exec(command)) { // eslint-disable-line no-cond-assign
-      const path = match[1].split(".").reverse();
-      let arg = data[path.pop()];
-      while (path.length) arg = arg[path.pop()];
-      command = command.replace(match[0], arg);
+
+    const match = command.match(regex);
+    while (match?.length) {
+      const placeholder = match.pop();
+      const path = placeholder?.replace("${", "").replace("}", "");
+      if (path && placeholder) {
+        const variable: any = variables[path as keyof Variables];
+        if (variable) {
+          command = command.replace(placeholder, variable);
+        }
+      }
     }
+
     return command;
   }
 

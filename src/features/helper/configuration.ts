@@ -46,7 +46,7 @@ export default class Configuration {
   }
 
   private static dialect(): string[] {
-    const dialect: string = vscode.workspace
+    const dialect: string | undefined = vscode.workspace
       .getConfiguration("sqlfluff")
       .get("dialect");
 
@@ -75,7 +75,7 @@ export default class Configuration {
   public static ignoreLocalConfig(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff")
-      .get<boolean>("ignoreLocalConfig");
+      .get<boolean>("ignoreLocalConfig", false);
   }
 
   private static ignoreParsing(): string[] {
@@ -111,7 +111,7 @@ export default class Configuration {
       .get<boolean>("suppressNotifications", false);
   }
 
-  public static workingDirectory(rootPath: string): string {
+  public static workingDirectory(rootPath: string | undefined): string | undefined {
     const workingDirectory: string = vscode.workspace
       .getConfiguration("sqlfluff")
       .get<string>("workingDirectory", "");
@@ -136,7 +136,7 @@ export default class Configuration {
   public static noqaEnabled(): boolean {
     const noqa = vscode.workspace
       .getConfiguration("sqlfluff.codeActions")
-      .get<string[]|boolean>("noqa", true);
+      .get<string[] | boolean>("noqa", true);
 
     if (noqa === false) return noqa;
     return true;
@@ -146,7 +146,7 @@ export default class Configuration {
     const defaultDisabledRules = ["L015", "L017", "L019", "L030", "L032", "L034", "L035", "L037", "L038", "L040", "L041", "L042", "L043", "L044", "L054", "L058", "L063", "L064"];
     const noqa = vscode.workspace
       .getConfiguration("sqlfluff.codeActions")
-      .get<string[]|boolean>("noqa", defaultDisabledRules);
+      .get<string[] | boolean>("noqa", defaultDisabledRules);
 
     if (typeof noqa === "boolean") return [];
 
@@ -237,7 +237,7 @@ export default class Configuration {
   /* Arguments */
 
   public static lintFileArguments(): string[] {
-    const extraArguments = [...this.lintArguments(), "--format", "json"]
+    const extraArguments = [...this.lintArguments(), "--format", "json"];
 
     return extraArguments;
   }
@@ -249,7 +249,7 @@ export default class Configuration {
   }
 
   public static extraArguments(): string[] {
-    let extraArguments = [];
+    let extraArguments: any[] = [];
 
     extraArguments = Configuration.config() ? extraArguments.concat(["--config", this.config()]) : extraArguments;
     extraArguments = extraArguments.concat(this.dialect());
@@ -284,45 +284,47 @@ export default class Configuration {
   /**
    * @returns The variables for a terminal
    */
-  private static variables(): Variables {
-    const rootPath = Utilities.normalizePath(vscode.workspace.workspaceFolders[0].uri.fsPath);
+  static variables(): Variables {
+    // HERE: workspace
+    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
 
     const editor = vscode.window.activeTextEditor;
-    const fileName = editor ? Utilities.normalizePath(editor.document.fileName) : null;
+    const fileName = editor ? Utilities.normalizePath(editor.document.fileName) : undefined;
 
     const vars: Variables = {
       // - the path of the folder opened in VS Code
       workspaceFolder: rootPath,
 
       // - the last portion of the path of the folder opened in VS Code
-      workspaceFolderBasename: (rootPath) ? path.basename(rootPath) : null,
+      workspaceFolderBasename: rootPath ? path.basename(rootPath) : undefined,
 
       // - the current opened file
       file: fileName,
 
       // - the current opened file relative to workspaceFolder
-      relativeFile: (vscode.window.activeTextEditor && rootPath) ? Utilities.normalizePath(path.relative(
+      relativeFile: (vscode.window.activeTextEditor && rootPath && fileName) ? Utilities.normalizePath(path.relative(
         rootPath,
         fileName
-      )) : null,
+      )) : undefined,
 
       // - the last portion of the path to the file
-      fileBasename: fileName ? path.basename(fileName) : null,
+      fileBasename: fileName ? path.basename(fileName) : undefined,
 
       // - the last portion of the path to the file with no file extension
-      fileBasenameNoExtension: fileName ? path.parse(path.basename(fileName)).name : null,
+      fileBasenameNoExtension: fileName ? path.parse(path.basename(fileName)).name : undefined,
 
       // - the current opened file's dirname
-      fileDirname: fileName ? path.dirname(fileName) : null,
+      fileDirname: fileName ? path.dirname(fileName) : undefined,
 
       // - the current opened file's extension
-      fileExtname: fileName ? path.parse(path.basename(fileName)).ext : null,
+      fileExtname: fileName ? path.parse(path.basename(fileName)).ext : undefined,
 
       // - the current selected line number in the active file
-      lineNumber: (editor) ? editor.selection.active.line + 1 : null,
+      lineNumber: editor ? (editor.selection.active.line + 1).toString() : undefined,
 
       // - the current selected text in the active file
-      selectedText: (editor) ? editor.document.getText(editor.selection) : null,
+      selectedText: editor ? editor.document.getText(editor.selection) : undefined,
 
       // - the path to the running VS Code executable
       execPath: process.execPath

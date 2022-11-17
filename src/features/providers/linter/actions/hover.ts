@@ -7,13 +7,19 @@ export default class HoverProvider implements vscode.HoverProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Hover> {
+    const editor = vscode.window.activeTextEditor;
     const diagnostics = vscode.languages.getDiagnostics(document.uri);
 
-    let hover: vscode.Hover = undefined;
+    let hover: vscode.Hover | undefined = undefined;
     diagnostics.forEach(diagnostic => {
       if (hover) return;
       if (position.isAfterOrEqual(diagnostic.range.start) && position.isBeforeOrEqual(diagnostic.range.end)) {
         hover = this.createHover(diagnostic);
+      } else {
+        const wordRange = editor?.document.getWordRangeAtPosition(diagnostic.range.start);
+        if (wordRange?.contains(position)) {
+          hover = this.createHover(diagnostic);
+        }
       }
     });
 

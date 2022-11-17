@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.0.0] - 2022-11-17
+
+- Allow the extension to work while not in a workspace.
+- Improve the `View Documentation` hover to more often show when any part of the word is hovered over.
+
 ## [0.1.9] - 2022-11-08
 
 - Re-order the quick fix options.

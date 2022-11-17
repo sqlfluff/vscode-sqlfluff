@@ -20,9 +20,13 @@ export default class LinterProvider implements Linter {
   }
 
   public process(lines: string[]): Diagnostic[] {
+    const editor = vscode.window.activeTextEditor;
     const diagnostics: Diagnostic[] = [];
+
+    if (!editor) return diagnostics;
+
     lines.forEach((line) => {
-      let filePaths: Array<FilePath>;
+      let filePaths: Array<FilePath> = [];
       const normalizedLine = Utilities.normalizePath(line, true);
       try {
         filePaths = JSON.parse(normalizedLine);
@@ -36,14 +40,14 @@ export default class LinterProvider implements Linter {
         filePaths.forEach((filePath: FilePath) => {
           filePath.violations.forEach((violation: Violation) => {
             const path = filePath.filepath;
-            const editorPath = Utilities.normalizePath(vscode.window.activeTextEditor.document.uri.fsPath);
+            const editorPath = Utilities.normalizePath(editor.document.fileName);
             const line = violation.line_no - 1 > 0 ? violation.line_no - 1 : 0;
             const character = violation.line_pos - 1 > 0 ? violation.line_pos - 1 : 0;
             const violationPosition = new vscode.Position(line, character);
             let range = new vscode.Range(line, character, line, character);
 
             if (editorPath.includes(path) || path === "stdin") {
-              range = vscode.window.activeTextEditor.document.getWordRangeAtPosition(violationPosition) || range;
+              range = editor.document.getWordRangeAtPosition(violationPosition) || range;
             }
 
             const diagnosticSeverity = Configuration.diagnosticSeverityByRule(violation.code);

@@ -15,35 +15,29 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     context: vscode.CodeActionContext,
     token: vscode.CancellationToken
   ): vscode.CodeAction[] {
-    let noqaSingleRules = [];
-    let noqaAllRules = [];
-    let excludeRulesGlobal = [];
-    let excludeRulesWorkspace = [];
+    const noqaSingleRules: vscode.CodeAction[] = [];
+    const noqaAllRules: vscode.CodeAction[] = [];
+    const excludeRulesGlobal: vscode.CodeAction[] = [];
+    const excludeRulesWorkspace: vscode.CodeAction[] = [];
 
     if (Configuration.noqaEnabled()) {
-      noqaSingleRules = context.diagnostics.map((diagnostic) => {
-        if (Configuration.noqaDisabledRules().includes(diagnostic.code.toString())) return;
-        return this.createNoqaCodeFix(document, diagnostic, false);
-      }
-      );
+      const noqaDisabledRules = Configuration.noqaDisabledRules();
+      context.diagnostics.forEach((diagnostic) => {
+        if (diagnostic.code && !noqaDisabledRules.includes(diagnostic.code.toString())) {
+          const singleRuleCodeAction = this.createNoqaCodeFix(document, diagnostic, false);
+          const allRulesCodeAction = this.createNoqaCodeFix(document, diagnostic, true);
+          noqaSingleRules.push(singleRuleCodeAction);
+          noqaAllRules.push(allRulesCodeAction);
+        }
 
-      noqaAllRules = context.diagnostics.map((diagnostic) => {
-        if (Configuration.noqaDisabledRules().includes(diagnostic.code.toString())) return;
-        return this.createNoqaCodeFix(document, diagnostic, true);
-      }
-      );
-    }
+        if (Configuration.excludeRulesGlobal()) {
+          excludeRulesGlobal.push(this.createExcludeRulesCodeAction(diagnostic, true));
+        }
 
-    if (Configuration.excludeRulesWorkspace()) {
-      excludeRulesWorkspace = context.diagnostics.map((diagnostic) =>
-        this.createExcludeRulesCodeAction(diagnostic, false)
-      );
-    }
-
-    if (Configuration.excludeRulesGlobal()) {
-      excludeRulesGlobal = context.diagnostics.map((diagnostic) =>
-        this.createExcludeRulesCodeAction(diagnostic, true)
-      );
+        if (Configuration.excludeRulesWorkspace()) {
+          excludeRulesWorkspace.push(this.createExcludeRulesCodeAction(diagnostic, false));
+        }
+      });
     }
 
     return [...noqaSingleRules, ...noqaAllRules, ...excludeRulesWorkspace, ...excludeRulesGlobal];

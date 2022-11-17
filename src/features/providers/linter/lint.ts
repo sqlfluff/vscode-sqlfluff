@@ -101,11 +101,22 @@ export default class LintingProvider {
 
   public async doLint(document: vscode.TextDocument, currentDocument: boolean): Promise<void> {
     const filePath = Utilities.normalizePath(document.fileName);
-    const rootPath = Utilities.normalizePath(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = Configuration.workingDirectory(rootPath);
 
+    if (!filePath) {
+      Utilities.outputChannel.appendLine("ERROR: File path not found.");
+      if (!Configuration.suppressNotifications()) {
+        vscode.window.showErrorMessage("File path not found.");
+      }
+      return;
+    }
+
     const args: string[] = [...Configuration.lintFileArguments()];
-    const options: SQLFluffCommandOptions = {};
+    const options: SQLFluffCommandOptions = {
+      targetFileFullPath: filePath
+    };
 
     if (Configuration.runTrigger() === RunTrigger.onSave || !currentDocument) {
       options.targetFileFullPath = filePath;

@@ -19,14 +19,14 @@ export interface SQLFluffCommandOutput {
 }
 
 export interface SQLFluffCommandOptions {
-  targetFileFullPath?: string;
+  targetFileFullPath: string;
   fileContents?: string;
 }
 
 export class SQLFluff {
   static processes: childProcess.ChildProcess[] = [];
 
-  public static async run(cwd: string, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
+  public static async run(cwd: string | undefined, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
     if (!options.fileContents && !options.targetFileFullPath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
@@ -37,7 +37,7 @@ export class SQLFluff {
       // process.kill("SIGKILL");
     }
 
-    const normalizedCwd = Utilities.normalizePath(cwd);
+    const normalizedCwd = cwd ? Utilities.normalizePath(cwd) : undefined;
     const shouldUseStdin = !!options.fileContents?.length;
     const finalArgs = [
       command,
@@ -53,7 +53,7 @@ export class SQLFluff {
       Utilities.outputChannel.appendLine("Reading from file, not stdin");
       // we want to use relative path to the file so intermediate sqlfluff config files can be found
       const normalizedTargetFileFullPath = Utilities.normalizePath(options.targetFileFullPath);
-      const targetFileRelativePath = path.relative(normalizedCwd, normalizedTargetFileFullPath);
+      const targetFileRelativePath = normalizedCwd ? path.relative(normalizedCwd, normalizedTargetFileFullPath) : normalizedTargetFileFullPath;
       finalArgs.push(targetFileRelativePath);
     }
 
@@ -68,7 +68,11 @@ export class SQLFluff {
       Utilities.outputChannel.appendLine(osmosis.getURL());
       if (shouldUseStdin) {
         Utilities.outputChannel.appendLine("\n-----Request Body-----\n");
-        Utilities.outputChannel.appendLine(options.fileContents);
+        if (options.fileContents) {
+          Utilities.outputChannel.appendLine(options.fileContents);
+        } else {
+          Utilities.outputChannel.appendLine("ERROR: File contents not found.");
+        }
       }
 
       Utilities.appendHyphenatedLine();
@@ -104,9 +108,9 @@ export class SQLFluff {
 
     return new Promise<SQLFluffCommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();
-      const stdoutFix = [];
+      const stdoutFix: Buffer[] = [];
       let stdoutLines: string[];
-      const stderrLines = [];
+      const stderrLines: string[] = [];
 
       const onStdoutDataEvent = (data: Buffer) => {
         if (command === SQLFluffCommand.LINT) {
@@ -120,7 +124,7 @@ export class SQLFluff {
         stderrLines.push(data.toString("utf8"));
       };
 
-      const onCloseEvent = (code: number, signal: any, process: childProcess.ChildProcess) => {
+      const onCloseEvent = (code: number | null, signal: any, process: childProcess.ChildProcess) => {
         Utilities.outputChannel.appendLine(`Received close event, code ${code} signal ${signal}`);
         Utilities.outputChannel.appendLine("Raw stdout output:");
 

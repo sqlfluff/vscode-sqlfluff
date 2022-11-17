@@ -3,14 +3,15 @@ import * as vscode from "vscode";
 
 import Configuration from "../../helper/configuration";
 import Utilities from "../../helper/utilities";
-import { SQLFluff, SQLFluffCommand } from "../sqlfluff";
+import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../sqlfluff";
 
 export class FormattingProvider {
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument
   ): Promise<vscode.TextEdit[]> {
     const filePath = Utilities.normalizePath(document.fileName);
-    const rootPath = Utilities.normalizePath(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
 
@@ -26,11 +27,14 @@ export class FormattingProvider {
         }
 
         try {
+          const options: SQLFluffCommandOptions = {
+            targetFileFullPath: filePath
+          };
           const result = await SQLFluff.run(
             workingDirectory,
             SQLFluffCommand.FIX,
             Configuration.formatFileArguments(),
-            { targetFileFullPath: filePath },
+            options,
           );
 
           if (!result.succeeded) {
@@ -60,17 +64,21 @@ export class FormattingProvider {
           }
         } catch (error) {
           Utilities.outputChannel.appendLine("\n--------------------Formatting Error--------------------\n");
-          Utilities.outputChannel.appendLine(error);
+          Utilities.outputChannel.appendLine(error as string);
           if (!Configuration.suppressNotifications()) {
             vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
           }
         }
       } else {
+        const options: SQLFluffCommandOptions = {
+          targetFileFullPath: filePath,
+          fileContents: document.getText()
+        };
         const result = await SQLFluff.run(
           workingDirectory,
           SQLFluffCommand.FIX,
           Configuration.formatFileArguments(),
-          { fileContents: document.getText() },
+          options,
         );
 
         if (!result.succeeded) {
