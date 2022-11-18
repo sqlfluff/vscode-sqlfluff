@@ -1,12 +1,12 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
   "engines": {
-    "vscode": "^1.59.0"
+    "vscode": "^1.63.0"
   },
   "categories": [
     "Other"
@@ -251,7 +251,7 @@
         "sqlfluff.linter.lintEntireProject": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Determines if the linter will lint the entire project on startup and configuration changes."
+          "markdownDescription": "Determines if the linter will lint the workspaces on startup and configuration changes. Does not work with `dbt-osmosis`."
         },
         "sqlfluff.linter.run": {
           "type": "string",

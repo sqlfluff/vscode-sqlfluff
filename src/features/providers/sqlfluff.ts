@@ -7,27 +7,21 @@ import Configuration from "../helper/configuration";
 import { LineDecoder } from "../helper/lineDecoder";
 import { Osmosis } from "../helper/osmosis";
 import Utilities from "../helper/utilities";
+import FilePath from "./linter/types/filePath";
+import CommandOptions from "./types/commandOptions";
+import CommandOutput from "./types/commandOutput";
+import CommandType from "./types/commandType";
 
-export enum SQLFluffCommand {
-  LINT = "lint",
-  FIX = "fix",
-}
-
-export interface SQLFluffCommandOutput {
-  succeeded: boolean;
-  lines: string[];
-}
-
-export interface SQLFluffCommandOptions {
-  targetFileFullPath: string;
-  fileContents?: string;
-}
-
-export class SQLFluff {
+export default class SQLFluff {
   static childProcesses: CProcess.ChildProcess[] = [];
 
-  public static async run(cwd: string | undefined, command: SQLFluffCommand, args: string[], options: SQLFluffCommandOptions): Promise<SQLFluffCommandOutput> {
-    if (!options.fileContents && !options.targetFileFullPath) {
+  public static async run(
+    workingDirectory: string | undefined,
+    command: CommandType,
+    args: string[],
+    options: CommandOptions
+  ): Promise<CommandOutput> {
+    if (!options.fileContents && !options.filePath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
 
@@ -37,31 +31,31 @@ export class SQLFluff {
       process?.kill("SIGKILL");
     }
 
-    const normalizedCwd = cwd ? Utilities.normalizePath(cwd) : undefined;
+    const normalizedWorkingDirectory = workingDirectory ? Utilities.normalizePath(workingDirectory) : undefined;
     const shouldUseStdin = !!options.fileContents?.length;
-    const finalArgs = [
-      command,
-      ...args,
-      ...Configuration.extraArguments(),
-    ];
+    const finalArgs = [command, ...args, ...Configuration.extraArguments()];
 
     Utilities.appendHyphenatedLine();
     if (shouldUseStdin) {
       Utilities.outputChannel.appendLine("Reading from stdin, not file, input may be dirty/partial");
       finalArgs.push("-");
+    } else if (options.workspacePath) {
+      Utilities.outputChannel.appendLine("Reading from workspace, not stdin");
     } else {
       Utilities.outputChannel.appendLine("Reading from file, not stdin");
-      // we want to use relative path to the file so intermediate sqlfluff config files can be found
-      const normalizedTargetFileFullPath = Utilities.normalizePath(options.targetFileFullPath);
-      const targetFileRelativePath = normalizedCwd ? path.relative(normalizedCwd, normalizedTargetFileFullPath) : normalizedTargetFileFullPath;
+      // We want to use relative path to the file so intermediate sqlfluff config files can be found
+      const normalizedFilePath = Utilities.normalizePath(options.filePath);
+      const targetFileRelativePath = normalizedWorkingDirectory
+        ? path.relative(normalizedWorkingDirectory, normalizedFilePath)
+        : normalizedFilePath;
       finalArgs.push(targetFileRelativePath);
     }
 
-    if (Configuration.osmosisEnabled() && command === SQLFluffCommand.LINT) {
+    if (Configuration.osmosisEnabled() && command === CommandType.LINT) {
       const osmosis = new Osmosis(
         shouldUseStdin ? options.fileContents : undefined,
-        options.targetFileFullPath,
-        Configuration.config(),
+        options.workspacePath ?? options.filePath,
+        Configuration.config()
       );
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
@@ -78,17 +72,19 @@ export class SQLFluff {
       Utilities.appendHyphenatedLine();
 
       const response: any = await osmosis.lint();
-      const output = [{
-        filepath: options.targetFileFullPath,
-        violations: response.result ?? []
-      }];
+      const output: FilePath[] = [
+        {
+          filepath: options.filePath,
+          violations: response.result ?? [],
+        },
+      ];
 
       Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint output:");
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
       Utilities.appendHyphenatedLine();
 
-      return new Promise<SQLFluffCommandOutput>((resolve) => {
+      return new Promise<CommandOutput>((resolve) => {
         const code = response?.error?.code ?? 0;
         const succeeded = code === 0;
         if (!succeeded && !Configuration.suppressNotifications()) {
@@ -101,19 +97,19 @@ export class SQLFluff {
         resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
           succeeded: succeeded,
-          lines: [JSON.stringify(output)]
+          lines: [JSON.stringify(output)],
         });
       });
     }
 
-    return new Promise<SQLFluffCommandOutput>((resolve) => {
+    return new Promise<CommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();
       const stdoutFix: Buffer[] = [];
       let stdoutLines: string[];
       const stderrLines: string[] = [];
 
       const onStdoutDataEvent = (data: Buffer) => {
-        if (command === SQLFluffCommand.LINT) {
+        if (command === CommandType.LINT) {
           stdoutLint.write(data);
         } else {
           stdoutFix.push(data);
@@ -129,7 +125,7 @@ export class SQLFluff {
         Utilities.outputChannel.appendLine("Raw stdout output:");
 
         Utilities.appendHyphenatedLine();
-        if (command === SQLFluffCommand.LINT) {
+        if (command === CommandType.LINT) {
           stdoutLint.end();
           stdoutLines = stdoutLint.getLines();
           Utilities.outputChannel.appendLine(stdoutLines.join("\n"));
@@ -172,10 +168,14 @@ export class SQLFluff {
 
       const environmentVariables = Configuration.environmentVariables(process.env);
 
-      const childProcess = CProcess.spawn(Configuration.executablePath(), finalArgs, {
-        cwd: normalizedCwd,
-        env: environmentVariables
-      });
+      const childProcess = CProcess.spawn(
+        Configuration.executablePath(),
+        finalArgs,
+        {
+          cwd: normalizedWorkingDirectory,
+          env: environmentVariables,
+        }
+      );
 
       SQLFluff.childProcesses.push(childProcess);
 
@@ -200,7 +200,8 @@ export class SQLFluff {
         let { message } = error;
 
         if ((error as any).code === "ENOENT") {
-          message = "The sqlfluff executable was not found. Use the 'Executable Path' setting to configure the location of the executable, or add it to your PATH.";
+          message = "The sqlfluff executable was not found. ";
+          message += "Use the 'Executable Path' setting to configure the location of the executable, or add it to your PATH.";
         }
 
         if (!Configuration.suppressNotifications()) {

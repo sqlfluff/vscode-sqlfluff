@@ -8,6 +8,9 @@ import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
 import Utilities from "./utilities";
 
+export const filePattern = "**/*.{sql,sql-bigquery,jinja-sql}";
+export const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql)$/;
+
 export default class Configuration {
   /** Initialize the configuration options that require a reload upon change. */
   static initialize(): void {

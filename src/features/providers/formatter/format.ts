@@ -3,7 +3,9 @@ import * as vscode from "vscode";
 
 import Configuration from "../../helper/configuration";
 import Utilities from "../../helper/utilities";
-import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../sqlfluff";
+import SQLFluff from "../sqlfluff";
+import CommandOptions from "../types/commandOptions";
+import CommandType from "../types/commandType";
 
 export class FormattingProvider {
   async provideDocumentFormattingEdits(
@@ -27,12 +29,10 @@ export class FormattingProvider {
         }
 
         try {
-          const options: SQLFluffCommandOptions = {
-            targetFileFullPath: filePath
-          };
+          const options: CommandOptions = { filePath: filePath };
           const result = await SQLFluff.run(
             workingDirectory,
-            SQLFluffCommand.FIX,
+            CommandType.FIX,
             Configuration.formatFileArguments(),
             options,
           );
@@ -70,13 +70,13 @@ export class FormattingProvider {
           }
         }
       } else {
-        const options: SQLFluffCommandOptions = {
-          targetFileFullPath: filePath,
+        const options: CommandOptions = {
+          filePath: filePath,
           fileContents: document.getText()
         };
         const result = await SQLFluff.run(
           workingDirectory,
-          SQLFluffCommand.FIX,
+          CommandType.FIX,
           Configuration.formatFileArguments(),
           options,
         );

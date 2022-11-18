@@ -2,17 +2,18 @@ import * as vscode from "vscode";
 
 import { ThrottledDelayer } from "../../helper/async";
 import Configuration from "../../helper/configuration";
-import Linter from "../../helper/types/linter";
 import RunTrigger from "../../helper/types/runTrigger";
 import Utilities from "../../helper/utilities";
-import { SQLFluff, SQLFluffCommand, SQLFluffCommandOptions } from "../sqlfluff";
-
-const filePattern = "**/*.{sql,sql-bigquery,jinja-sql}";
-const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql)$/;
+import SQLFluff from "../sqlfluff";
+import CommandOptions from "../types/commandOptions";
+import CommandType from "../types/commandType";
+import FileDiagnostic from "./types/fileDiagnostic";
+import Linter from "./types/linter";
 
 export default class LintingProvider {
   private executableNotFound: boolean;
-  private documentListener!: vscode.Disposable;
+  private documentTypeListener!: vscode.Disposable;
+  private documentSaveListener!: vscode.Disposable;
   private diagnosticCollection!: vscode.DiagnosticCollection;
   private delayers!: { [key: string]: ThrottledDelayer<void>; };
   private linter: Linter;
@@ -30,7 +31,9 @@ export default class LintingProvider {
 
     vscode.workspace.onDidOpenTextDocument(this.triggerLint, this, subscriptions);
     vscode.workspace.onDidCloseTextDocument((textDocument) => {
-      this.diagnosticCollection.delete(textDocument.uri);
+      if (!Configuration.lintEntireProject()) {
+        this.diagnosticCollection.delete(textDocument.uri);
+      }
       delete this.delayers[textDocument.uri.toString()];
     }, null, subscriptions);
   }
@@ -43,48 +46,51 @@ export default class LintingProvider {
   private loadConfiguration(): void {
     this.delayers = Object.create(null);
 
-    if (this.documentListener) {
-      this.documentListener.dispose();
+    if (this.documentSaveListener) {
+      this.documentSaveListener.dispose();
+    }
+
+    if (this.documentTypeListener) {
+      this.documentTypeListener.dispose();
     }
 
     if (Configuration.runTrigger() === RunTrigger.onType) {
-      this.documentListener = vscode.workspace.onDidChangeTextDocument((e) => {
-        this.triggerLint(e.document, false, true);
+      this.documentTypeListener = vscode.workspace.onDidChangeTextDocument((event) => {
+        this.triggerLint(event.document, true, false);
       });
     }
-    this.documentListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
+
+    this.documentSaveListener = vscode.workspace.onDidSaveTextDocument(this.triggerLint, this);
 
     // Lint all documents in the workspace.
-    if (Configuration.lintEntireProject()) this.lintProject(true);
+    if (Configuration.lintEntireProject()) this.lintProject();
   }
 
   public async lintProject(forceLint = false): Promise<void> {
-    const files = await vscode.workspace.findFiles(filePattern);
+    const workspaceFolders = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders : [];
 
-    for (const file of files) {
-      if (fileRegex.exec(file.path)) {
-        while (SQLFluff.childProcesses.length > 4) {
-          await new Promise(sleep => setTimeout(sleep, 1000));
-        }
-
-        const document = await vscode.workspace.openTextDocument(file.path);
-        this.triggerLint(document, forceLint);
-        // TODO: Wait for child process to be created before continuing with loop.
-        await new Promise(sleep => setTimeout(sleep, 500));
+    for (const workspaceFolder of workspaceFolders) {
+      while (SQLFluff.childProcesses.length > 5) {
+        await new Promise(sleep => setTimeout(sleep, 1000));
       }
+
+      const workspacePath = Utilities.normalizePath(workspaceFolder.uri.fsPath);
+      this.triggerLint(undefined, false, forceLint, workspacePath);
+      // TODO: Wait for child process to be created before continuing with loop.
+      await new Promise(sleep => setTimeout(sleep, 500));
     }
   }
 
-  private triggerLint(textDocument: vscode.TextDocument, forceLint = false, currentDocument = false): void {
+  private triggerLint(textDocument?: vscode.TextDocument, currentDocument = false, forceLint = false, workspacePath?: string): void {
     if (
-      !this.linter.languageId.includes(textDocument.languageId)
+      (textDocument && !this.linter.languageId.includes(textDocument.languageId))
       || this.executableNotFound
       || (Configuration.runTrigger() === RunTrigger.off && !forceLint)
     ) {
       return;
     }
 
-    const key = textDocument.uri.toString();
+    const key = textDocument?.uri.toString() ?? workspacePath ?? "project";
     let delayer = this.delayers[key];
 
     if (!delayer) {
@@ -98,15 +104,15 @@ export default class LintingProvider {
     }
 
     delayer.trigger(() => {
-      return this.doLint(textDocument, currentDocument);
+      return this.doLint(textDocument, currentDocument, workspacePath);
     });
   }
 
-  public async doLint(document: vscode.TextDocument, currentDocument: boolean): Promise<void> {
-    const filePath = Utilities.normalizePath(document.fileName);
+  public async doLint(document?: vscode.TextDocument, currentDocument?: boolean, workspacePath?: string): Promise<void> {
     const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
-    const workingDirectory = Configuration.workingDirectory(rootPath);
+    const workingDirectory = workspacePath ?? Configuration.workingDirectory(rootPath);
+    const filePath = document ? Utilities.normalizePath(document.fileName) : workingDirectory;
 
     if (!filePath) {
       Utilities.outputChannel.appendLine("ERROR: File path not found.");
@@ -117,20 +123,22 @@ export default class LintingProvider {
     }
 
     const args: string[] = [...Configuration.lintFileArguments()];
-    const options: SQLFluffCommandOptions = {
-      targetFileFullPath: filePath
-    };
+    const options: CommandOptions = { filePath: filePath };
+
+    if (workspacePath) {
+      options.workspacePath = workspacePath;
+    }
 
     if (Configuration.runTrigger() === RunTrigger.onSave || !currentDocument) {
-      options.targetFileFullPath = filePath;
+      options.filePath = filePath;
     } else {
-      options.fileContents = document.getText();
-      options.targetFileFullPath = filePath;
+      options.fileContents = document?.getText();
+      options.filePath = filePath;
     }
 
     const result = await SQLFluff.run(
       workingDirectory,
-      SQLFluffCommand.LINT,
+      CommandType.LINT,
       args,
       options
     );
@@ -139,10 +147,31 @@ export default class LintingProvider {
       Utilities.outputChannel.appendLine("Linting command failed to execute");
     }
 
-    let diagnostics: vscode.Diagnostic[] = [];
+    let fileDiagnostics: FileDiagnostic[] = [];
     if (result.lines?.length > 0) {
-      diagnostics = this.linter.process(result.lines);
-      this.diagnosticCollection.set(document.uri, diagnostics);
+      fileDiagnostics = this.linter.process(result.lines);
+      fileDiagnostics.forEach(async (fileDiagnostic) => {
+        try {
+          if (document && fileDiagnostic.filePath === "stdin") {
+            this.diagnosticCollection.set(document.uri, fileDiagnostic.diagnostics);
+            return;
+          }
+          const fileGlob = "**/" + fileDiagnostic.filePath;
+          const files = await vscode.workspace.findFiles(fileGlob, undefined, 1);
+          const file = files.length > 0 ? files[0].fsPath : Utilities.normalizePath(fileDiagnostic.filePath);
+          if (file) {
+            const uri = vscode.Uri.file(file);
+            this.diagnosticCollection.set(uri, fileDiagnostic.diagnostics);
+          }
+        } catch (error) {
+          Utilities.outputChannel.appendLine(`ERROR: File ${fileDiagnostic.filePath} not found.`);
+          Utilities.outputChannel.appendLine(error as string);
+          Utilities.appendHyphenatedLine;
+          if (!Configuration.suppressNotifications()) {
+            vscode.window.showErrorMessage(`File ${fileDiagnostic.filePath} not found.`);
+          }
+        }
+      });
     }
   }
 }

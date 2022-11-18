@@ -28,6 +28,10 @@ export default class Utilities {
   }
 
   public static normalizePath(path: string, allowEscapes = false): string {
+    if (path === undefined) {
+      return path;
+    }
+
     if (allowEscapes) {
       return path.replace(/\\{2,}/g, "/");
     }

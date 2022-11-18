@@ -4,11 +4,12 @@ import * as vscode from "vscode";
 import { Diagnostic, Disposable } from "vscode";
 
 import Configuration from "./helper/configuration";
-import FilePath from "./helper/types/filePath";
-import Linter from "./helper/types/linter";
-import Violation from "./helper/types/violation";
 import Utilities from "./helper/utilities";
 import LintingProvider from "./providers/linter/lint";
+import FileDiagnostic from "./providers/linter/types/fileDiagnostic";
+import FilePath from "./providers/linter/types/filePath";
+import Linter from "./providers/linter/types/linter";
+import Violation from "./providers/linter/types/violation";
 
 export default class LinterProvider implements Linter {
   public languageId = ["sql", "jinja-sql", "sql-bigquery"];
@@ -19,14 +20,12 @@ export default class LinterProvider implements Linter {
     return provider;
   }
 
-  public process(lines: string[]): Diagnostic[] {
+  public process(lines: string[]): FileDiagnostic[] {
     const editor = vscode.window.activeTextEditor;
-    const diagnostics: Diagnostic[] = [];
-
-    if (!editor) return diagnostics;
+    const diagnostics: FileDiagnostic[] = [];
 
     lines.forEach((line) => {
-      let filePaths: Array<FilePath> = [];
+      let filePaths: FilePath[] = [];
       const normalizedLine = Utilities.normalizePath(line, true);
       try {
         filePaths = JSON.parse(normalizedLine);
@@ -38,16 +37,23 @@ export default class LinterProvider implements Linter {
 
       if (filePaths) {
         filePaths.forEach((filePath: FilePath) => {
+          const fileDiagnostic: FileDiagnostic = {
+            filePath: Utilities.normalizePath(filePath.filepath),
+            diagnostics: []
+          };
+
           filePath.violations.forEach((violation: Violation) => {
             const path = filePath.filepath;
-            const editorPath = Utilities.normalizePath(editor.document.fileName);
             const line = violation.line_no - 1 > 0 ? violation.line_no - 1 : 0;
             const character = violation.line_pos - 1 > 0 ? violation.line_pos - 1 : 0;
             const violationPosition = new vscode.Position(line, character);
             let range = new vscode.Range(line, character, line, character);
 
-            if (editorPath.includes(path) || path === "stdin") {
-              range = editor.document.getWordRangeAtPosition(violationPosition) || range;
+            if (editor) {
+              const editorPath = Utilities.normalizePath(editor.document.fileName);
+              if (editorPath.includes(path) || path === "stdin") {
+                range = editor.document.getWordRangeAtPosition(violationPosition) || range;
+              }
             }
 
             const diagnosticSeverity = Configuration.diagnosticSeverityByRule(violation.code);
@@ -59,8 +65,10 @@ export default class LinterProvider implements Linter {
             );
             diagnostic.code = violation.code;
             diagnostic.source = "sqlfluff";
-            diagnostics.push(diagnostic);
+            fileDiagnostic.diagnostics.push(diagnostic);
           });
+
+          diagnostics.push(fileDiagnostic);
         });
       }
     });
