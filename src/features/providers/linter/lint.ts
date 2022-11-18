@@ -150,6 +150,11 @@ export default class LintingProvider {
     let fileDiagnostics: FileDiagnostic[] = [];
     if (result.lines?.length > 0) {
       fileDiagnostics = this.linter.process(result.lines);
+      if (fileDiagnostics.length === 0 && document) {
+        this.diagnosticCollection.set(document.uri, []);
+        return;
+      }
+
       fileDiagnostics.forEach(async (fileDiagnostic) => {
         try {
           if (document && fileDiagnostic.filePath === "stdin") {

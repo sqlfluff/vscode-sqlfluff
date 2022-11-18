@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.1.1] - Pre-Release - 2022-11-18
+
+- Fix linting not clearing diagnostics when there are no linting problems.
+
 ## [2.1.0] - Pre-Release - 2022-11-18
 
 - Improve the `lintEntireProject` to lint the entire workspace at once.
