@@ -46,7 +46,7 @@ export default class SQLFluff {
       // We want to use relative path to the file so intermediate sqlfluff config files can be found
       const normalizedFilePath = Utilities.normalizePath(options.filePath);
       const targetFileRelativePath = normalizedWorkingDirectory
-        ? path.relative(normalizedWorkingDirectory, normalizedFilePath)
+        ? Utilities.normalizePath(path.relative(normalizedWorkingDirectory, normalizedFilePath))
         : normalizedFilePath;
       finalArgs.push(targetFileRelativePath);
     }
