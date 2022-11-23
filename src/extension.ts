@@ -17,6 +17,7 @@ export const activate = (context: vscode.ExtensionContext) => {
   vscode.languages.registerDocumentFormattingEditProvider("sql", new FormattingEditProvider().activate());
   vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new FormattingEditProvider().activate());
   vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new FormattingEditProvider().activate());
+  vscode.languages.registerDocumentFormattingEditProvider("postgres", new FormattingEditProvider().activate());
 
   if (!Configuration.osmosisEnabled()) {
     context.subscriptions.push(
@@ -28,6 +29,9 @@ export const activate = (context: vscode.ExtensionContext) => {
       }),
       vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
         providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+      }),
+      vscode.languages.registerCodeActionsProvider("postgres", new QuickFixProvider(), {
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
       })
     );
   }
@@ -36,6 +40,7 @@ export const activate = (context: vscode.ExtensionContext) => {
     vscode.languages.registerHoverProvider("sql", new HoverProvider()),
     vscode.languages.registerHoverProvider("sql-bigquery", new HoverProvider()),
     vscode.languages.registerHoverProvider("jinja-sql", new HoverProvider()),
+    vscode.languages.registerHoverProvider("postgres", new HoverProvider()),
   );
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));

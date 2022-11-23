@@ -25,12 +25,14 @@
     "dbt",
     "sql",
     "sql-bigquery",
-    "jinja-sql"
+    "jinja-sql",
+    "postgres"
   ],
   "activationEvents": [
     "onLanguage:sql",
     "onLanguage:sql-bigquery",
-    "onLanguage:jinja-sql"
+    "onLanguage:jinja-sql",
+    "onLanguage:postgres"
   ],
   "main": "./out/src/extension.js",
   "contributes": {
