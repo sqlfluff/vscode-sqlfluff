@@ -150,7 +150,10 @@ export default class SQLFluff {
         }
 
         if (stderrLines?.length > 0 && !Configuration.suppressNotifications()) {
-          vscode.window.showErrorMessage(stderrLines.join("\n"));
+          const stderrString = stderrLines.join("\n");
+          if (!stderrString.includes("ignored by a .sqlfluffignore pattern")) {
+            vscode.window.showErrorMessage(stderrString);
+          }
         }
 
         this.childProcesses = this.childProcesses.filter(childProcess => childProcess !== process);

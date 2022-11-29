@@ -12,6 +12,10 @@
   "tasks": [
     {
       "label": "npm",
+      "icon": {
+        "id": "watch",
+        "color": "terminal.ansiGreen"
+      },
       "type": "npm",
       "script": "watch",
       "problemMatcher": "$tsc-watch",
