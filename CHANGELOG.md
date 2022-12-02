@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.2.1] - 2022-12-02
+
+- Do not show error if ignored file does not lint.
+
 ## [2.2.0] - 2022-11-23
 
 - Add postgres as a language option. Thanks to from frederikaalund's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)

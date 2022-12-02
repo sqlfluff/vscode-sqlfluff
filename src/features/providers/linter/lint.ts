@@ -26,9 +26,9 @@ export default class LintingProvider {
   public activate(subscriptions: vscode.Disposable[]) {
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection();
     subscriptions.push(this);
-    vscode.workspace.onDidChangeConfiguration(this.loadConfiguration, this, subscriptions);
     this.loadConfiguration();
 
+    vscode.workspace.onDidChangeConfiguration(this.loadConfiguration, this, subscriptions);
     vscode.workspace.onDidOpenTextDocument(this.triggerLint, this, subscriptions);
     vscode.workspace.onDidCloseTextDocument((textDocument) => {
       if (!Configuration.lintEntireProject()) {

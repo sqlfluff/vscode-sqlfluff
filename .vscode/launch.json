@@ -27,19 +27,6 @@
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/out/**/*.js"],
       "preLaunchTask": "npm"
-    },
-    {
-      "name": "Launch Extension - DBT",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "C:/Users/RobertOstermann/source/repos/datacoves/balboa/transform",
-        "--extensionDevelopmentPath=${workspaceRoot}"
-      ],
-      "sourceMaps": true,
-      "outFiles": ["${workspaceRoot}/out/**/*.js"],
-      "preLaunchTask": "npm"
     }
   ]
 }
