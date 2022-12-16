@@ -85,6 +85,10 @@ And here are a few that are probably useless.
 - selectedText: the current selected text in the active file
 - execPath: the path to the running VS Code executable
 
+## Open-VSX
+
+[open-vsx.org/extension/sqlfluff/vscode-sqlfluff](https://open-vsx.org/extension/sqlfluff/vscode-sqlfluff)
+
 ## Credits / Links
 
 - [dorzey](https://github.com/sqlfluff/vscode-sqlfluff)
