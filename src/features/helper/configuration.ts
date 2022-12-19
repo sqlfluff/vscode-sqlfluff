@@ -61,9 +61,13 @@ export default class Configuration {
   }
 
   public static config(): string {
-    return vscode.workspace
+    let config = vscode.workspace
       .getConfiguration("sqlfluff")
       .get<string>("config", "");
+
+    config = Utilities.interpolateString(config, Configuration.variables());
+
+    return config;
   }
 
   private static dialect(): string[] {
@@ -306,7 +310,6 @@ export default class Configuration {
    * @returns The variables for a terminal
    */
   static variables(): Variables {
-    // HERE: workspace
     const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
 

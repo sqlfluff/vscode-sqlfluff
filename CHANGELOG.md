@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.2.2] - 2022-12-19
+
+- Allow for variables in the configuration setting.
+
 ## [2.2.1] - 2022-12-02
 
 - Do not show error if ignored file does not lint.
