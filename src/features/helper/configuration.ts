@@ -137,9 +137,11 @@ export default class Configuration {
   }
 
   public static workingDirectory(rootPath: string | undefined): string | undefined {
-    const workingDirectory: string = vscode.workspace
+    let workingDirectory: string = vscode.workspace
       .getConfiguration("sqlfluff")
       .get<string>("workingDirectory", "");
+
+    workingDirectory = Utilities.interpolateString(workingDirectory, Configuration.variables());
 
     return workingDirectory ? workingDirectory : rootPath;
   }
