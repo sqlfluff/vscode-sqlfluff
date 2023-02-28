@@ -8,8 +8,8 @@ import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
 import Utilities from "./utilities";
 
-export const filePattern = "**/*.{sql,sql-bigquery,jinja-sql,postgres}";
-export const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql|postgres)$/;
+export const filePattern = "**/*.{sql,sql-bigquery,jinja-sql,postgres|snowflake-sql}";
+export const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql|postgres|snowflake-sql)$/;
 
 export default class Configuration {
   /** Initialize the configuration options that require a reload upon change. */

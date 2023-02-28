@@ -12,7 +12,7 @@ import Linter from "./providers/linter/types/linter";
 import Violation from "./providers/linter/types/violation";
 
 export default class LinterProvider implements Linter {
-  public languageId = ["sql", "jinja-sql", "sql-bigquery", "postgres"];
+  public languageId = ["sql", "jinja-sql", "sql-bigquery", "postgres", "snowflake-sql"];
 
   public activate(subscriptions: Disposable[]): LintingProvider {
     const provider = new LintingProvider(this);
