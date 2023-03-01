@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.2.4] - 2023-02-28
+
+- Add snowflake-sql support. Thanks to from fdrijver's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)
+
 ## [2.2.3] - 2023-01-24
 
 - Allow for variables in the working directory setting.
