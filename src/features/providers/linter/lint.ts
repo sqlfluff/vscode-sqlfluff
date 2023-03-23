@@ -122,6 +122,10 @@ export default class LintingProvider {
       return;
     }
 
+    if (workingDirectory?.includes("${")) {
+      return;
+    }
+
     const args: string[] = [...Configuration.lintFileArguments()];
     const options: CommandOptions = { filePath: filePath };
 
@@ -149,21 +153,23 @@ export default class LintingProvider {
 
     let fileDiagnostics: FileDiagnostic[] = [];
     if (result.lines?.length > 0) {
-      fileDiagnostics = this.linter.process(result.lines);
+      fileDiagnostics = this.linter.process(result.lines, filePath);
+
       if (fileDiagnostics.length === 0 && document) {
         this.diagnosticCollection.set(document.uri, []);
         return;
       }
 
       fileDiagnostics.forEach(async (fileDiagnostic) => {
+        const filePath = document ? Utilities.normalizePath(document.fileName) : undefined;
+
         try {
           if (document && fileDiagnostic.filePath === "stdin") {
             this.diagnosticCollection.set(document.uri, fileDiagnostic.diagnostics);
             return;
           }
-          const fileGlob = "**/" + fileDiagnostic.filePath;
-          const files = await vscode.workspace.findFiles(fileGlob, undefined, 1);
-          const file = files.length > 0 ? files[0].fsPath : Utilities.normalizePath(fileDiagnostic.filePath);
+
+          const file = filePath ? filePath : Utilities.normalizePath(fileDiagnostic.filePath);
           if (file) {
             const uri = vscode.Uri.file(file);
             this.diagnosticCollection.set(uri, fileDiagnostic.diagnostics);

@@ -20,7 +20,7 @@ export default class LinterProvider implements Linter {
     return provider;
   }
 
-  public process(lines: string[]): FileDiagnostic[] {
+  public process(lines: string[], documentPath: string): FileDiagnostic[] {
     const editor = vscode.window.activeTextEditor;
     const diagnostics: FileDiagnostic[] = [];
 
@@ -51,7 +51,7 @@ export default class LinterProvider implements Linter {
 
             if (editor) {
               const editorPath = Utilities.normalizePath(editor.document.fileName);
-              if (editorPath.includes(path) || path === "stdin") {
+              if (editorPath.includes(documentPath) || path === "stdin") {
                 range = editor.document.getWordRangeAtPosition(violationPosition) || range;
               }
             }

@@ -17,6 +17,10 @@ export class FormattingProvider {
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
 
+    if (workingDirectory?.includes("${")) {
+      return [];
+    }
+
     Utilities.appendHyphenatedLine();
     Utilities.outputChannel.appendLine(`Format triggered for ${filePath}`);
 
