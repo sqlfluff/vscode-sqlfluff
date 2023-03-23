@@ -4,6 +4,12 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.2.5] - 2023-03-23
+
+- Fix [Issue #88](https://github.com/sqlfluff/vscode-sqlfluff/issues/88)
+- Change the linting to match files exactly when possible
+- Do not attempt to lint diff files
+
 ## [2.2.4] - 2023-02-28
 
 - Add snowflake-sql support. Thanks to from fdrijver's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)
