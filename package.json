@@ -102,6 +102,7 @@
             "clickhouse",
             "databricks",
             "db2",
+            "duckdb",
             "exasol",
             "hive",
             "mysql",
