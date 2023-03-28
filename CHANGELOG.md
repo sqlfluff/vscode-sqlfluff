@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.2.6] - 2023-03-28
+
+- Update URL for sqlfluff rules documentation. Thanks to yaegassy's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/89)
+- Add duckdb to the dialect options. Thanks to rene-haskia's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/91)
+
 ## [2.2.5] - 2023-03-23
 
 - Fix [Issue #88](https://github.com/sqlfluff/vscode-sqlfluff/issues/88)
