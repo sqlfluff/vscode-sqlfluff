@@ -45,7 +45,6 @@ If you want to manually update the `settings.json` file, open the VS Code comman
   /* Formatter */
   "sqlfluff.format.arguments": ["--FIX-EVEN-UNPARSABLE"],
   "sqlfluff.format.enabled": true,
-
 ```
 
 ## DBT Configuration
@@ -63,6 +62,14 @@ DBT setup requires these settings to lint and format the document.
 By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force <path>`
 
 ![plugin configuration](./media/format_config.gif)
+
+### Show Documentation
+
+Hovering over a problem with reveal a popup explaining the problem and giving a link to the documentation.
+
+For SQLFluff versions after v2.0.0 this link will take you to the rule documentation.
+
+For SQLFLuff versions before v2.0.0 this link will take you to the top of the documentation page.
 
 ### VSCode Variables
 

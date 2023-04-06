@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.2.7] - 2023-04-05
+
+- Update URL for sqlfluff rules documentation on hover.
+- Update README to note rules documentation only works with SQLFluff v2.0.0 or greater
+
 ## [2.2.6] - 2023-03-28
 
 - Update URL for sqlfluff rules documentation. Thanks to yaegassy's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/89)
