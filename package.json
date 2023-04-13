@@ -32,7 +32,8 @@
     "onLanguage:sql",
     "onLanguage:sql-bigquery",
     "onLanguage:jinja-sql",
-    "onLanguage:postgres"
+    "onLanguage:postgres",
+    "onLanguage:snowflake-sql"
   ],
   "main": "./out/src/extension.js",
   "contributes": {
