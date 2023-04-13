@@ -26,7 +26,8 @@
     "sql",
     "sql-bigquery",
     "jinja-sql",
-    "postgres"
+    "postgres",
+    "snowflake-sql"
   ],
   "activationEvents": [
     "onLanguage:sql",
