@@ -10,8 +10,12 @@ You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasi
 
 ## Sponsors
 
-<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
-The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/datacoves-dark.png">
+  <img alt="Datacoves" src="images/datacoves-light.png" width="150">
+</picture>
+
+Hosted VS Code, dbt-core, SqlFluff, and Airflow, find out more at [Datacoves.com](https://datacoves.com/product).
 
 ## Configuration
 
