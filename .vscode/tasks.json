@@ -18,6 +18,29 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "openvsx - publish",
+      "type": "shell",
+      "command": "npx ovsx publish -p ${input:token}",
+      "problemMatcher": [],
+      "icon": {
+        "id": "add",
+        "color": "terminal.ansiGreen",
+      },
+      "presentation": {
+        "echo": true,
+        "panel": "dedicated",
+        "reveal": "always",
+        "close": false
+      }
+    },
+  ],
+  "inputs": [
+    {
+      "id": "token",
+      "type": "promptString",
+      "description": "Open Vsix Token"
     }
   ]
 }
