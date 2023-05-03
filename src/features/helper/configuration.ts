@@ -322,6 +322,9 @@ export default class Configuration {
       // - the path of the folder opened in VS Code
       workspaceFolder: rootPath,
 
+      // - the current opened file's workspace folder
+      fileWorkspaceFolder: (editor) ? vscode.workspace.getWorkspaceFolder(editor?.document.uri)?.uri.fsPath : undefined,
+
       // - the last portion of the path of the folder opened in VS Code
       workspaceFolderBasename: rootPath ? path.basename(rootPath) : undefined,
 
@@ -329,7 +332,7 @@ export default class Configuration {
       file: fileName,
 
       // - the current opened file relative to workspaceFolder
-      relativeFile: (vscode.window.activeTextEditor && rootPath && fileName) ? Utilities.normalizePath(path.relative(
+      relativeFile: (editor && rootPath && fileName) ? Utilities.normalizePath(path.relative(
         rootPath,
         fileName
       )) : undefined,
