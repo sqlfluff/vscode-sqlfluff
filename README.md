@@ -81,7 +81,8 @@ The `executablePath` and `config` settings can use some VSCode variables.
 This is achieved by using the format `${variableName}` in the settings.
 Here are a few useful ones.
 
-- workspaceFolder: the path of the folder opened in VS Code
+- fileWorkspaceFolder: the path of the workspace folder containing the file opened in VS Code
+- workspaceFolder: the path of the first workspace folder opened in VS Code
 - workspaceFolderBasename: the last portion of the path of the folder opened in VS Code
 - fileDirname: the current opened file's dirname
 

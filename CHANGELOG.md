@@ -4,13 +4,17 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.0] - 2023-05-03
+
+- Add `fileWorkspaceFolder` variable thanks to pdecat's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/97)
+
 ## [2.2.9] - 2023-04-29
 
 - Update README [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/96)
 
 ## [2.2.8] - 2023-04-14
 
-- Add snowflake-sql support. Thanks to from rubensa's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/93)
+- Add snowflake-sql support. Thanks to rubensa's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/93)
 
 ## [2.2.7] - 2023-04-05
 
@@ -30,7 +34,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [2.2.4] - 2023-02-28
 
-- Add snowflake-sql support. Thanks to from fdrijver's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)
+- Add snowflake-sql support. Thanks to fdrijver's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)
 
 ## [2.2.3] - 2023-01-24
 
@@ -46,7 +50,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [2.2.0] - 2022-11-23
 
-- Add postgres as a language option. Thanks to from frederikaalund's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)
+- Add postgres as a language option. Thanks to frederikaalund's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/77)
 
 ## [2.1.1] - Pre-Release - 2022-11-18
 
@@ -100,7 +104,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.1.2] - 2022-09-21
 
 - Add `suppressNotifications` setting to hide notification messages.
-- Solve issue [#54](https://github.com/sqlfluff/vscode-sqlfluff/issues/54) thanks to from XiChu2333's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/55)
+- Solve issue [#54](https://github.com/sqlfluff/vscode-sqlfluff/issues/54) thanks to XiChu2333's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/55)
 
 ## [0.1.1] - 2022-09-12
 
