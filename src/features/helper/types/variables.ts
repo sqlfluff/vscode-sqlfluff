@@ -1,4 +1,5 @@
 type Variables = {
+  fileWorkspaceFolder?: string;
   workspaceFolder?: string;
   workspaceFolderBasename?: string;
   file?: string;
