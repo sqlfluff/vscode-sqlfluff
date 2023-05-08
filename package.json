@@ -149,7 +149,7 @@
         "sqlfluff.workingDirectory": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
+          "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. Use an absolute path. This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
         },
         "sqlfluff.codeActions.excludeRules.workspace": {
           "type": "boolean",
