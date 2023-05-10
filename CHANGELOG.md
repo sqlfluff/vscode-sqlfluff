@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.1] - 2023-05-09
+
+- Update description for workingDirectory setting. Thanks to qbatten's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/99)
+
 ## [2.3.0] - 2023-05-03
 
 - Add `fileWorkspaceFolder` variable thanks to pdecat's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/97)

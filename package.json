@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -149,7 +149,7 @@
         "sqlfluff.workingDirectory": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. Use an absolute path. This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
+          "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. Use an absolute path (can use variables if necessary). This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
         },
         "sqlfluff.codeActions.excludeRules.workspace": {
           "type": "boolean",
