@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -92,7 +92,7 @@
         "sqlfluff.executablePath": {
           "type": "string",
           "default": "sqlfluff",
-          "description": "Points to the sqlfluff exectuable."
+          "description": "Points to the sqlfluff executable."
         },
         "sqlfluff.dialect": {
           "type": "string",
