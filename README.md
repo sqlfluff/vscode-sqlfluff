@@ -28,6 +28,16 @@ If you want to manually update the `settings.json` file, open the VS Code comman
 ```json
   "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
   "sqlfluff.dialect": "mysql",
+  "sqlfluff.env.environmentVariables": [
+    {
+      "key": "example_key",
+      "value": "example_value"
+    }
+  ],
+  "sqlfluff.env.customDotEnvFiles": [
+    "${workspaceFolder}/example.env"
+  ],
+  "sqlfluff.env.useDotEnvFile": true,
   "sqlfluff.excludeRules": ["L009"],
   "sqlfluff.executablePath": "sqlfluff",
   "sqlfluff.ignoreLocalConfig": false,

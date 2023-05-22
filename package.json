@@ -87,7 +87,45 @@
               }
             }
           },
+          "markdownDescription": "DEPRECATED: Use sqlfluff.env.environmentVariables"
+        },
+        "sqlfluff.env.environmentVariables": {
+          "type": "array",
+          "default": [
+            {
+              "key": "EXAMPLE_KEY",
+              "value": "example_value"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "markdownDescription": "The key for the environment variable."
+              },
+              "value": {
+                "type": "string",
+                "markdownDescription": "The value for the environment variable."
+              }
+            }
+          },
           "markdownDescription": "Set the environment variables for the linter and formatter."
+        },
+        "sqlfluff.env.customDotEnvFiles": {
+          "type": "array",
+          "default": [],
+          "description": "Load the .env file from the specified paths."
+        },
+        "sqlfluff.env.useDotEnvFile": {
+          "type": "boolean",
+          "default": false,
+          "description": "Load the .env file from the working directory."
         },
         "sqlfluff.executablePath": {
           "type": "string",
@@ -307,6 +345,11 @@
     "postbuild": "copyfiles \"./test/suite/test_sql/**/*.sql\" \"./out\" && copyfiles \"./test/.sqlfluff\" \"./out\"",
     "deploy": "vsce publish"
   },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "node-abort-controller": "^2.0.0",
+    "node-fetch": "^2.6.7"
+  },
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.0",
@@ -327,9 +370,5 @@
     "vsce": "^2.6.7",
     "vscode-dts": "^0.3.3",
     "vscode-test": "^1.3.0"
-  },
-  "dependencies": {
-    "node-abort-controller": "^2.0.0",
-    "node-fetch": "^2.6.7"
   }
 }

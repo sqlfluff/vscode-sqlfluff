@@ -1,3 +1,4 @@
+import * as dotenv from "dotenv";
 import * as path from "path";
 import * as vscode from "vscode";
 import { DiagnosticSeverity } from "vscode";
@@ -34,17 +35,53 @@ export default class Configuration {
   }
 
   public static environmentVariables(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-    const environmentVariables = vscode.workspace
+    const environment = env;
+
+    // DEPRECATED: Load the environment variabled from settings.json
+    const deprecatedEnvironmentVariables = vscode.workspace
       .getConfiguration("sqlfluff")
       .get<EnvironmentVariable[]>("environmentVariables", []);
 
-    const environment = env;
+    for (const variable of deprecatedEnvironmentVariables) {
+      const key = variable?.key ?? undefined;
+      const value = variable?.value ?? undefined;
+      if (key && value) {
+        environment[key] = value;
+      }
+    }
+
+    // Load the environment variabled from settings.json
+    const environmentVariables = vscode.workspace
+      .getConfiguration("sqlfluff.env")
+      .get<EnvironmentVariable[]>("environmentVariables", []);
+
     for (const variable of environmentVariables) {
       const key = variable?.key ?? undefined;
       const value = variable?.value ?? undefined;
       if (key && value) {
         environment[key] = value;
       }
+    }
+
+    // Load the environment variables from the specified .env files
+    const dotEnvFilePaths = vscode.workspace
+      .getConfiguration("sqlfluff.env")
+      .get<string[]>("customDotEnvFiles", []);
+
+    dotEnvFilePaths.forEach((path) => {
+      const dotEnvPath = Utilities.interpolateString(path, Configuration.variables());
+      dotenv.config({ path: dotEnvPath });
+    });
+
+    // Load the environment variables from the .env file in the working directory
+    const useDotEnvFile = vscode.workspace
+      .getConfiguration("sqlfluff.env")
+      .get<boolean>("useDotEnvFile", false);
+
+    const workingDirectory = Configuration.variables().workspaceFolder;
+    if (useDotEnvFile && workingDirectory) {
+      const dotEnvPath = workingDirectory + "/.env";
+      dotenv.config({ path: dotEnvPath });
     }
 
     return environment;

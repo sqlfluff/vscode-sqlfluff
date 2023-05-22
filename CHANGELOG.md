@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.3] - 2023-05-22
+
+- Add the options `sqlfluff.env.customDotEnvFiles` and `sqlfluff.env.useDotEnvFile` to address this [Feature Request](https://github.com/sqlfluff/vscode-sqlfluff/issues/101)
+- Deprecate `sqlfluff.environmentVariables` in favor of `sqlfluff.env.environmentVariables`
+
 ## [2.3.2] - 2023-05-15
 
 - Fix typo in the word "executable"
