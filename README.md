@@ -107,6 +107,13 @@ And here are a few that are probably useless.
 - selectedText: the current selected text in the active file
 - execPath: the path to the running VS Code executable
 
+## Running into Problems?
+
+Open the command palette and run the `SQLFluff Debug Extension` command
+
+If that doesn't help narrow down your problem, you can open an issue at https://github.com/sqlfluff/vscode-sqlfluff/issues
+
+
 ## Open-VSX
 
 [open-vsx.org/extension/sqlfluff/vscode-sqlfluff](https://open-vsx.org/extension/sqlfluff/vscode-sqlfluff)

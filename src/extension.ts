@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
 
-import { EXCLUDE_RULE,EXCLUDE_RULE_WORKSPACE,ExcludeRules } from "./features/commands/excludeRules";
+import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, ExcludeRules } from "./features/commands/excludeRules";
 import { Documentation, VIEW_DOCUMENTATION } from "./features/commands/showDocumentation";
 import { FormattingEditProvider } from "./features/formatter";
 import Configuration from "./features/helper/configuration";
 import LinterProvider from "./features/linter";
+import Debug from "./features/providers/debug";
 import HoverProvider from "./features/providers/linter/actions/hover";
 import QuickFixProvider from "./features/providers/linter/actions/quickFix";
 
@@ -55,36 +56,42 @@ export const activate = (context: vscode.ExtensionContext) => {
   const lintCommand = "sqlfluff.lint";
   const lintCommandHandler = () => {
     if (vscode.window.activeTextEditor) {
-			const currentDocument = vscode.window.activeTextEditor.document;
+      const currentDocument = vscode.window.activeTextEditor.document;
       if (currentDocument) {
         lintingProvider.doLint(currentDocument, true);
       }
     }
-  }
+  };
 
   const lintProjectCommand = "sqlfluff.lintProject";
   const lintProjectCommandHandler = () => {
     if (vscode.window.activeTextEditor) {
-			const currentDocument = vscode.window.activeTextEditor.document;
+      const currentDocument = vscode.window.activeTextEditor.document;
       if (currentDocument) {
         lintingProvider.lintProject(true);
       }
     }
-  }
+  };
 
   const fixCommand = "sqlfluff.fix";
   const fixCommandHandler = () => {
     if (vscode.window.activeTextEditor) {
-			const currentDocument = vscode.window.activeTextEditor.document;
+      const currentDocument = vscode.window.activeTextEditor.document;
       if (currentDocument) {
-        vscode.commands.executeCommand("editor.action.formatDocument")
+        vscode.commands.executeCommand("editor.action.formatDocument");
       }
     }
-  }
+  };
+
+  const debugCommand = "sqlfluff.debug";
+  const debugCommandHandler = async () => {
+    Debug.debug();
+  };
 
   context.subscriptions.push(vscode.commands.registerCommand(lintCommand, lintCommandHandler));
   context.subscriptions.push(vscode.commands.registerCommand(lintProjectCommand, lintProjectCommandHandler));
   context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
+  context.subscriptions.push(vscode.commands.registerCommand(debugCommand, debugCommandHandler));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -39,6 +39,11 @@
   "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "sqlfluff.debug",
+        "title": "SQLFluff Debug Extension",
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+      },
       {
         "command": "sqlfluff.lint",
         "title": "SQLFluff Lint",
@@ -178,6 +183,11 @@
           "type": "array",
           "default": [],
           "description": "Narrow the search to only specific rules. The rules from the global settings and workspace settings are combined."
+        },
+        "sqlfluff.shell": {
+          "type": ["boolean", "string"],
+          "default": false,
+          "markdownDescription": "Set the shell for the child process. This can be set to false (limited shell features), true (shell features such as the `dir` command), or the path to the shell executable."
         },
         "sqlfluff.suppressNotifications": {
           "type": "boolean",

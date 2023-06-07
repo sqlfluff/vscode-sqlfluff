@@ -105,78 +105,24 @@ export default class SQLFluff {
     return new Promise<CommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();
       const stdoutFix: Buffer[] = [];
-      let stdoutLines: string[];
       const stderrLines: string[] = [];
-
-      const onStdoutDataEvent = (data: Buffer) => {
-        if (command === CommandType.LINT) {
-          stdoutLint.write(data);
-        } else {
-          stdoutFix.push(data);
-        }
-      };
-
-      const onStderrDataEvent = (data: Buffer) => {
-        stderrLines.push(data.toString("utf8"));
-      };
-
-      const onCloseEvent = (code: number | null, signal: any, process: CProcess.ChildProcess) => {
-        Utilities.outputChannel.appendLine(`Received close event, code ${code} signal ${signal}`);
-        Utilities.outputChannel.appendLine("Raw stdout output:");
-
-        Utilities.appendHyphenatedLine();
-        if (command === CommandType.LINT) {
-          stdoutLint.end();
-          stdoutLines = stdoutLint.getLines();
-          Utilities.outputChannel.appendLine(stdoutLines.join("\n"));
-        } else {
-          const encoding: BufferEncoding = "utf8";
-          const stringDecoder = new StringDecoder(encoding);
-
-          const stdoutAllLines = stdoutFix.reduce((response, buffer) => {
-            response += stringDecoder.write(buffer);
-            return response;
-          }, "");
-          stdoutLines = [stdoutAllLines];
-          Utilities.outputChannel.appendLine(stdoutLines.join("\n"));
-        }
-        Utilities.appendHyphenatedLine();
-
-        if (stderrLines.length > 0) {
-          Utilities.outputChannel.appendLine("Raw stderr output:");
-          Utilities.appendHyphenatedLine();
-          Utilities.outputChannel.appendLine(stderrLines.join("\n"));
-          Utilities.appendHyphenatedLine();
-        }
-
-        if (stderrLines?.length > 0 && !Configuration.suppressNotifications()) {
-          const stderrString = stderrLines.join("\n");
-          if (!stderrString.includes("ignored by a .sqlfluffignore pattern")) {
-            vscode.window.showErrorMessage(stderrString);
-          }
-        }
-
-        this.childProcesses = this.childProcesses.filter(childProcess => childProcess !== process);
-
-        return resolve({
-          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
-          succeeded: code === 0 || code === 1 || code === 65,
-          lines: stdoutLines,
-        });
-      };
+      let stdoutLines: string[];
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
       Utilities.outputChannel.appendLine(Configuration.executablePath() + " " + finalArgs.join(" "));
       Utilities.appendHyphenatedLine();
 
+      const shell = Configuration.shell();
       const environmentVariables = Configuration.environmentVariables(process.env);
 
+      // HERE: Spawn Process
       const childProcess = CProcess.spawn(
         Configuration.executablePath(),
         finalArgs,
         {
           cwd: normalizedWorkingDirectory,
           env: environmentVariables,
+          shell: shell,
         }
       );
 
@@ -213,6 +159,63 @@ export default class SQLFluff {
 
         resolve({ succeeded: false, lines: [] });
       });
+
+      function onStdoutDataEvent(data: Buffer) {
+        if (command === CommandType.LINT) {
+          stdoutLint.write(data);
+        } else {
+          stdoutFix.push(data);
+        }
+      }
+
+      function onStderrDataEvent(data: Buffer) {
+        stderrLines.push(data.toString("utf8"));
+      }
+
+      function onCloseEvent(code: number | null, signal: any, process: CProcess.ChildProcess) {
+        Utilities.outputChannel.appendLine(`Received close event, code ${code} signal ${signal}`);
+        Utilities.outputChannel.appendLine("Raw stdout output:");
+        Utilities.appendHyphenatedLine();
+
+        if (command === CommandType.LINT) {
+          stdoutLint.end();
+          stdoutLines = stdoutLint.getLines();
+          Utilities.outputChannel.appendLine(stdoutLines.join("\n"));
+        } else {
+          const encoding: BufferEncoding = "utf8";
+          const stringDecoder = new StringDecoder(encoding);
+
+          const stdoutAllLines = stdoutFix.reduce((response, buffer) => {
+            response += stringDecoder.write(buffer);
+            return response;
+          }, "");
+          stdoutLines = [stdoutAllLines];
+          Utilities.outputChannel.appendLine(stdoutLines.join("\n"));
+        }
+        Utilities.appendHyphenatedLine();
+
+        if (stderrLines.length > 0) {
+          Utilities.outputChannel.appendLine("Raw stderr output:");
+          Utilities.appendHyphenatedLine();
+          Utilities.outputChannel.appendLine(stderrLines.join("\n"));
+          Utilities.appendHyphenatedLine();
+        }
+
+        if (stderrLines?.length > 0 && !Configuration.suppressNotifications()) {
+          const stderrString = stderrLines.join("\n");
+          if (!stderrString.includes("ignored by a .sqlfluffignore pattern")) {
+            vscode.window.showErrorMessage(stderrString);
+          }
+        }
+
+        SQLFluff.childProcesses = SQLFluff.childProcesses.filter(childProcess => childProcess !== process);
+
+        return resolve({
+          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+          succeeded: code === 0 || code === 1 || code === 65,
+          lines: stdoutLines,
+        });
+      }
     });
   }
 }

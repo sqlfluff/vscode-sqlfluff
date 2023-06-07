@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.4] - 2023-06-07
+
+- Add the option `sqlfluff.shell`
+- Add the command `sqlfluff.debug` to help users with debugging the extension when they run into issues.
+
 ## [2.3.3] - 2023-05-22
 
 - Add the options `sqlfluff.env.customDotEnvFiles` and `sqlfluff.env.useDotEnvFile` to address this [Feature Request](https://github.com/sqlfluff/vscode-sqlfluff/issues/101)

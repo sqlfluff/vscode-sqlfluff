@@ -167,6 +167,14 @@ export default class Configuration {
     return rules ? ["--rules", rules] : [];
   }
 
+  public static shell(): boolean | string {
+    const shell: boolean | string = vscode.workspace
+      .getConfiguration("sqlfluff")
+      .get<boolean | string>("shell", false);
+
+    return shell;
+  }
+
   public static suppressNotifications(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff")

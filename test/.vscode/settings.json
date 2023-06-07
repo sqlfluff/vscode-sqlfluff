@@ -1,0 +1,19 @@
+{
+  // SQLFluff Extended
+  "sqlfluff.codeActions.excludeRules.global": true,
+  "sqlfluff.codeActions.excludeRules.workspace": false,
+  "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
+  "sqlfluff.dialect": "postgres",
+  "sqlfluff.format.enabled": true,
+  "sqlfluff.experimental.format.executeInTerminal": false,
+  "sqlfluff.linter.delay": 500,
+  "sqlfluff.linter.run": "onType",
+  "sqlfluff.rules": [],
+  "sqlfluff.suppressNotifications": false,
+  // Spawn Setup
+  "sqlfluff.executablePath": "sqlfluff",
+  // "sqlfluff.shell": true,
+  // "sqlfluff.shell": "C:/Program Files/Git/bin/bash.exe",
+  "sqlfluff.workingDirectory": "${fileDirname}",
+  // "sqlfluff.workingDirectory": "broken",
+}

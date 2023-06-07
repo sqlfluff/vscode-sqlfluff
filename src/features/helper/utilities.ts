@@ -5,8 +5,12 @@ import Variables from "./types/variables";
 export default class Utilities {
   static outputChannel = vscode.window.createOutputChannel("SQLFluff");
 
-  public static appendHyphenatedLine() {
-    Utilities.outputChannel.appendLine("\n------------------------------------------------------------\n");
+  public static appendHyphenatedLine(newLines = true) {
+    if (newLines) {
+      Utilities.outputChannel.appendLine("\n------------------------------------------------------------\n");
+    } else {
+      Utilities.outputChannel.appendLine("------------------------------------------------------------");
+    }
   }
 
   static interpolateString(command: string, variables: Variables): string {
