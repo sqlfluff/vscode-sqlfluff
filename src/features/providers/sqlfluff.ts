@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 
 import Configuration from "../helper/configuration";
 import { LineDecoder } from "../helper/lineDecoder";
-import { Osmosis } from "../helper/osmosis";
+import { DbtInterface } from "../helper/dbtInterface";
 import Utilities from "../helper/utilities";
 import FilePath from "./linter/types/filePath";
 import CommandOptions from "./types/commandOptions";
@@ -51,15 +51,15 @@ export default class SQLFluff {
       finalArgs.push(targetFileRelativePath);
     }
 
-    if (Configuration.osmosisEnabled() && command === CommandType.LINT) {
-      const osmosis = new Osmosis(
+    if (Configuration.dbtInterfaceEnabled() && command === CommandType.LINT) {
+      const dbtInterface = new DbtInterface(
         shouldUseStdin ? options.fileContents : undefined,
         options.workspacePath ?? options.filePath,
         Configuration.config()
       );
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
-      Utilities.outputChannel.appendLine(osmosis.getURL());
+      Utilities.outputChannel.appendLine(dbtInterface.getURL());
       if (shouldUseStdin) {
         Utilities.outputChannel.appendLine("\n-----Request Body-----\n");
         if (options.fileContents) {
@@ -71,7 +71,7 @@ export default class SQLFluff {
 
       Utilities.appendHyphenatedLine();
 
-      const response: any = await osmosis.lint();
+      const response: any = await dbtInterface.lint();
       const output: FilePath[] = [
         {
           filepath: options.filePath,
@@ -88,7 +88,7 @@ export default class SQLFluff {
         const code = response?.error?.code ?? 0;
         const succeeded = code === 0;
         if (!succeeded && !Configuration.suppressNotifications()) {
-          const message = response?.error?.message ?? "DBT-Osmosis linting error.";
+          const message = response?.error?.message ?? "DBT-Interface linting error.";
           const detail = response?.error?.data?.error ?? "";
 
           vscode.window.showErrorMessage([message, detail].join("\n"));

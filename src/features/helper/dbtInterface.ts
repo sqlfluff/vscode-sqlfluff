@@ -4,42 +4,42 @@ import fetch, { Response } from "node-fetch";
 import Configuration from "./configuration";
 import Utilities from "./utilities";
 
-export interface OsmosisRunResult {
+export interface DbtInterfaceRunResult {
   column_names: string[],
   rows: any[][],
   raw_sql: string,
   compiled_sql: string,
 }
 
-export interface OsmosisCompileResult {
+export interface DbtInterfaceCompileResult {
   result: string;
 }
 
-export interface OsmosisResetResult {
+export interface DbtInterfaceResetResult {
   result: string;
 }
 
-export enum OsmosisFullReparse {
+export enum DbtInterfaceFullReparse {
   True = "true",
   False = "false"
 }
 
-export enum OsmosisErrorCode {
+export enum DbtInterfaceErrorCode {
   FailedToReachServer = -1,
   CompileSqlFailure = 1,
   ExecuteSqlFailure = 2,
   ProjectParseFailure = 3,
 }
 
-export interface OsmosisErrorContainer {
+export interface DbtInterfaceErrorContainer {
   error: {
-    code: OsmosisErrorCode,
+    code: DbtInterfaceErrorCode,
     message: string,
     data: { [index: string]: (string | number); },
   };
 }
 
-export class Osmosis {
+export class DbtInterface {
   private sql: string | undefined;
   private sql_path: string | undefined;
   private extra_config_path: string;
@@ -51,9 +51,9 @@ export class Osmosis {
   }
 
   public getURL(): string {
-    let url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?sql_path=${this.sql_path}`;
+    let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?sql_path=${this.sql_path}`;
     if (this.sql !== undefined) {
-      url = `http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()}/lint?`;
+      url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?`;
     }
 
     if (this.extra_config_path) {
@@ -64,12 +64,12 @@ export class Osmosis {
   }
 
   public async lint<T>(timeout = 25000) {
-    const failedToReachServerError: OsmosisErrorContainer = {
+    const failedToReachServerError: DbtInterfaceErrorContainer = {
       error: {
-        code: OsmosisErrorCode.FailedToReachServer,
+        code: DbtInterfaceErrorCode.FailedToReachServer,
         message: "Query failed to reach dbt sync server.",
         data: {
-          "error": `Is the server listening on the http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()} address?`,
+          "error": `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
         },
       }
     };

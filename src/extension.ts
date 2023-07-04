@@ -21,7 +21,7 @@ export const activate = (context: vscode.ExtensionContext) => {
   vscode.languages.registerDocumentFormattingEditProvider("postgres", new FormattingEditProvider().activate());
   vscode.languages.registerDocumentFormattingEditProvider("snowflake-sql", new FormattingEditProvider().activate());
 
-  if (!Configuration.osmosisEnabled()) {
+  if (!Configuration.dbtInterfaceEnabled()) {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
         providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
