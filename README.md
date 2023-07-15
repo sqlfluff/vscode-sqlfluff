@@ -111,6 +111,10 @@ And here are a few that are probably useless.
 
 Open the command palette and run the `SQLFluff Debug Extension` command
 
+Check the output channel to see the SQLFluff commands this extension is running
+
+![Ouput Channel](./images/OutputChannel.png)
+
 If that doesn't help narrow down your problem, you can open an issue at https://github.com/sqlfluff/vscode-sqlfluff/issues
 
 
