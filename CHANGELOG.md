@@ -4,6 +4,12 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.5] - 2023-07-14
+
+- Add the ability to `Format Selection`
+- Add the command `sqlfluff.showOutputChannel` to reveal the SQLFluff Output Channel
+- Display error for ignored parsing issues when attempting a format
+
 ## [2.3.4] - 2023-06-07
 
 - Add the option `sqlfluff.shell`
