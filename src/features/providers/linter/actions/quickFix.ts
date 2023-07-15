@@ -13,7 +13,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.CodeAction[] {
     const noqaSingleRules: vscode.CodeAction[] = [];
     const noqaAllRules: vscode.CodeAction[] = [];
@@ -46,12 +46,12 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
   private createNoqaCodeFix(
     document: vscode.TextDocument,
     diagnostic: vscode.Diagnostic,
-    allRules: boolean
+    allRules: boolean,
   ): vscode.CodeAction {
     const title = allRules ? "Ignore all rules for this line" : `Ignore rule ${diagnostic.code} for this line`;
     const fix = new vscode.CodeAction(
       title,
-      vscode.CodeActionKind.QuickFix
+      vscode.CodeActionKind.QuickFix,
     );
     fix.diagnostics = [diagnostic];
     fix.edit = new vscode.WorkspaceEdit();
@@ -91,18 +91,18 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
 
   private createExcludeRulesCodeAction(
     diagnostic: vscode.Diagnostic,
-    global: boolean
+    global: boolean,
   ): vscode.CodeAction {
     const title = `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`;
     const action = new vscode.CodeAction(
       title,
-      vscode.CodeActionKind.QuickFix
+      vscode.CodeActionKind.QuickFix,
     );
     action.command = {
       command: global ? EXCLUDE_RULE : EXCLUDE_RULE_WORKSPACE,
       title: title,
       tooltip: `This will exclude the rule ${diagnostic.code} in the ${global ? "Global" : "Workspace"} Settings`,
-      arguments: [diagnostic.code]
+      arguments: [diagnostic.code],
     };
     action.diagnostics = [diagnostic];
 

@@ -23,7 +23,7 @@ export default class Configuration {
         vscode.window
           .showInformationMessage(
             "Reload window for configuration change to take effect.",
-            action
+            action,
           )
           .then(selectedAction => {
             if (selectedAction === action) {
@@ -379,7 +379,7 @@ export default class Configuration {
       // - the current opened file relative to workspaceFolder
       relativeFile: (editor && rootPath && fileName) ? Utilities.normalizePath(path.relative(
         rootPath,
-        fileName
+        fileName,
       )) : undefined,
 
       // - the last portion of the path to the file
@@ -401,7 +401,7 @@ export default class Configuration {
       selectedText: editor ? editor.document.getText(editor.selection) : undefined,
 
       // - the path to the running VS Code executable
-      execPath: process.execPath
+      execPath: process.execPath,
     };
 
     return vars;

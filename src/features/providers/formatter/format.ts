@@ -7,9 +7,11 @@ import SQLFluff from "../sqlfluff";
 import CommandOptions from "../types/commandOptions";
 import CommandType from "../types/commandType";
 
-export class FormattingProvider {
+export class FormattingProvider implements vscode.DocumentFormattingEditProvider {
   async provideDocumentFormattingEdits(
-    document: vscode.TextDocument
+    document: vscode.TextDocument,
+    options: vscode.FormattingOptions,
+    token: vscode.CancellationToken,
   ): Promise<vscode.TextEdit[]> {
     const filePath = Utilities.normalizePath(document.fileName);
     const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
@@ -63,7 +65,7 @@ export class FormattingProvider {
           if (lines.length > 1 || lines[0] !== "") {
             textEdits.push(vscode.TextEdit.replace(
               new vscode.Range(0, 0, lineCount, endChar),
-              lines.join("\n")
+              lines.join("\n"),
             ));
           }
         } catch (error) {
@@ -76,7 +78,7 @@ export class FormattingProvider {
       } else {
         const options: CommandOptions = {
           filePath: filePath,
-          fileContents: document.getText()
+          fileContents: document.getText(),
         };
         const result = await SQLFluff.run(
           workingDirectory,
@@ -117,7 +119,7 @@ export class FormattingProvider {
         if (lines.length > 1 || lines[0] !== "") {
           textEdits.push(vscode.TextEdit.replace(
             new vscode.Range(0, 0, lineCount, endChar),
-            lines.join("\n")
+            lines.join("\n"),
           ));
         }
       }

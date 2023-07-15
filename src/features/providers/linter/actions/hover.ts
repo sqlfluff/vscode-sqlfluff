@@ -5,7 +5,7 @@ export default class HoverProvider implements vscode.HoverProvider {
   public provideHover(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.Hover> {
     const editor = vscode.window.activeTextEditor;
     const diagnostics = vscode.languages.getDiagnostics(document.uri);
@@ -27,7 +27,7 @@ export default class HoverProvider implements vscode.HoverProvider {
   }
 
   private createHover(
-    diagnostic: vscode.Diagnostic
+    diagnostic: vscode.Diagnostic,
   ): vscode.Hover {
     const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.sphinx.Rule_${diagnostic.code}`;
     const markdownString = new vscode.MarkdownString();

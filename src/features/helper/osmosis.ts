@@ -71,7 +71,7 @@ export class Osmosis {
         data: {
           "error": `Is the server listening on the http://${Configuration.osmosisHost()}:${Configuration.osmosisPort()} address?`,
         },
-      }
+      },
     };
 
     const abortController = new AbortController();
@@ -86,8 +86,8 @@ export class Osmosis {
         {
           method: "POST",
           signal: abortController.signal,
-          body: this.sql
-        }
+          body: this.sql,
+        },
       );
     } catch (error) {
       Utilities.appendHyphenatedLine();

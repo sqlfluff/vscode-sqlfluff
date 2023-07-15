@@ -144,7 +144,7 @@ export default class LintingProvider {
       workingDirectory,
       CommandType.LINT,
       args,
-      options
+      options,
     );
 
     if (!result.succeeded) {

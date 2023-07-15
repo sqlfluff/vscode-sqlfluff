@@ -19,7 +19,7 @@ export default class SQLFluff {
     workingDirectory: string | undefined,
     command: CommandType,
     args: string[],
-    options: CommandOptions
+    options: CommandOptions,
   ): Promise<CommandOutput> {
     if (!options.fileContents && !options.filePath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
@@ -55,7 +55,7 @@ export default class SQLFluff {
       const osmosis = new Osmosis(
         shouldUseStdin ? options.fileContents : undefined,
         options.workspacePath ?? options.filePath,
-        Configuration.config()
+        Configuration.config(),
       );
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
@@ -123,7 +123,7 @@ export default class SQLFluff {
           cwd: normalizedWorkingDirectory,
           env: environmentVariables,
           shell: shell,
-        }
+        },
       );
 
       SQLFluff.childProcesses.push(childProcess);

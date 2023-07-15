@@ -24,20 +24,20 @@ export const activate = (context: vscode.ExtensionContext) => {
   if (!Configuration.osmosisEnabled()) {
     context.subscriptions.push(
       vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
       }),
       vscode.languages.registerCodeActionsProvider("sql-bigquery", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
       }),
       vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
       }),
       vscode.languages.registerCodeActionsProvider("postgres", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
       }),
       vscode.languages.registerCodeActionsProvider("snowflake-sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-      })
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
+      }),
     );
   }
 

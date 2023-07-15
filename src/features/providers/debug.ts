@@ -36,7 +36,7 @@ export default class Debug {
       if (Debug.sqlFluffLocation !== "") {
         const testSqlfluffVersionRetry = await Debug.testSqlfluffVersion(
           normalizedWorkingDirectory,
-          Debug.sqlFluffLocation
+          Debug.sqlFluffLocation,
         );
 
         if (!testSqlfluffVersionRetry) {
@@ -78,7 +78,7 @@ export default class Debug {
           cwd: normalizedWorkingDirectory,
           env: environmentVariables,
           shell: shell ? shell : true,
-        }
+        },
       );
 
       if (childProcess.pid) {
@@ -120,7 +120,7 @@ export default class Debug {
   }
 
   public static async testSqlfluffLocation(
-    normalizedWorkingDirectory?: string
+    normalizedWorkingDirectory?: string,
   ): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       const stdout: Buffer[] = [];
@@ -141,8 +141,8 @@ export default class Debug {
         {
           cwd: normalizedWorkingDirectory,
           env: environmentVariables,
-          shell: shell
-        }
+          shell: shell,
+        },
       );
 
       if (childProcess.pid) {
@@ -200,7 +200,7 @@ export default class Debug {
 
   public static async testSqlfluffVersion(
     normalizedWorkingDirectory?: string,
-    retryCommand?: string
+    retryCommand?: string,
   ): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       const stdout: Buffer[] = [];
@@ -225,8 +225,8 @@ export default class Debug {
         {
           cwd: normalizedWorkingDirectory,
           env: environmentVariables,
-          shell: shell
-        }
+          shell: shell,
+        },
       );
 
       if (childProcess.pid) {

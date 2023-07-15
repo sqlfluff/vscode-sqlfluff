@@ -39,7 +39,7 @@ export default class LinterProvider implements Linter {
         filePaths.forEach((filePath: FilePath) => {
           const fileDiagnostic: FileDiagnostic = {
             filePath: Utilities.normalizePath(filePath.filepath),
-            diagnostics: []
+            diagnostics: [],
           };
 
           filePath.violations.forEach((violation: Violation) => {
