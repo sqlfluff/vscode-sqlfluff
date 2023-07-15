@@ -1,5 +1,7 @@
 {
   // SQLFluff Extended
+  "files.insertFinalNewline": false,
+  "files.trimFinalNewlines": false,
   "sqlfluff.codeActions.excludeRules.global": true,
   "sqlfluff.codeActions.excludeRules.workspace": false,
   "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
