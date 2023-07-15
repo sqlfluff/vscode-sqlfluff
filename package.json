@@ -42,21 +42,26 @@
       {
         "command": "sqlfluff.debug",
         "title": "SQLFluff Debug Extension",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
+      },
+      {
+        "command": "sqlfluff.fix",
+        "title": "SQLFluff Fix",
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
       },
       {
         "command": "sqlfluff.lint",
         "title": "SQLFluff Lint",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
       },
       {
         "command": "sqlfluff.lintProject",
         "title": "SQLFluff Lint Project"
       },
       {
-        "command": "sqlfluff.fix",
-        "title": "SQLFluff Fix",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+        "command": "sqlfluff.showOutputChannel",
+        "title": "SQLFluff Show Output Channel",
+        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
       }
     ],
     "configuration": {

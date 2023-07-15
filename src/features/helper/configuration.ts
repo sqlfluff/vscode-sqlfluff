@@ -17,7 +17,8 @@ export default class Configuration {
   static initialize(): void {
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (
-        event.affectsConfiguration("sqlfluff.osmosis.enabled")
+        event.affectsConfiguration("sqlfluff.osmosis.enabled") ||
+        event.affectsConfiguration("sqlfluff.experimental.format.executeInTerminal")
       ) {
         const action = "Reload";
         vscode.window

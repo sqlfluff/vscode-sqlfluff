@@ -2,8 +2,9 @@ import * as vscode from "vscode";
 
 import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, ExcludeRules } from "./features/commands/excludeRules";
 import { Documentation, VIEW_DOCUMENTATION } from "./features/commands/showDocumentation";
-import { FormattingEditProvider } from "./features/formatter";
+import { FormattingEditProvider, RangeFormattingEditProvider } from "./features/formatter";
 import Configuration from "./features/helper/configuration";
+import Utilities from "./features/helper/utilities";
 import LinterProvider from "./features/linter";
 import Debug from "./features/providers/debug";
 import HoverProvider from "./features/providers/linter/actions/hover";
@@ -15,39 +16,36 @@ export const activate = (context: vscode.ExtensionContext) => {
   const linterProvider = new LinterProvider();
   const lintingProvider = linterProvider.activate(context.subscriptions);
 
-  vscode.languages.registerDocumentFormattingEditProvider("sql", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("postgres", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("snowflake-sql", new FormattingEditProvider().activate());
+  const selectors = ["sql", "sql-bigquery", "jinja-sql", "postgres", "snowflake-sql"];
 
-  if (!Configuration.osmosisEnabled()) {
-    context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
-      }),
-      vscode.languages.registerCodeActionsProvider("sql-bigquery", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
-      }),
-      vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
-      }),
-      vscode.languages.registerCodeActionsProvider("postgres", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
-      }),
-      vscode.languages.registerCodeActionsProvider("snowflake-sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
-      }),
+  selectors.forEach(selector => {
+    // Register the "Format Document" command
+    const formattingProvider = new FormattingEditProvider().activate();
+    vscode.languages.registerDocumentFormattingEditProvider(
+      selector,
+      formattingProvider,
     );
-  }
 
-  context.subscriptions.push(
-    vscode.languages.registerHoverProvider("sql", new HoverProvider()),
-    vscode.languages.registerHoverProvider("sql-bigquery", new HoverProvider()),
-    vscode.languages.registerHoverProvider("jinja-sql", new HoverProvider()),
-    vscode.languages.registerHoverProvider("postgres", new HoverProvider()),
-    vscode.languages.registerHoverProvider("snowflake-sql", new HoverProvider()),
-  );
+    // Register the "Format Selection" command
+    if (!Configuration.executeInTerminal()) {
+      const rangeFormattingProvider = new RangeFormattingEditProvider().activate();
+      vscode.languages.registerDocumentRangeFormattingEditProvider(
+        selector,
+        rangeFormattingProvider,
+      );
+    }
+
+    // Register the code actions
+    if (!Configuration.osmosisEnabled()) {
+      const codeActionProvider = vscode.languages.registerCodeActionsProvider(selector, new QuickFixProvider(), {
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
+      });
+      context.subscriptions.push(codeActionProvider);
+    }
+
+    const hoverProvider = vscode.languages.registerHoverProvider(selector, new HoverProvider());
+    context.subscriptions.push(hoverProvider);
+  });
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));
@@ -88,10 +86,16 @@ export const activate = (context: vscode.ExtensionContext) => {
     Debug.debug();
   };
 
+  const showOutputChannelCommand = "sqlfluff.showOutputChannel";
+  const showOutputChannelCommandHandler = async () => {
+    Utilities.outputChannel.show();
+  };
+
   context.subscriptions.push(vscode.commands.registerCommand(lintCommand, lintCommandHandler));
   context.subscriptions.push(vscode.commands.registerCommand(lintProjectCommand, lintProjectCommandHandler));
   context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
   context.subscriptions.push(vscode.commands.registerCommand(debugCommand, debugCommandHandler));
+  context.subscriptions.push(vscode.commands.registerCommand(showOutputChannelCommand, showOutputChannelCommandHandler));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

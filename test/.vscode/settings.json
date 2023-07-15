@@ -4,12 +4,18 @@
   "sqlfluff.codeActions.excludeRules.workspace": false,
   "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
   "sqlfluff.dialect": "postgres",
-  "sqlfluff.format.enabled": true,
-  "sqlfluff.experimental.format.executeInTerminal": false,
+
+  /* Linter */
   "sqlfluff.linter.delay": 500,
   "sqlfluff.linter.run": "onType",
+  "sqlfluff.linter.lintEntireProject": true,
   "sqlfluff.rules": [],
+  "sqlfluff.ignoreParsing": false,
   "sqlfluff.suppressNotifications": false,
+  /* Formatter */
+  "sqlfluff.format.enabled": true,
+  "sqlfluff.experimental.format.executeInTerminal": false,
+
   // Spawn Setup
   "sqlfluff.executablePath": "sqlfluff",
   // "sqlfluff.shell": true,

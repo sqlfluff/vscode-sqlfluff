@@ -6,6 +6,7 @@ import Utilities from "../../helper/utilities";
 import SQLFluff from "../sqlfluff";
 import CommandOptions from "../types/commandOptions";
 import CommandType from "../types/commandType";
+import FormatHelper from "./helper";
 
 export class FormattingProvider implements vscode.DocumentFormattingEditProvider {
   async provideDocumentFormattingEdits(
@@ -26,72 +27,39 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
     Utilities.appendHyphenatedLine();
     Utilities.outputChannel.appendLine(`Format triggered for ${filePath}`);
 
-    if (Configuration.formatEnabled()) {
-      // TODO: Remove this conditional and always save the document.
-      if (Configuration.executeInTerminal()) {
-        if (document.isDirty) {
-          // FIXME: This causes problems when editor.formatOnSave is set to true.
-          await document.save();
-        }
+    if (!Configuration.formatEnabled()) {
+      const message = "Format not enabled in the settings. Skipping Format.";
+      Utilities.outputChannel.appendLine(message);
 
-        try {
-          const options: CommandOptions = { filePath: filePath };
-          const result = await SQLFluff.run(
-            workingDirectory,
-            CommandType.FIX,
-            Configuration.formatFileArguments(),
-            options,
-          );
+      if (!Configuration.suppressNotifications()) {
+        vscode.window.showErrorMessage(message);
+      }
 
-          if (!result.succeeded) {
-            throw new Error("Command failed to execute, check logs for details");
-          }
+      return [];
+    }
 
-          const contents = fs.readFileSync(filePath, "utf-8");
-          const lines = contents.split(/\r?\n/);
-          const lineCount = document.lineCount;
-          const lastLineRange = document.lineAt(lineCount - 1).range;
-          const endChar = lastLineRange.end.character;
+    // TODO: Remove this conditional and always save the document.
+    if (Configuration.executeInTerminal()) {
+      if (document.isDirty) {
+        // FIXME: This causes problems when editor.formatOnSave is set to true.
+        await document.save();
+      }
 
-          if (lines[0].startsWith("NO SAFETY:")) {
-            lines.shift();
-            lines.shift();
-          }
-
-          if (lines[0].includes("ENOENT")) {
-            return [];
-          }
-
-          if (lines.length > 1 || lines[0] !== "") {
-            textEdits.push(vscode.TextEdit.replace(
-              new vscode.Range(0, 0, lineCount, endChar),
-              lines.join("\n"),
-            ));
-          }
-        } catch (error) {
-          Utilities.outputChannel.appendLine("\n--------------------Formatting Error--------------------\n");
-          Utilities.outputChannel.appendLine(error as string);
-          if (!Configuration.suppressNotifications()) {
-            vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
-          }
-        }
-      } else {
-        const options: CommandOptions = {
-          filePath: filePath,
-          fileContents: document.getText(),
-        };
+      try {
+        const commandOptions: CommandOptions = { filePath: filePath };
         const result = await SQLFluff.run(
           workingDirectory,
           CommandType.FIX,
           Configuration.formatFileArguments(),
-          options,
+          commandOptions,
         );
 
         if (!result.succeeded) {
           throw new Error("Command failed to execute, check logs for details");
         }
 
-        const lines = result.lines;
+        const contents = fs.readFileSync(filePath, "utf-8");
+        const lines = contents.split(/\r?\n/);
         const lineCount = document.lineCount;
         const lastLineRange = document.lineAt(lineCount - 1).range;
         const endChar = lastLineRange.end.character;
@@ -101,18 +69,7 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
           lines.shift();
         }
 
-        if (lines[0].includes("templating/parsing errors remaining")) {
-          lines.shift();
-        }
-
         if (lines[0].includes("ENOENT")) {
-          return [];
-        }
-
-        if (lines[0].includes("templating/parsing errors found")) {
-          if (!Configuration.suppressNotifications()) {
-            vscode.window.showErrorMessage("SQLFluff templating/parsing errors found.");
-          }
           return [];
         }
 
@@ -122,9 +79,43 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
             lines.join("\n"),
           ));
         }
+      } catch (error) {
+        Utilities.outputChannel.appendLine("\n--------------------Formatting Error--------------------\n");
+        Utilities.outputChannel.appendLine(error as string);
+        if (!Configuration.suppressNotifications()) {
+          vscode.window.showErrorMessage("SQLFluff Formatting Failed.");
+        }
       }
     } else {
-      Utilities.outputChannel.appendLine("Format not enabled in the settings. Skipping Format.");
+      const commandOptions: CommandOptions = {
+        filePath: filePath,
+        fileContents: document.getText(),
+      };
+
+      const result = await SQLFluff.run(
+        workingDirectory,
+        CommandType.FIX,
+        Configuration.formatFileArguments(),
+        commandOptions,
+      );
+
+      if (!result.succeeded) {
+        throw new Error("Command failed to execute, check logs for details");
+      }
+
+      const lines = FormatHelper.parseLines(result.lines);
+      if (lines === undefined) return [];
+
+      const lineCount = document.lineCount;
+      const lastLineRange = document.lineAt(lineCount - 1).range;
+      const endChar = lastLineRange.end.character;
+
+      if (lines.length > 1 || lines[0] !== "") {
+        textEdits.push(vscode.TextEdit.replace(
+          new vscode.Range(0, 0, lineCount, endChar),
+          lines.join("\n"),
+        ));
+      }
     }
 
     if (Configuration.executeInTerminal()) {
