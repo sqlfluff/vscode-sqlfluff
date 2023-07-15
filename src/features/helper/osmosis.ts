@@ -74,7 +74,7 @@ export class Osmosis {
       },
     };
 
-    const abortController = new AbortController();
+    const abortController: any = new AbortController();
     const timeoutHandler = setTimeout(() => {
       abortController.abort();
     }, timeout);
@@ -103,4 +103,3 @@ export class Osmosis {
     return await response.json() as T;
   }
 }
-
