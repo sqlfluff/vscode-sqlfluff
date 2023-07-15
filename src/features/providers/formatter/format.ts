@@ -99,6 +99,10 @@ export class FormattingProvider {
           lines.shift();
         }
 
+        if (lines[0].includes("templating/parsing errors remaining")) {
+          lines.shift();
+        }
+
         if (lines[0].includes("ENOENT")) {
           return [];
         }
