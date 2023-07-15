@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.7] - 2023-07-15
+
+- Update the `sqlfluff.dialect` enum
+- Update the `sqlfluff.codeActions.noqa` defaults to the sqlfluff 2.0 rule values
+
 ## [2.3.6] - 2023-07-15
 
 - Add the `sqlfluff.format.languages` setting to allow for users to determine which languages the formatting activates for
