@@ -16,9 +16,10 @@ export const activate = (context: vscode.ExtensionContext) => {
   const linterProvider = new LinterProvider();
   const lintingProvider = linterProvider.activate(context.subscriptions);
 
-  const selectors = ["sql", "sql-bigquery", "jinja-sql", "postgres", "snowflake-sql"];
+  const formatSelectors = Configuration.formatLanguages();
+  const linterSelectors = Configuration.linterLanguages();
 
-  selectors.forEach(selector => {
+  formatSelectors.forEach(selector => {
     // Register the "Format Document" command
     const formattingProvider = new FormattingEditProvider().activate();
     vscode.languages.registerDocumentFormattingEditProvider(
@@ -34,7 +35,9 @@ export const activate = (context: vscode.ExtensionContext) => {
         rangeFormattingProvider,
       );
     }
+  });
 
+  linterSelectors.forEach(selector => {
     // Register the code actions
     if (!Configuration.osmosisEnabled()) {
       const codeActionProvider = vscode.languages.registerCodeActionsProvider(selector, new QuickFixProvider(), {
@@ -43,6 +46,7 @@ export const activate = (context: vscode.ExtensionContext) => {
       context.subscriptions.push(codeActionProvider);
     }
 
+    // Register the hover provider
     const hoverProvider = vscode.languages.registerHoverProvider(selector, new HoverProvider());
     context.subscriptions.push(hoverProvider);
   });

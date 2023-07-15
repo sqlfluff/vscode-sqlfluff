@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -30,11 +30,7 @@
     "snowflake-sql"
   ],
   "activationEvents": [
-    "onLanguage:sql",
-    "onLanguage:sql-bigquery",
-    "onLanguage:jinja-sql",
-    "onLanguage:postgres",
-    "onLanguage:snowflake-sql"
+    "onStartupFinished"
   ],
   "main": "./out/src/extension.js",
   "contributes": {
@@ -98,44 +94,6 @@
             }
           },
           "markdownDescription": "DEPRECATED: Use sqlfluff.env.environmentVariables"
-        },
-        "sqlfluff.env.environmentVariables": {
-          "type": "array",
-          "default": [
-            {
-              "key": "EXAMPLE_KEY",
-              "value": "example_value"
-            }
-          ],
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "key",
-              "value"
-            ],
-            "properties": {
-              "key": {
-                "type": "string",
-                "markdownDescription": "The key for the environment variable."
-              },
-              "value": {
-                "type": "string",
-                "markdownDescription": "The value for the environment variable."
-              }
-            }
-          },
-          "markdownDescription": "Set the environment variables for the linter and formatter."
-        },
-        "sqlfluff.env.customDotEnvFiles": {
-          "type": "array",
-          "default": [],
-          "description": "Load the .env file from the specified paths."
-        },
-        "sqlfluff.env.useDotEnvFile": {
-          "type": "boolean",
-          "default": false,
-          "description": "Load the .env file from the working directory."
         },
         "sqlfluff.executablePath": {
           "type": "string",
@@ -244,6 +202,44 @@
           ],
           "markdownDescription": "Set the rules that will not show the `noqa` code actions. Set this to `false` to disable all `noqa` code actions."
         },
+        "sqlfluff.env.environmentVariables": {
+          "type": "array",
+          "default": [
+            {
+              "key": "EXAMPLE_KEY",
+              "value": "example_value"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "markdownDescription": "The key for the environment variable."
+              },
+              "value": {
+                "type": "string",
+                "markdownDescription": "The value for the environment variable."
+              }
+            }
+          },
+          "markdownDescription": "Set the environment variables for the linter and formatter."
+        },
+        "sqlfluff.env.customDotEnvFiles": {
+          "type": "array",
+          "default": [],
+          "description": "Load the .env file from the specified paths."
+        },
+        "sqlfluff.env.useDotEnvFile": {
+          "type": "boolean",
+          "default": false,
+          "description": "Load the .env file from the working directory."
+        },
         "sqlfluff.format.arguments": {
           "type": "array",
           "default": [],
@@ -253,6 +249,17 @@
           "type": "boolean",
           "default": true,
           "description": "Determines if the document formatter is enabled."
+        },
+        "sqlfluff.format.languages": {
+          "type": "array",
+          "default": [
+            "sql",
+            "sql-bigquery",
+            "jinja-sql",
+            "postgres",
+            "snowflake-sql"
+          ],
+          "description": "The languages formatting is enabled for."
         },
         "sqlfluff.experimental.format.executeInTerminal": {
           "type": "boolean",
@@ -313,6 +320,17 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Determines if the linter will lint the workspaces on startup and configuration changes. Does not work with `dbt-osmosis`."
+        },
+        "sqlfluff.linter.languages": {
+          "type": "array",
+          "default": [
+            "sql",
+            "sql-bigquery",
+            "jinja-sql",
+            "postgres",
+            "snowflake-sql"
+          ],
+          "description": "The languages linting is enabled for."
         },
         "sqlfluff.linter.run": {
           "type": "string",

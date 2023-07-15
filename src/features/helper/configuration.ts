@@ -9,14 +9,13 @@ import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
 import Utilities from "./utilities";
 
-export const filePattern = "**/*.{sql,sql-bigquery,jinja-sql,postgres|snowflake-sql}";
-export const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql|postgres|snowflake-sql)$/;
-
 export default class Configuration {
   /** Initialize the configuration options that require a reload upon change. */
   static initialize(): void {
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (
+        event.affectsConfiguration("sqlfluff.format.languages") ||
+        event.affectsConfiguration("sqlfluff.linter.languages") ||
         event.affectsConfiguration("sqlfluff.osmosis.enabled") ||
         event.affectsConfiguration("sqlfluff.experimental.format.executeInTerminal")
       ) {
@@ -192,8 +191,7 @@ export default class Configuration {
     return workingDirectory ? workingDirectory : rootPath;
   }
 
-  /* Code Actions */
-
+  // #region Code Actions
   public static excludeRulesWorkspace(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.codeActions.excludeRules")
@@ -225,13 +223,21 @@ export default class Configuration {
 
     return noqa;
   }
+  // #endregion
 
-  /* Format */
-
+  // #region Format
   public static formatEnabled(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.format")
       .get<boolean>("enabled", true);
+  }
+
+  public static formatLanguages(): string[] {
+    const languages: any = vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("languages");
+
+    return languages;
   }
 
   public static executeInTerminal(): boolean {
@@ -239,8 +245,9 @@ export default class Configuration {
       .getConfiguration("sqlfluff.experimental.format")
       .get<boolean>("executeInTerminal", false);
   }
+  // #endregion
 
-  /* Linter */
+  // #region Linter
   public static delay(): number {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
@@ -301,14 +308,22 @@ export default class Configuration {
       .get<boolean>("lintEntireProject", false);
   }
 
+  public static linterLanguages(): string[] {
+    const languages: any = vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get("languages");
+
+    return languages;
+  }
+
   public static runTrigger(): string {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
       .get<string>("run", RunTrigger.onType);
   }
+  // #endregion
 
-  /* Arguments */
-
+  // #region Arguments
   public static lintFileArguments(): string[] {
     const extraArguments = [...this.lintArguments(), "--format", "json"];
 
@@ -333,9 +348,9 @@ export default class Configuration {
 
     return extraArguments;
   }
+  // #endregion
 
-  /* Osmosis */
-
+  // #region Osmosis
   public static osmosisEnabled(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.osmosis")
@@ -353,6 +368,7 @@ export default class Configuration {
       .getConfiguration("sqlfluff.osmosis")
       .get<number>("port", 8581);
   }
+  // #endregion
 
   /**
    * @returns The variables for a terminal

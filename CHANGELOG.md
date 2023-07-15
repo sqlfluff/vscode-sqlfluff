@@ -4,6 +4,11 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.6] - 2023-07-15
+
+- Add the `sqlfluff.format.languages` setting to allow for users to determine which languages the formatting activates for
+- Add the `sqlfluff.linter.languages` setting to allow for users to determine which languages the linting activates for
+
 ## [2.3.5] - 2023-07-14
 
 - Add the ability to `Format Selection`
