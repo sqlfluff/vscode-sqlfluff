@@ -4,6 +4,10 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.3.8] - 2023-07-16
+
+- Fix - Stop SQLFluff output channel from showing twice
+
 ## [2.3.7] - 2023-07-15
 
 - Update the `sqlfluff.dialect` enum

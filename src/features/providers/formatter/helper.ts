@@ -3,8 +3,6 @@ import * as vscode from "vscode";
 import Configuration from "../../helper/configuration";
 
 export default class FormatHelper {
-  static outputChannel = vscode.window.createOutputChannel("SQLFluff");
-
   public static parseLines(lines: string[]): string[] | undefined {
     if (lines[0].startsWith("NO SAFETY:")) {
       lines.shift();
