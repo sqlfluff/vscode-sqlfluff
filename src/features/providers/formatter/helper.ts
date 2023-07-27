@@ -38,9 +38,13 @@ export default class FormatHelper {
     let linesWithWhitespace: string[] = [];
 
     if (formatSettings?.preserveLeadingWhitespace) {
+      if (lines[0].startsWith(" ")) {
+        return lines;
+      }
+
       lines.forEach((line) => {
         const emptySpace = new Array(leadingWhitespace).join(" ");
-        const whitespaceLine = line === "" ? line : emptySpace.concat(line);
+        const whitespaceLine = !/\S/.test(line) ? line : emptySpace.concat(line);
         linesWithWhitespace.push(whitespaceLine);
       })
     } else {

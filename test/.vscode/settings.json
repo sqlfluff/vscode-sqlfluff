@@ -6,11 +6,12 @@
   "sqlfluff.codeActions.excludeRules.workspace": false,
   "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
   "sqlfluff.dialect": "postgres",
+  "sqlfluff.format.arguments": [],
   "sqlfluff.format.languages": [
     "sql",
     {
       "language": "markdown" ,
-      "contextMenuFormatOptions": false,
+      "contextMenuFormatOptions": true,
       "preserveLeadingWhitespace": true
     }
   ],

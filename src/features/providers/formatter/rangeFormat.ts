@@ -32,10 +32,15 @@ export class FormatSelectionProvider {
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
 
-    const endCharacter = document.lineAt(range.end.line).range.end.character;
+    // Do not format the last line if it is only whitespace
+    const endLine = !/\S/.test(
+      document.lineAt(range.end.line).text.slice(0, range.end.character),
+    ) ? range.end.line - 1
+      : range.end.line;
+    const endCharacter = document.lineAt(endLine).range.end.character;
     const lineRange = new vscode.Range(
       new vscode.Position(range.start.line, 0),
-      new vscode.Position(range.end.line, endCharacter),
+      new vscode.Position(endLine, endCharacter),
     );
 
     if (workingDirectory?.includes("${")) {
@@ -85,7 +90,7 @@ export class FormatSelectionProvider {
 
     let lines = FormatHelper.parseLines(result.lines);
 
-    const leadingWhitespace = document.lineAt(range.start.line).firstNonWhitespaceCharacterIndex;
+    const leadingWhitespace = document.lineAt(range.start.line).firstNonWhitespaceCharacterIndex + 1;
     lines = lines ? FormatHelper.addLeadingWhitespace(lines, document.languageId, leadingWhitespace) : undefined;
 
     if (lines === undefined) return [];
