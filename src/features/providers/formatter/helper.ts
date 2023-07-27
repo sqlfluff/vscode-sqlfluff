@@ -29,6 +29,28 @@ export default class FormatHelper {
       return undefined;
     }
 
-    return lines;
+    const parsedLines = lines[0].split(/\r?\n|\r|\n/g);
+    return parsedLines;
+  }
+
+  public static addLeadingWhitespace(lines: string[], languageId: string, leadingWhitespace: number): string[] | undefined {
+    const formatSettings = Configuration.formatLanguageSetting(languageId)
+    let linesWithWhitespace: string[] = [];
+
+    if (formatSettings?.preserveLeadingWhitespace) {
+      lines.forEach((line) => {
+        const emptySpace = new Array(leadingWhitespace).join(" ");
+        const whitespaceLine = line === "" ? line : emptySpace.concat(line);
+        linesWithWhitespace.push(whitespaceLine);
+      })
+    } else {
+      linesWithWhitespace = lines;
+    }
+
+    if (linesWithWhitespace.length > 0 && linesWithWhitespace.slice(-1)[0] === "") {
+      linesWithWhitespace.pop();
+    }
+
+    return linesWithWhitespace;
   }
 }

@@ -2,7 +2,11 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [2.3.9] - 2023-07-26
+
+- Update the `sqlfluff.format.languages` to accept objects containing formatting settings for the languages to address this [Feature Request](https://github.com/sqlfluff/vscode-sqlfluff/issues/94)
+- Format selection now can format while preserving the whitespace (based on first line)
+- `SQLFluff Format Selection` now can be placed in the context menu.
 
 ## [2.3.8] - 2023-07-16
 

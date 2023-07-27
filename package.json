@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -38,17 +38,22 @@
       {
         "command": "sqlfluff.debug",
         "title": "SQLFluff Debug Extension",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
       },
       {
         "command": "sqlfluff.fix",
         "title": "SQLFluff Fix",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
+      },
+      {
+        "command": "sqlfluff.format.selection",
+        "title": "SQLFluff Format Selection",
+        "enablement": "editorLangId in sqlfluff.formatLanguages && editorHasSelection"
       },
       {
         "command": "sqlfluff.lint",
         "title": "SQLFluff Lint",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
       },
       {
         "command": "sqlfluff.lintProject",
@@ -57,9 +62,18 @@
       {
         "command": "sqlfluff.showOutputChannel",
         "title": "SQLFluff Show Output Channel",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql || extensionLangId == postgres || extensionLangId == snowflake-sql"
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "sqlfluff.format.selection",
+          "group": "1_modification@10",
+          "when": "editorLangId in sqlfluff.formatLanguages && editorHasSelection"
+        }
+      ]
+    },
     "configuration": {
       "properties": {
         "sqlfluff.config": {
@@ -262,6 +276,34 @@
             "postgres",
             "snowflake-sql"
           ],
+          "items": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "language",
+              "contextMenuFormatOptions",
+              "preserveLeadingWhitespace"
+            ],
+            "properties": {
+              "language": {
+                "type": "string",
+                "markdownDescription": "The language to enable formatting for."
+              },
+              "contextMenuFormatOptions": {
+                "type": "boolean",
+                "default": false,
+                "markdownDescription": "Show a SQLFluff option in the context menu."
+              },
+              "preserveLeadingWhitespace": {
+                "type": "boolean",
+                "default": false,
+                "markdownDescription": "Only works with `Format on Selection`. Preserve whitespace based on the first line of the selection."
+              }
+            }
+          },
           "description": "The languages formatting is enabled for."
         },
         "sqlfluff.experimental.format.executeInTerminal": {

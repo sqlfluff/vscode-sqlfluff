@@ -8,11 +8,11 @@
   "sqlfluff.dialect": "postgres",
   "sqlfluff.format.languages": [
     "sql",
-    "sql-bigquery",
-    "jinja-sql",
-    "postgres",
-    "snowflake-sql",
-    "markdown"
+    {
+      "language": "markdown" ,
+      "contextMenuFormatOptions": false,
+      "preserveLeadingWhitespace": true
+    }
   ],
 
   /* Linter */
@@ -30,6 +30,6 @@
   "sqlfluff.executablePath": "sqlfluff",
   // "sqlfluff.shell": true,
   // "sqlfluff.shell": "C:/Program Files/Git/bin/bash.exe",
-  "sqlfluff.workingDirectory": "${fileDirname}",
+  "sqlfluff.workingDirectory": "${fileDirname}"
   // "sqlfluff.workingDirectory": "broken",
 }

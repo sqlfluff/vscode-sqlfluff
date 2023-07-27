@@ -5,6 +5,7 @@ import { DiagnosticSeverity } from "vscode";
 
 import DiagnosticSetting from "./types/diagnosticSetting";
 import EnvironmentVariable from "./types/environmentVariable";
+import FormatLanguageSettings from "./types/formatLanguageSettings";
 import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
 import Utilities from "./utilities";
@@ -233,11 +234,39 @@ export default class Configuration {
   }
 
   public static formatLanguages(): string[] {
-    const languages: any = vscode.workspace
+    const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
       .getConfiguration("sqlfluff.format")
       .get("languages");
 
+
+    const languages: string[] = [];
+    languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
+      if (typeof languageSetting === "string") {
+        languages.push(languageSetting);
+      } else {
+        languages.push(languageSetting.language)
+      }
+    })
+
     return languages;
+  }
+
+  public static formatLanguageSetting(languageId: string): FormatLanguageSettings | undefined {
+    const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("languages");
+
+    const setting = languageSettings?.find((languageSetting: FormatLanguageSettings | string) => {
+      if (typeof languageSettings === "string") return false;
+
+      const typedSetting = languageSetting as unknown as FormatLanguageSettings;
+      if (typedSetting.language === languageId) return true;
+
+      return false;
+    });
+
+    if (typeof setting === "string") return undefined
+    return setting;
   }
 
   public static executeInTerminal(): boolean {
