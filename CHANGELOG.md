@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [2.4.0] - 2023-07-26
+
+- Fix bug with - `SQLFluff Format Selection` now can be placed in the context menu.
+
 ## [2.3.9] - 2023-07-26
 
 - Update the `sqlfluff.format.languages` to accept objects containing formatting settings for the languages to address this [Feature Request](https://github.com/sqlfluff/vscode-sqlfluff/issues/94)

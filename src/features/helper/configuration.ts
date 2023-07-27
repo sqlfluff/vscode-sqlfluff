@@ -251,6 +251,22 @@ export default class Configuration {
     return languages;
   }
 
+  public static formatLanguagesContextMenuItems(): string[] {
+    const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("languages");
+
+
+    const languages: string[] = [];
+    languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
+      if (typeof languageSetting !== "string" && languageSetting.contextMenuFormatOptions) {
+        languages.push(languageSetting.language);
+      }
+    })
+
+    return languages;
+  }
+
   public static formatLanguageSetting(languageId: string): FormatLanguageSettings | undefined {
     const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
       .getConfiguration("sqlfluff.format")

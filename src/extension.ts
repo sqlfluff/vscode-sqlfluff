@@ -52,7 +52,8 @@ export const activate = (context: vscode.ExtensionContext) => {
     context.subscriptions.push(hoverProvider);
   });
 
-  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", formatSelectors)
+  const contextMenuItems = Configuration.formatLanguagesContextMenuItems();
+  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", contextMenuItems)
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));
