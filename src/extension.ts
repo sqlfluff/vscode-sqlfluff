@@ -53,7 +53,8 @@ export const activate = (context: vscode.ExtensionContext) => {
   });
 
   const contextMenuItems = Configuration.formatLanguagesContextMenuItems();
-  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", contextMenuItems)
+  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", formatSelectors)
+  vscode.commands.executeCommand("setContext", "sqlfluff.contextLanguages", contextMenuItems)
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));

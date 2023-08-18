@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -37,8 +37,7 @@
     "commands": [
       {
         "command": "sqlfluff.debug",
-        "title": "SQLFluff Debug Extension",
-        "enablement": "editorLangId in sqlfluff.formatLanguages"
+        "title": "SQLFluff Debug Extension"
       },
       {
         "command": "sqlfluff.fix",
@@ -70,7 +69,7 @@
         {
           "command": "sqlfluff.format.selection",
           "group": "1_modification@10",
-          "when": "editorLangId in sqlfluff.formatLanguages && editorHasSelection"
+          "when": "editorLangId in sqlfluff.contextLanguages && editorHasSelection"
         }
       ]
     },
@@ -294,7 +293,7 @@
               },
               "contextMenuFormatOptions": {
                 "type": "boolean",
-                "default": false,
+                "default": true,
                 "markdownDescription": "Show a SQLFluff option in the context menu."
               },
               "preserveLeadingWhitespace": {

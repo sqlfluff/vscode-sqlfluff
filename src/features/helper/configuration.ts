@@ -256,10 +256,11 @@ export default class Configuration {
       .getConfiguration("sqlfluff.format")
       .get("languages");
 
-
     const languages: string[] = [];
     languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
-      if (typeof languageSetting !== "string" && languageSetting.contextMenuFormatOptions) {
+      if (typeof languageSetting === "string") {
+        languages.push(languageSetting);
+      } else if (languageSetting.contextMenuFormatOptions) {
         languages.push(languageSetting.language);
       }
     })

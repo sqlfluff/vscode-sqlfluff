@@ -2,6 +2,11 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [2.4.2] - 2023-08-17
+
+- Show context menu items by default.
+- Always allow for commands to show on enabled languages.
+
 ## [2.4.1] - 2023-07-27
 
 - Fix bugs with `SQLFluff Format Selection`.

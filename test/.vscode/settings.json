@@ -11,7 +11,7 @@
     "sql",
     {
       "language": "markdown" ,
-      "contextMenuFormatOptions": true,
+      "contextMenuFormatOptions": false,
       "preserveLeadingWhitespace": true
     }
   ],
