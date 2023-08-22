@@ -36,6 +36,9 @@ export default class Utilities {
       return path;
     }
 
+    // Capitalize drive letter
+    path = path.replace(/^[A-Za-z]:/, match => match.toUpperCase());
+
     if (allowEscapes) {
       return path.replace(/\\{2,}/g, "/");
     }
