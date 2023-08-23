@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [2.4.3] - 2023-08-17
+
+- Use uppercase drive letters on Windows. Thanks to mhahn-ts's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/111)
+
 ## [2.4.2] - 2023-08-17
 
 - Show context menu items by default.
