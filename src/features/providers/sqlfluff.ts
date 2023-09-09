@@ -4,8 +4,8 @@ import { StringDecoder } from "string_decoder";
 import * as vscode from "vscode";
 
 import Configuration from "../helper/configuration";
-import { LineDecoder } from "../helper/lineDecoder";
 import { DbtInterface } from "../helper/dbtInterface";
+import { LineDecoder } from "../helper/lineDecoder";
 import Utilities from "../helper/utilities";
 import FilePath from "./linter/types/filePath";
 import CommandOptions from "./types/commandOptions";
@@ -59,7 +59,7 @@ export default class SQLFluff {
       );
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
-      Utilities.outputChannel.appendLine(dbtInterface.getURL());
+      Utilities.outputChannel.appendLine(dbtInterface.getLintURL());
       if (shouldUseStdin) {
         Utilities.outputChannel.appendLine("\n-----Request Body-----\n");
         if (options.fileContents) {

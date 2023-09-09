@@ -1,5 +1,5 @@
 import AbortController from "node-abort-controller";
-import fetch, { Response } from "node-fetch";
+import fetch, { RequestInit, Response } from "node-fetch";
 
 import Configuration from "./configuration";
 import Utilities from "./utilities";
@@ -50,7 +50,7 @@ export class DbtInterface {
     this.extra_config_path = extra_config_path;
   }
 
-  public getURL(): string {
+  public getLintURL(): string {
     let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?sql_path=${this.sql_path}`;
     if (this.sql !== undefined) {
       url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?`;
@@ -63,6 +63,33 @@ export class DbtInterface {
     return url;
   }
 
+  public async healthCheck(): Promise<boolean> {
+    const abortController = new AbortController();
+    const timeoutHandler = setTimeout(() => {
+        abortController.abort();
+    }, 1000);
+    try {
+        const response = await fetch(
+            `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/health`, // Replaces project-required healthcheck
+            {
+                method: "GET",
+                signal: abortController.signal,
+            }
+        );
+        if (response.status === 200) {
+            return true;
+        } else {
+          return false;
+        }
+    } catch (e) {
+        return false;
+    } finally {
+        clearTimeout(timeoutHandler);
+    }
+  }
+
+  
+
   public async lint<T>(timeout = 25000) {
     const failedToReachServerError: DbtInterfaceErrorContainer = {
       error: {
@@ -73,7 +100,24 @@ export class DbtInterface {
         },
       }
     };
-
+    const datacovesPowerUserError: DbtInterfaceErrorContainer = {
+      error: {
+        code: DbtInterfaceErrorCode.FailedToReachServer,
+        message: "Dbt project not registered in Datacoves Power User extension. ",
+        data: {
+          "error": "Wait for it's loading process to finish",
+        }
+      }
+    }
+    // Wait until `health` endpoint is available before calling `/lint
+    const healthy = await this.healthCheck();
+    if (!healthy) {
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine("Unhealthy dbt project:");
+      Utilities.appendHyphenatedLine();
+      return datacovesPowerUserError;
+    }
+    
     const abortController = new AbortController();
     const timeoutHandler = setTimeout(() => {
       abortController.abort();
@@ -81,8 +125,12 @@ export class DbtInterface {
     let response: Response;
 
     try {
+      /*
+      Before reaching backend's `lint` endpoint, we need to call `/health` to ensure a Project has been registered in the backend
+      */
+      
       response = await fetch(
-        encodeURI(this.getURL()),
+        encodeURI(this.getLintURL()),
         {
           method: "POST",
           signal: abortController.signal,
