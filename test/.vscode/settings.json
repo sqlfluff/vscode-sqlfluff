@@ -1,19 +1,36 @@
 {
   // SQLFluff Extended
+  "files.insertFinalNewline": false,
+  "files.trimFinalNewlines": false,
   "sqlfluff.codeActions.excludeRules.global": true,
   "sqlfluff.codeActions.excludeRules.workspace": false,
   "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
   "sqlfluff.dialect": "postgres",
-  "sqlfluff.format.enabled": true,
-  "sqlfluff.experimental.format.executeInTerminal": false,
+  "sqlfluff.format.arguments": [],
+  "sqlfluff.format.languages": [
+    "sql",
+    {
+      "language": "markdown" ,
+      "contextMenuFormatOptions": false,
+      "preserveLeadingWhitespace": true
+    }
+  ],
+
+  /* Linter */
   "sqlfluff.linter.delay": 500,
   "sqlfluff.linter.run": "onType",
+  "sqlfluff.linter.lintEntireProject": false,
   "sqlfluff.rules": [],
-  "sqlfluff.suppressNotifications": false,
+  "sqlfluff.ignoreParsing": false,
+  "sqlfluff.suppressNotifications": true,
+  /* Formatter */
+  "sqlfluff.format.enabled": true,
+  "sqlfluff.experimental.format.executeInTerminal": false,
+
   // Spawn Setup
   "sqlfluff.executablePath": "sqlfluff",
   // "sqlfluff.shell": true,
   // "sqlfluff.shell": "C:/Program Files/Git/bin/bash.exe",
-  "sqlfluff.workingDirectory": "${fileDirname}",
+  "sqlfluff.workingDirectory": "${fileDirname}"
   // "sqlfluff.workingDirectory": "broken",
 }

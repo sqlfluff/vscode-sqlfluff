@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.3.6",
+  "version": "2.4.3",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -30,35 +30,49 @@
     "snowflake-sql"
   ],
   "activationEvents": [
-    "onLanguage:sql",
-    "onLanguage:sql-bigquery",
-    "onLanguage:jinja-sql",
-    "onLanguage:postgres",
-    "onLanguage:snowflake-sql"
+    "onStartupFinished"
   ],
   "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "sqlfluff.debug",
-        "title": "SQLFluff Debug Extension",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+        "title": "SQLFluff Debug Extension"
+      },
+      {
+        "command": "sqlfluff.fix",
+        "title": "SQLFluff Fix",
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
+      },
+      {
+        "command": "sqlfluff.format.selection",
+        "title": "SQLFluff Format Selection",
+        "enablement": "editorLangId in sqlfluff.formatLanguages && editorHasSelection"
       },
       {
         "command": "sqlfluff.lint",
         "title": "SQLFluff Lint",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
       },
       {
         "command": "sqlfluff.lintProject",
         "title": "SQLFluff Lint Project"
       },
       {
-        "command": "sqlfluff.fix",
-        "title": "SQLFluff Fix",
-        "when": "extensionLangId == sql || extensionLangId == sql-bigquery || extensionLangId == jinja-sql"
+        "command": "sqlfluff.showOutputChannel",
+        "title": "SQLFluff Show Output Channel",
+        "enablement": "editorLangId in sqlfluff.formatLanguages"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "sqlfluff.format.selection",
+          "group": "1_modification@10",
+          "when": "editorLangId in sqlfluff.contextLanguages && editorHasSelection"
+        }
+      ]
+    },
     "configuration": {
       "properties": {
         "sqlfluff.config": {
@@ -94,44 +108,6 @@
           },
           "markdownDescription": "DEPRECATED: Use sqlfluff.env.environmentVariables"
         },
-        "sqlfluff.env.environmentVariables": {
-          "type": "array",
-          "default": [
-            {
-              "key": "EXAMPLE_KEY",
-              "value": "example_value"
-            }
-          ],
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "key",
-              "value"
-            ],
-            "properties": {
-              "key": {
-                "type": "string",
-                "markdownDescription": "The key for the environment variable."
-              },
-              "value": {
-                "type": "string",
-                "markdownDescription": "The value for the environment variable."
-              }
-            }
-          },
-          "markdownDescription": "Set the environment variables for the linter and formatter."
-        },
-        "sqlfluff.env.customDotEnvFiles": {
-          "type": "array",
-          "default": [],
-          "description": "Load the .env file from the specified paths."
-        },
-        "sqlfluff.env.useDotEnvFile": {
-          "type": "boolean",
-          "default": false,
-          "description": "Load the .env file from the working directory."
-        },
         "sqlfluff.executablePath": {
           "type": "string",
           "default": "sqlfluff",
@@ -149,7 +125,10 @@
             "db2",
             "duckdb",
             "exasol",
+            "greenplum",
             "hive",
+            "materializ",
+            "e",
             "mysql",
             "oracle",
             "postgres",
@@ -218,26 +197,64 @@
             "boolean"
           ],
           "default": [
-            "L015",
-            "L017",
-            "L019",
-            "L030",
-            "L032",
-            "L034",
-            "L035",
-            "L037",
-            "L038",
-            "L040",
-            "L041",
-            "L042",
-            "L043",
-            "L044",
-            "L054",
-            "L058",
-            "L063",
-            "L064"
+            "AM03",
+            "AM04",
+            "AM06",
+            "CP03",
+            "CP04",
+            "CP05",
+            "CV03",
+            "CV10",
+            "ST01",
+            "ST02",
+            "ST04",
+            "ST05",
+            "ST06",
+            "ST07",
+            "ST08",
+            "LT04",
+            "LT06",
+            "LT10"
           ],
           "markdownDescription": "Set the rules that will not show the `noqa` code actions. Set this to `false` to disable all `noqa` code actions."
+        },
+        "sqlfluff.env.environmentVariables": {
+          "type": "array",
+          "default": [
+            {
+              "key": "EXAMPLE_KEY",
+              "value": "example_value"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "markdownDescription": "The key for the environment variable."
+              },
+              "value": {
+                "type": "string",
+                "markdownDescription": "The value for the environment variable."
+              }
+            }
+          },
+          "markdownDescription": "Set the environment variables for the linter and formatter."
+        },
+        "sqlfluff.env.customDotEnvFiles": {
+          "type": "array",
+          "default": [],
+          "description": "Load the .env file from the specified paths."
+        },
+        "sqlfluff.env.useDotEnvFile": {
+          "type": "boolean",
+          "default": false,
+          "description": "Load the .env file from the working directory."
         },
         "sqlfluff.format.arguments": {
           "type": "array",
@@ -248,6 +265,45 @@
           "type": "boolean",
           "default": true,
           "description": "Determines if the document formatter is enabled."
+        },
+        "sqlfluff.format.languages": {
+          "type": "array",
+          "default": [
+            "sql",
+            "sql-bigquery",
+            "jinja-sql",
+            "postgres",
+            "snowflake-sql"
+          ],
+          "items": {
+            "type": [
+              "string",
+              "object"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "language",
+              "contextMenuFormatOptions",
+              "preserveLeadingWhitespace"
+            ],
+            "properties": {
+              "language": {
+                "type": "string",
+                "markdownDescription": "The language to enable formatting for."
+              },
+              "contextMenuFormatOptions": {
+                "type": "boolean",
+                "default": true,
+                "markdownDescription": "Show a SQLFluff option in the context menu."
+              },
+              "preserveLeadingWhitespace": {
+                "type": "boolean",
+                "default": false,
+                "markdownDescription": "Only works with `Format on Selection`. Preserve whitespace based on the first line of the selection."
+              }
+            }
+          },
+          "description": "The languages formatting is enabled for."
         },
         "sqlfluff.experimental.format.executeInTerminal": {
           "type": "boolean",
@@ -309,6 +365,17 @@
           "default": false,
           "markdownDescription": "Determines if the linter will lint the workspaces on startup and configuration changes. Does not work with `dbt-core-interface`."
         },
+        "sqlfluff.linter.languages": {
+          "type": "array",
+          "default": [
+            "sql",
+            "sql-bigquery",
+            "jinja-sql",
+            "postgres",
+            "snowflake-sql"
+          ],
+          "description": "The languages linting is enabled for."
+        },
         "sqlfluff.linter.run": {
           "type": "string",
           "enum": [
@@ -351,7 +418,7 @@
     "download-api": "vscode-dts dev",
     "postdownload-api": "vscode-dts main",
     "lint": "eslint src --ext ts",
-    "lint:fix": "eslint src --ext ts --fix",
+    "fix": "eslint src --ext ts --fix",
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/src/extension.js --external:vscode --format=cjs --keep-names --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
@@ -360,29 +427,30 @@
     "build-vsix": "vsce package"
   },
   "dependencies": {
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.3.1",
     "node-abort-controller": "^2.0.0",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.21",
-    "@types/node-fetch": "^2.6.2",
-    "@types/vscode": "^1.59.0",
-    "@typescript-eslint/eslint-plugin": "^5.13.0",
-    "@typescript-eslint/parser": "^5.13.0",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.4.2",
+    "@types/node-fetch": "^2.6.4",
+    "@types/vscode": "1.63.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "copyfiles": "^2.4.1",
-    "esbuild": "^0.14.24",
-    "eslint": "^8.10.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "eslint-plugin-tsdoc": "^0.2.14",
-    "glob": "^7.2.0",
-    "mocha": "^9.2.1",
-    "typescript": "^4.6.2",
+    "esbuild": "^0.18.13",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.6",
     "vsce": "^2.15.0",
     "vscode-dts": "^0.3.3",
-    "vscode-test": "^1.3.0"
+    "vscode-test": "^1.6.1"
   }
 }

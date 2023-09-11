@@ -1,0 +1,42 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-plugin-import",
+    "eslint-plugin-tsdoc",
+    "simple-import-sort"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    // @typescript
+    "@typescript-eslint/ban-types": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-non-null-assertion": 0,
+    "@typescript-eslint/no-unused-vars": "off",
+    // import
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+    // simple-import-sort
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "tsdoc/syntax": "warn",
+    // other
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "always-multiline"
+    }],
+    "eol-last": "error",
+    "no-unused-vars": "off",
+    "no-trailing-spaces": "error",
+    "quotes": ["error", "double", "avoid-escape"]
+  }
+}

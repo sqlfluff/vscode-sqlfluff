@@ -2,10 +2,12 @@ import * as vscode from "vscode";
 
 import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE, ExcludeRules } from "./features/commands/excludeRules";
 import { Documentation, VIEW_DOCUMENTATION } from "./features/commands/showDocumentation";
-import { FormattingEditProvider } from "./features/formatter";
+import { FormattingEditProvider, RangeFormattingEditProvider } from "./features/formatter";
 import Configuration from "./features/helper/configuration";
+import Utilities from "./features/helper/utilities";
 import LinterProvider from "./features/linter";
 import Debug from "./features/providers/debug";
+import { FormatSelectionProvider } from "./features/providers/formatter/rangeFormat";
 import HoverProvider from "./features/providers/linter/actions/hover";
 import QuickFixProvider from "./features/providers/linter/actions/quickFix";
 
@@ -15,39 +17,44 @@ export const activate = (context: vscode.ExtensionContext) => {
   const linterProvider = new LinterProvider();
   const lintingProvider = linterProvider.activate(context.subscriptions);
 
-  vscode.languages.registerDocumentFormattingEditProvider("sql", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("sql-bigquery", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("jinja-sql", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("postgres", new FormattingEditProvider().activate());
-  vscode.languages.registerDocumentFormattingEditProvider("snowflake-sql", new FormattingEditProvider().activate());
+  const formatSelectors = Configuration.formatLanguages();
+  const linterSelectors = Configuration.linterLanguages();
 
-  if (!Configuration.dbtInterfaceEnabled()) {
-    context.subscriptions.push(
-      vscode.languages.registerCodeActionsProvider("sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-      }),
-      vscode.languages.registerCodeActionsProvider("sql-bigquery", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-      }),
-      vscode.languages.registerCodeActionsProvider("jinja-sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-      }),
-      vscode.languages.registerCodeActionsProvider("postgres", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-      }),
-      vscode.languages.registerCodeActionsProvider("snowflake-sql", new QuickFixProvider(), {
-        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind
-      })
+  formatSelectors.forEach(selector => {
+    // Register the "Format Document" command
+    const formattingProvider = new FormattingEditProvider().activate();
+    vscode.languages.registerDocumentFormattingEditProvider(
+      selector,
+      formattingProvider,
     );
-  }
 
-  context.subscriptions.push(
-    vscode.languages.registerHoverProvider("sql", new HoverProvider()),
-    vscode.languages.registerHoverProvider("sql-bigquery", new HoverProvider()),
-    vscode.languages.registerHoverProvider("jinja-sql", new HoverProvider()),
-    vscode.languages.registerHoverProvider("postgres", new HoverProvider()),
-    vscode.languages.registerHoverProvider("snowflake-sql", new HoverProvider()),
-  );
+    // Register the "Format Selection" command
+    if (!Configuration.executeInTerminal()) {
+      const rangeFormattingProvider = new RangeFormattingEditProvider().activate();
+      vscode.languages.registerDocumentRangeFormattingEditProvider(
+        selector,
+        rangeFormattingProvider,
+      );
+    }
+  });
+
+  linterSelectors.forEach(selector => {
+    // Register the code actions
+    if (!Configuration.dbtInterfaceEnabled()) {
+      const codeActionProvider = vscode.languages.registerCodeActionsProvider(selector, new QuickFixProvider(), {
+        providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
+      });
+      context.subscriptions.push(codeActionProvider);
+    }
+
+    // Register the hover provider
+    const hoverProvider = vscode.languages.registerHoverProvider(selector, new HoverProvider());
+    context.subscriptions.push(hoverProvider);
+  });
+
+  const contextMenuItems = Configuration.formatLanguagesContextMenuItems();
+  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", formatSelectors)
+  vscode.commands.executeCommand("setContext", "sqlfluff.contextLanguages", contextMenuItems)
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));
@@ -56,42 +63,72 @@ export const activate = (context: vscode.ExtensionContext) => {
   const lintCommand = "sqlfluff.lint";
   const lintCommandHandler = () => {
     if (vscode.window.activeTextEditor) {
-      const currentDocument = vscode.window.activeTextEditor.document;
-      if (currentDocument) {
-        lintingProvider.doLint(currentDocument, true);
+      const document = vscode.window.activeTextEditor.document;
+      if (document) {
+        lintingProvider.doLint(document, true);
       }
     }
   };
+  context.subscriptions.push(vscode.commands.registerCommand(lintCommand, lintCommandHandler));
 
   const lintProjectCommand = "sqlfluff.lintProject";
   const lintProjectCommandHandler = () => {
     if (vscode.window.activeTextEditor) {
-      const currentDocument = vscode.window.activeTextEditor.document;
-      if (currentDocument) {
+      const document = vscode.window.activeTextEditor.document;
+      if (document) {
         lintingProvider.lintProject(true);
       }
     }
   };
+  context.subscriptions.push(vscode.commands.registerCommand(lintProjectCommand, lintProjectCommandHandler));
 
   const fixCommand = "sqlfluff.fix";
   const fixCommandHandler = () => {
     if (vscode.window.activeTextEditor) {
-      const currentDocument = vscode.window.activeTextEditor.document;
-      if (currentDocument) {
+      const document = vscode.window.activeTextEditor.document;
+      if (document) {
         vscode.commands.executeCommand("editor.action.formatDocument");
       }
     }
   };
+  context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
+
+  const formatSelection = "sqlfluff.format.selection";
+  const formatSelectionHandler = async () => {
+    if (vscode.window.activeTextEditor) {
+      // Check if available language
+      const document = vscode.window.activeTextEditor.document;
+      const range = new vscode.Range(
+        vscode.window.activeTextEditor.selection.start,
+        vscode.window.activeTextEditor.selection.end,
+      )
+
+      const textEdits = await FormatSelectionProvider.provideTextEdits(
+        document,
+        range,
+      );
+
+      textEdits.forEach((textEdit) => {
+        const workspaceEdit = new vscode.WorkspaceEdit();
+        workspaceEdit.replace(document.uri, textEdit.range, textEdit.newText);
+
+        vscode.workspace.applyEdit(workspaceEdit);
+      })
+    }
+  };
+  context.subscriptions.push(vscode.commands.registerCommand(formatSelection, formatSelectionHandler));
 
   const debugCommand = "sqlfluff.debug";
   const debugCommandHandler = async () => {
     Debug.debug();
   };
-
-  context.subscriptions.push(vscode.commands.registerCommand(lintCommand, lintCommandHandler));
-  context.subscriptions.push(vscode.commands.registerCommand(lintProjectCommand, lintProjectCommandHandler));
-  context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
   context.subscriptions.push(vscode.commands.registerCommand(debugCommand, debugCommandHandler));
+
+  const showOutputChannelCommand = "sqlfluff.showOutputChannel";
+  const showOutputChannelCommandHandler = async () => {
+    Utilities.outputChannel.show();
+  };
+  context.subscriptions.push(vscode.commands.registerCommand(showOutputChannelCommand, showOutputChannelCommandHandler));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -2,7 +2,48 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [2.4.3] - 2023-08-17
+
+- Use uppercase drive letters on Windows. Thanks to mhahn-ts's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/111)
+
+## [2.4.2] - 2023-08-17
+
+- Show context menu items by default.
+- Always allow for commands to show on enabled languages.
+
+## [2.4.1] - 2023-07-27
+
+- Fix bugs with `SQLFluff Format Selection`.
+
+## [2.4.0] - 2023-07-26
+
+- Fix bug with `SQLFluff Format Selection` now can be placed in the context menu.
+
+## [2.3.9] - 2023-07-26
+
+- Update the `sqlfluff.format.languages` to accept objects containing formatting settings for the languages to address this [Feature Request](https://github.com/sqlfluff/vscode-sqlfluff/issues/94)
+- Format selection now can format while preserving the whitespace (based on first line)
+- `SQLFluff Format Selection` now can be placed in the context menu.
+
+## [2.3.8] - 2023-07-16
+
+- Fix - Stop SQLFluff output channel from showing twice
+
+## [2.3.7] - 2023-07-15
+
+- Update the `sqlfluff.dialect` enum
+- Update the `sqlfluff.codeActions.noqa` defaults to the sqlfluff 2.0 rule values
+
+## [2.3.6] - 2023-07-15
+
+- Add the `sqlfluff.format.languages` setting to allow for users to determine which languages the formatting activates for
+- Add the `sqlfluff.linter.languages` setting to allow for users to determine which languages the linting activates for
+
+## [2.3.5] - 2023-07-14
+
+- Add the ability to `Format Selection`
+- Add the command `sqlfluff.showOutputChannel` to reveal the SQLFluff Output Channel
+- Display error for ignored parsing issues when attempting a format
 
 ## [2.3.4] - 2023-06-07
 

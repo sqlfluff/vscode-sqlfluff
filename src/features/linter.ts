@@ -12,7 +12,7 @@ import Linter from "./providers/linter/types/linter";
 import Violation from "./providers/linter/types/violation";
 
 export default class LinterProvider implements Linter {
-  public languageId = ["sql", "jinja-sql", "sql-bigquery", "postgres", "snowflake-sql"];
+  public languageId = Configuration.linterLanguages();
 
   public activate(subscriptions: Disposable[]): LintingProvider {
     const provider = new LintingProvider(this);
@@ -39,7 +39,7 @@ export default class LinterProvider implements Linter {
         filePaths.forEach((filePath: FilePath) => {
           const fileDiagnostic: FileDiagnostic = {
             filePath: Utilities.normalizePath(filePath.filepath),
-            diagnostics: []
+            diagnostics: [],
           };
 
           filePath.violations.forEach((violation: Violation) => {

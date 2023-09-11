@@ -5,25 +5,26 @@ import { DiagnosticSeverity } from "vscode";
 
 import DiagnosticSetting from "./types/diagnosticSetting";
 import EnvironmentVariable from "./types/environmentVariable";
+import FormatLanguageSettings from "./types/formatLanguageSettings";
 import RunTrigger from "./types/runTrigger";
 import Variables from "./types/variables";
 import Utilities from "./utilities";
-
-export const filePattern = "**/*.{sql,sql-bigquery,jinja-sql,postgres|snowflake-sql}";
-export const fileRegex = /^.*\.(sql|sql-bigquery|jinja-sql|postgres|snowflake-sql)$/;
 
 export default class Configuration {
   /** Initialize the configuration options that require a reload upon change. */
   static initialize(): void {
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (
-        event.affectsConfiguration("sqlfluff.dbtInterface.enabled")
+        event.affectsConfiguration("sqlfluff.format.languages") ||
+        event.affectsConfiguration("sqlfluff.linter.languages") ||
+        event.affectsConfiguration("sqlfluff.dbtInterface.enabled") ||
+        event.affectsConfiguration("sqlfluff.experimental.format.executeInTerminal")
       ) {
         const action = "Reload";
         vscode.window
           .showInformationMessage(
             "Reload window for configuration change to take effect.",
-            action
+            action,
           )
           .then(selectedAction => {
             if (selectedAction === action) {
@@ -191,8 +192,7 @@ export default class Configuration {
     return workingDirectory ? workingDirectory : rootPath;
   }
 
-  /* Code Actions */
-
+  // #region Code Actions
   public static excludeRulesWorkspace(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.codeActions.excludeRules")
@@ -224,13 +224,66 @@ export default class Configuration {
 
     return noqa;
   }
+  // #endregion
 
-  /* Format */
-
+  // #region Format
   public static formatEnabled(): boolean {
     return vscode.workspace
       .getConfiguration("sqlfluff.format")
       .get<boolean>("enabled", true);
+  }
+
+  public static formatLanguages(): string[] {
+    const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("languages");
+
+
+    const languages: string[] = [];
+    languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
+      if (typeof languageSetting === "string") {
+        languages.push(languageSetting);
+      } else {
+        languages.push(languageSetting.language)
+      }
+    })
+
+    return languages;
+  }
+
+  public static formatLanguagesContextMenuItems(): string[] {
+    const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("languages");
+
+    const languages: string[] = [];
+    languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
+      if (typeof languageSetting === "string") {
+        languages.push(languageSetting);
+      } else if (languageSetting.contextMenuFormatOptions) {
+        languages.push(languageSetting.language);
+      }
+    })
+
+    return languages;
+  }
+
+  public static formatLanguageSetting(languageId: string): FormatLanguageSettings | undefined {
+    const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
+      .getConfiguration("sqlfluff.format")
+      .get("languages");
+
+    const setting = languageSettings?.find((languageSetting: FormatLanguageSettings | string) => {
+      if (typeof languageSettings === "string") return false;
+
+      const typedSetting = languageSetting as unknown as FormatLanguageSettings;
+      if (typedSetting.language === languageId) return true;
+
+      return false;
+    });
+
+    if (typeof setting === "string") return undefined
+    return setting;
   }
 
   public static executeInTerminal(): boolean {
@@ -238,8 +291,9 @@ export default class Configuration {
       .getConfiguration("sqlfluff.experimental.format")
       .get<boolean>("executeInTerminal", false);
   }
+  // #endregion
 
-  /* Linter */
+  // #region Linter
   public static delay(): number {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
@@ -300,14 +354,22 @@ export default class Configuration {
       .get<boolean>("lintEntireProject", false);
   }
 
+  public static linterLanguages(): string[] {
+    const languages: any = vscode.workspace
+      .getConfiguration("sqlfluff.linter")
+      .get("languages");
+
+    return languages;
+  }
+
   public static runTrigger(): string {
     return vscode.workspace
       .getConfiguration("sqlfluff.linter")
       .get<string>("run", RunTrigger.onType);
   }
+  // #endregion
 
-  /* Arguments */
-
+  // #region Arguments
   public static lintFileArguments(): string[] {
     const extraArguments = [...this.lintArguments(), "--format", "json"];
 
@@ -332,6 +394,7 @@ export default class Configuration {
 
     return extraArguments;
   }
+  // #endregion
 
   /* DBT Interface */
 
@@ -352,6 +415,7 @@ export default class Configuration {
       .getConfiguration("sqlfluff.dbtInterface")
       .get<number>("port", 8581);
   }
+  // #endregion
 
   /**
    * @returns The variables for a terminal
@@ -379,7 +443,7 @@ export default class Configuration {
       // - the current opened file relative to workspaceFolder
       relativeFile: (editor && rootPath && fileName) ? Utilities.normalizePath(path.relative(
         rootPath,
-        fileName
+        fileName,
       )) : undefined,
 
       // - the last portion of the path to the file
@@ -401,7 +465,7 @@ export default class Configuration {
       selectedText: editor ? editor.document.getText(editor.selection) : undefined,
 
       // - the path to the running VS Code executable
-      execPath: process.execPath
+      execPath: process.execPath,
     };
 
     return vars;
