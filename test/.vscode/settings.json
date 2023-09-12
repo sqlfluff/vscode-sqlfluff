@@ -4,11 +4,16 @@
   "files.trimFinalNewlines": false,
   "sqlfluff.codeActions.excludeRules.global": true,
   "sqlfluff.codeActions.excludeRules.workspace": false,
+  "sqlfluff.codeActions.noqa": true,
   "sqlfluff.config": "${workspaceFolder}/.sqlfluff",
   "sqlfluff.dialect": "postgres",
   "sqlfluff.format.arguments": [],
   "sqlfluff.format.languages": [
-    "sql",
+    {
+      "language": "sql" ,
+      "contextMenuFormatOptions": false,
+      "preserveLeadingWhitespace": true
+    },
     {
       "language": "markdown" ,
       "contextMenuFormatOptions": false,
