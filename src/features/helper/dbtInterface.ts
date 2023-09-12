@@ -1,5 +1,6 @@
 import AbortController from "node-abort-controller";
 import fetch, { Response } from "node-fetch";
+import { AbortSignal } from "node-fetch/externals";
 
 import Configuration from "./configuration";
 import Utilities from "./utilities";
@@ -63,7 +64,7 @@ export class DbtInterface {
     return url;
   }
 
-  public async healthCheck(): Promise<boolean> {
+  public async healthCheck(): Promise<any> {
     const abortController = new AbortController();
     const timeoutHandler = setTimeout(() => {
         abortController.abort();
@@ -73,7 +74,7 @@ export class DbtInterface {
             `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/health`,
             {
                 method: "GET",
-                signal: abortController.signal,
+                signal: abortController.signal as AbortSignal
             },
         );
         if (response.status === 200) {
@@ -127,7 +128,7 @@ export class DbtInterface {
         encodeURI(this.getLintURL()),
         {
           method: "POST",
-          signal: abortController.signal,
+          signal: abortController.signal as AbortSignal,
           body: this.sql,
         },
       );
