@@ -17,7 +17,7 @@ export default class Configuration {
       if (
         event.affectsConfiguration("sqlfluff.format.languages") ||
         event.affectsConfiguration("sqlfluff.linter.languages") ||
-        event.affectsConfiguration("sqlfluff.osmosis.enabled") ||
+        event.affectsConfiguration("sqlfluff.dbtInterface.enabled") ||
         event.affectsConfiguration("sqlfluff.experimental.format.executeInTerminal")
       ) {
         const action = "Reload";
@@ -396,22 +396,23 @@ export default class Configuration {
   }
   // #endregion
 
-  // #region Osmosis
-  public static osmosisEnabled(): boolean {
+  /* DBT Interface */
+
+  public static dbtInterfaceEnabled(): boolean {
     return vscode.workspace
-      .getConfiguration("sqlfluff.osmosis")
+      .getConfiguration("sqlfluff.dbtInterface")
       .get<boolean>("enabled", false);
   }
 
-  public static osmosisHost(): string {
+  public static dbtInterfaceHost(): string {
     return vscode.workspace
-      .getConfiguration("sqlfluff.osmosis")
+      .getConfiguration("sqlfluff.dbtInterface")
       .get<string>("host", "localhost");
   }
 
-  public static osmosisPort(): number {
+  public static dbtInterfacePort(): number {
     return vscode.workspace
-      .getConfiguration("sqlfluff.osmosis")
+      .getConfiguration("sqlfluff.dbtInterface")
       .get<number>("port", 8581);
   }
   // #endregion

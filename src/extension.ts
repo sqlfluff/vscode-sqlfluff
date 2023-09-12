@@ -40,7 +40,7 @@ export const activate = (context: vscode.ExtensionContext) => {
 
   linterSelectors.forEach(selector => {
     // Register the code actions
-    if (!Configuration.osmosisEnabled()) {
+    if (!Configuration.dbtInterfaceEnabled()) {
       const codeActionProvider = vscode.languages.registerCodeActionsProvider(selector, new QuickFixProvider(), {
         providedCodeActionKinds: QuickFixProvider.providedCodeActionKind,
       });
