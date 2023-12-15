@@ -25,6 +25,31 @@ export default class SQLFluff {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
 
+    if (Configuration.dbtInterfaceEnabled() && command === CommandType.FIX) {
+      // TODO: Make two API calls:
+      // 1. Register the dbt project with the dbt-core-interface server
+      // 2. Run the dbt-core-interface format command
+      //
+      // Example curl commands below. Note that these commands use hardcoded
+      // values and paths. Need to get these from somewhere.
+      // curl -X POST \
+      //      -H "Content-Type: application/json" \
+      //      -H "X-dbt-Project: dbt_project" \
+      //      -d '{
+      //        "project_dir": "/Users/barry/dev/dbt-core-interface/tests/sqlfluff_templater/fixtures/dbt/dbt_project",
+      //        "profiles_dir": "/Users/barry/dev/dbt-core-interface/tests/sqlfluff_templater/fixtures/dbt/profiles_yml",
+      //        "target": "dev"
+      //      }' \
+      //      http://localhost:8581/register
+      //
+      //
+      // curl -X POST \
+      //      -H "Content-Type: application/json" \
+      //      -H "X-dbt-Project: dbt_project" \
+      //      "http://localhost:8581/format?sql_path=/Users/barry/dev/dbt-core-interface/tests/sqlfluff_templater/fixtures/dbt/dbt_project/models/my_new_project/issue_1608.sql"
+      return
+    }
+
     // This is an unlikely scenario, but we should limit the amount of processes happening at once.
     while (SQLFluff.childProcesses.length > 10) {
       const process = SQLFluff.childProcesses.shift();
