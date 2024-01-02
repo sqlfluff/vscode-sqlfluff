@@ -68,7 +68,7 @@ export default class SQLFluff {
         resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
           succeeded: succeeded,
-          lines: [JSON.stringify(output)],
+          lines: [],
         });
       });
     }
