@@ -93,6 +93,14 @@ export const activate = (context: vscode.ExtensionContext) => {
   };
   context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
 
+  // Adds a "Fix document with sqlfluff" button to the lower right corner of
+  // the VS Code window
+  const customStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+  customStatusBarItem.text = "$(pencil)";
+  customStatusBarItem.tooltip = "Fix document with sqlfluff";
+  customStatusBarItem.command = fixCommand;
+  customStatusBarItem.show();
+
   const formatSelection = "sqlfluff.format.selection";
   const formatSelectionHandler = async () => {
     if (vscode.window.activeTextEditor) {
