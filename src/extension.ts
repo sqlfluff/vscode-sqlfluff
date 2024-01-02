@@ -29,7 +29,7 @@ export const activate = (context: vscode.ExtensionContext) => {
     );
 
     // Register the "Format Selection" command
-    if (!Configuration.executeInTerminal()) {
+    if (!Configuration.executeInTerminal() && !Configuration.dbtInterfaceEnabled()) {
       const rangeFormattingProvider = new RangeFormattingEditProvider().activate();
       vscode.languages.registerDocumentRangeFormattingEditProvider(
         selector,
@@ -102,29 +102,31 @@ export const activate = (context: vscode.ExtensionContext) => {
   customStatusBarItem.show();
 
   const formatSelection = "sqlfluff.format.selection";
-  const formatSelectionHandler = async () => {
-    if (vscode.window.activeTextEditor) {
-      // Check if available language
-      const document = vscode.window.activeTextEditor.document;
-      const range = new vscode.Range(
-        vscode.window.activeTextEditor.selection.start,
-        vscode.window.activeTextEditor.selection.end,
-      )
+  if (!Configuration.dbtInterfaceEnabled()) {
+    const formatSelectionHandler = async () => {
+      if (vscode.window.activeTextEditor) {
+        // Check if available language
+        const document = vscode.window.activeTextEditor.document;
+        const range = new vscode.Range(
+          vscode.window.activeTextEditor.selection.start,
+          vscode.window.activeTextEditor.selection.end,
+        )
 
-      const textEdits = await FormatSelectionProvider.provideTextEdits(
-        document,
-        range,
-      );
+        const textEdits = await FormatSelectionProvider.provideTextEdits(
+          document,
+          range,
+        );
 
-      textEdits.forEach((textEdit) => {
-        const workspaceEdit = new vscode.WorkspaceEdit();
-        workspaceEdit.replace(document.uri, textEdit.range, textEdit.newText);
+        textEdits.forEach((textEdit) => {
+          const workspaceEdit = new vscode.WorkspaceEdit();
+          workspaceEdit.replace(document.uri, textEdit.range, textEdit.newText);
 
-        vscode.workspace.applyEdit(workspaceEdit);
-      })
-    }
-  };
-  context.subscriptions.push(vscode.commands.registerCommand(formatSelection, formatSelectionHandler));
+          vscode.workspace.applyEdit(workspaceEdit);
+        })
+      }
+    };
+    context.subscriptions.push(vscode.commands.registerCommand(formatSelection, formatSelectionHandler));
+  }
 
   const debugCommand = "sqlfluff.debug";
   const debugCommandHandler = async () => {
