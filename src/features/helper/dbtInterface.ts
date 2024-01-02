@@ -84,7 +84,7 @@ export class DbtInterface {
             `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/health`,
             {
                 method: "GET",
-                signal: abortController.signal as AbortSignal
+                signal: abortController.signal as AbortSignal,
             },
         );
         if (response.status === 200) {
