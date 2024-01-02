@@ -26,28 +26,49 @@ export default class SQLFluff {
     }
 
     if (Configuration.dbtInterfaceEnabled() && command === CommandType.FIX) {
-      // TODO: Make two API calls:
-      // 1. Register the dbt project with the dbt-core-interface server
-      // 2. Run the dbt-core-interface format command
-      //
-      // Example curl commands below. Note that these commands use hardcoded
-      // values and paths. Need to get these from somewhere.
-      // curl -X POST \
-      //      -H "Content-Type: application/json" \
-      //      -H "X-dbt-Project: dbt_project" \
-      //      -d '{
-      //        "project_dir": "/Users/barry/dev/dbt-core-interface/tests/sqlfluff_templater/fixtures/dbt/dbt_project",
-      //        "profiles_dir": "/Users/barry/dev/dbt-core-interface/tests/sqlfluff_templater/fixtures/dbt/profiles_yml",
-      //        "target": "dev"
-      //      }' \
-      //      http://localhost:8581/register
-      //
-      //
-      // curl -X POST \
-      //      -H "Content-Type: application/json" \
-      //      -H "X-dbt-Project: dbt_project" \
-      //      "http://localhost:8581/format?sql_path=/Users/barry/dev/dbt-core-interface/tests/sqlfluff_templater/fixtures/dbt/dbt_project/models/my_new_project/issue_1608.sql"
-      return
+      const dbtInterface = new DbtInterface(
+        undefined,
+        options.workspacePath ?? options.filePath,
+        Configuration.config(),
+      );
+
+      Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
+      Utilities.outputChannel.appendLine(dbtInterface.getFormatURL());
+      Utilities.appendHyphenatedLine();
+
+      const response: any = await dbtInterface.format();
+      const output: FilePath[] = [
+        {
+          filepath: options.filePath,
+          // The server returns a message field which contains any errors.
+          // Should we display this to the user in the error handling block
+          // below?
+          //message: response.message ?? "",
+          //violations: response.result ?? [],
+        },
+      ];
+
+      Utilities.outputChannel.appendLine("Raw DBT-Interface /format output:");
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
+      Utilities.appendHyphenatedLine();
+
+      return new Promise<CommandOutput>((resolve) => {
+        const code = response?.error?.code ?? 0;
+        const succeeded = code === 0;
+        if (!succeeded && !Configuration.suppressNotifications()) {
+          const message = response?.error?.message ?? "DBT-Interface formatting error.";
+          const detail = response?.error?.data?.error ?? "";
+
+          vscode.window.showErrorMessage([message, detail].join("\n"));
+        }
+
+        resolve({
+          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+          succeeded: succeeded,
+          lines: [JSON.stringify(output)],
+        });
+      });
     }
 
     // This is an unlikely scenario, but we should limit the amount of processes happening at once.
