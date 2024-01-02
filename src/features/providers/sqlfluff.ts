@@ -44,7 +44,9 @@ export default class SQLFluff {
           // Should we display this to the user in the error handling block
           // below?
           //message: response.message ?? "",
-          //violations: response.result ?? [],
+          // The "FilePath" interface requires a "violations" field, but /format
+          // doesn't return any violations. We'll just return an empty array.
+          violations: [],
         },
       ];
 
