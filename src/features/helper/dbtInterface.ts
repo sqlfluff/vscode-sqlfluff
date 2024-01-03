@@ -65,6 +65,9 @@ export class DbtInterface {
   }
 
   public getFormatURL(): string {
+    // This endpoint is equivalent to "sqlfluff format". The behavior is
+    // _similar_ to "sqlfluff fix", but it applies a different set of rules.
+    // https://docs.sqlfluff.com/en/stable/cli.html#sqlfluff-format
     let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?sql_path=${this.sql_path}`;
 
     if (this.extra_config_path) {

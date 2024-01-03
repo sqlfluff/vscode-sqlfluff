@@ -28,7 +28,9 @@ export const activate = (context: vscode.ExtensionContext) => {
       formattingProvider,
     );
 
-    // Register the "Format Selection" command
+    // Register the "Format Selection" command. NOTE: As mentioned elsewhere,
+    // the "format selection" action is only available when dbt-core-interface
+    // is not enabled.
     if (!Configuration.executeInTerminal() && !Configuration.dbtInterfaceEnabled()) {
       const rangeFormattingProvider = new RangeFormattingEditProvider().activate();
       vscode.languages.registerDocumentRangeFormattingEditProvider(
@@ -96,7 +98,7 @@ export const activate = (context: vscode.ExtensionContext) => {
   if (Configuration.dbtInterfaceEnabled()) {
       // When dbt-core-interface is enabled, adds a "Format document with
       // sqlfluff" button to the lower right corner of the VS Code window. Use
-      // of the word "format" is deliberate, as the button hits the
+      // of the word "format" (vs "fix") is deliberate, as the button hits the
       // dbt-core-interface "/format" endpoint, equivalent to "sqlfluff format".
       const customStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
       customStatusBarItem.text = "$(pencil)";

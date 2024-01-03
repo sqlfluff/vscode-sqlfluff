@@ -26,6 +26,10 @@ export default class SQLFluff {
     }
 
     if (Configuration.dbtInterfaceEnabled() && command === CommandType.FIX) {
+      // Handles CommandType.FIX when dbt-core-interface is enabled.
+      // TRICKY: Note that this actually hits the dbt-core-interface /format
+      // endpoint. This is a deliberate choice, but may look odd to readers of
+      // the code.
       const dbtInterface = new DbtInterface(
         undefined,
         options.workspacePath ?? options.filePath,
