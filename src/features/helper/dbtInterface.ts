@@ -69,6 +69,9 @@ export class DbtInterface {
     // _similar_ to "sqlfluff fix", but it applies a different set of rules.
     // https://docs.sqlfluff.com/en/stable/cli.html#sqlfluff-format
     let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?sql_path=${this.sql_path}`;
+    if (this.sql !== undefined) {
+      url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?`;
+    }
 
     if (this.extra_config_path) {
       url += `&extra_config_path=${this.extra_config_path}`;
@@ -199,7 +202,7 @@ export class DbtInterface {
         {
           method: "POST",
           signal: abortController.signal as AbortSignal,
-          body: "",
+          body: this.sql,
         },
       );
     } catch (error) {
