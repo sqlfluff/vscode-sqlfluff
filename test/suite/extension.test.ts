@@ -22,9 +22,9 @@ suite("Extension Test Suite", () => {
   test("Bad SQL should have the correct diagnostics", async () => {
     const documentUri = Helper.getDocumentUri("/test_sql/diagnostics.sql");
     await Helper.activate(documentUri);
-    
-    const actualDiagnostics = vscode.languages.getDiagnostics(documentUri)
-    
+
+    const actualDiagnostics = vscode.languages.getDiagnostics(documentUri);
+
     assert.strictEqual(actualDiagnostics.length, 2);
     [
       { range: Helper.toRange(1, 0, 1, 4), message: "Keywords must be upper case.", code: "CP01" },

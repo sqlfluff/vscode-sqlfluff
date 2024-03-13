@@ -6,7 +6,7 @@ All notable changes to the "sqlfluff" extension will be documented in this file.
 
 - Update for sqlfluff version 3.0.0.
 - Add Vertica dialect.
-- Removed `--force` from `fix` as it is the default for > 3.0.0.
+- Removed `--force` from `fix` as it is the default for >= 3.0.0.
 
 ## [2.4.4] - 2023-09-12
 
