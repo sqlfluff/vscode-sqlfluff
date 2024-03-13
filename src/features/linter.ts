@@ -44,10 +44,12 @@ export default class LinterProvider implements Linter {
 
           filePath.violations.forEach((violation: Violation) => {
             const path = filePath.filepath;
-            const line = violation.line_no - 1 > 0 ? violation.line_no - 1 : 0;
-            const character = violation.line_pos - 1 > 0 ? violation.line_pos - 1 : 0;
-            const violationPosition = new vscode.Position(line, character);
-            let range = new vscode.Range(line, character, line, character);
+            const start_line_no = Math.max(0, (violation.line_no ?? violation.start_line_no ?? 1) - 1);
+            const start_line_pos = Math.max(0, (violation.line_pos ?? violation.start_line_pos ?? 1) - 1);
+            const end_line_no = Math.max(0, (violation.line_no ?? violation.end_line_no ?? 1) - 1);
+            const end_line_pos = Math.max(0, (violation.line_pos ?? violation.end_line_pos ?? 1) - 1);
+            const violationPosition = new vscode.Position(start_line_no, start_line_pos);
+            let range = new vscode.Range(start_line_no, start_line_pos, end_line_no, end_line_pos);
 
             if (editor) {
               const editorPath = Utilities.normalizePath(editor.document.fileName);
