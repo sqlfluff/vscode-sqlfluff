@@ -377,7 +377,7 @@ export default class Configuration {
   }
 
   public static formatFileArguments(): string[] {
-    const extraArguments = [...this.fixArguments(), "--force"];
+    const extraArguments = [...this.fixArguments()];
 
     return extraArguments;
   }
