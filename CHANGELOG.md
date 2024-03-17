@@ -2,6 +2,12 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.0.0] - 2024-03-13
+
+- Update for sqlfluff version 3.0.0.
+- Add Vertica dialect.
+- Removed `--force` from `fix` as it is the default for >= 3.0.0.
+
 ## [2.4.4] - 2023-09-12
 
 - Switch DBT Osmosis to DBT Core Interface. Thanks to BAntonellini's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/111)

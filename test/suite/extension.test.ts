@@ -19,18 +19,16 @@ suite("Extension Test Suite", () => {
 
   }).timeout(TIMEOUT);
 
-  // TODO: Fix Tests
-  /*
   test("Bad SQL should have the correct diagnostics", async () => {
-    const documentUri = Helper.getDocumentUri("/test_sql/bad.sql");
+    const documentUri = Helper.getDocumentUri("/test_sql/diagnostics.sql");
     await Helper.activate(documentUri);
 
     const actualDiagnostics = vscode.languages.getDiagnostics(documentUri);
 
     assert.strictEqual(actualDiagnostics.length, 2);
     [
-      { range: Helper.toRange(1, 11, 1, 10), message: "Keywords must be consistently upper case.", code: "CP01" },
-      { range: Helper.toRange(2, 1, 2, 1), message: "Files must end with a single trailing newline.", code: "LT12" },
+      { range: Helper.toRange(1, 0, 1, 4), message: "Keywords must be upper case.", code: "CP01" },
+      { range: Helper.toRange(1, 5, 1, 12), message: "Files must end with a single trailing newline.", code: "LT12" },
     ].forEach((expectedDiagnostic, i) => {
       assertDiagnosticIsEqual(actualDiagnostics[i], expectedDiagnostic);
     });
@@ -38,18 +36,17 @@ suite("Extension Test Suite", () => {
 
   test("Bad SQL has zero diagnostics after document format", async () => {
     const documentUri = Helper.getDocumentUri("/test_sql/format.sql");
-    // const document = await Helper.activate(documentUri);
-    // const preFormatDiagnostics = vscode.languages.getDiagnostics(documentUri);
-    // assert.strictEqual(preFormatDiagnostics.length, 1, "Pre-format diagnostics not expected length");
+    const document = await Helper.activate(documentUri);
+    const preFormatDiagnostics = vscode.languages.getDiagnostics(documentUri);
+    assert.strictEqual(preFormatDiagnostics.length, 1, "Pre-format diagnostics not expected length");
 
     await Helper.format(documentUri);
-    // await Helper.activate(documentUri);
+    await Helper.activate(documentUri);
 
     const postFormatDiagnostics = vscode.languages.getDiagnostics(documentUri);
     assert.strictEqual(postFormatDiagnostics.length, 0, "Post-format diagnostics not expected length");
 
   }).timeout(TIMEOUT);
-  */
 
   const assertDiagnosticIsEqual = (actual: vscode.Diagnostic, expected: { range: any; message: any; code: any; }) => {
     assert.deepStrictEqual(actual.range, expected.range);

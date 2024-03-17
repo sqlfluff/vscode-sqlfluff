@@ -1,10 +1,12 @@
+import * as assert from "assert";
 import * as vscode from "vscode";
 
 export const SLEEP_TIME = 10000;
 
 export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
     // The extensionId is `publisher.name` from package.json
-    const extension = vscode.extensions.getExtension("vscode-sqlfluff");
+    const extension = vscode.extensions.getExtension("dorzey.vscode-sqlfluff");
+    assert.notStrictEqual(extension, undefined);
     await extension?.activate();
     try {
         await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
