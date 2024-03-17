@@ -450,6 +450,6 @@
     "typescript": "^5.1.6",
     "@vscode/vsce": "^2.15.0",
     "@vscode/dts": "^0.4.0",
-    "@vscode/test-electron": "^1.6.1"
+    "@vscode/test-electron": "^2.3.9"
   }
 }
