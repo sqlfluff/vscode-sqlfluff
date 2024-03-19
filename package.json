@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "2.4.4",
+  "version": "3.0.0",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -127,8 +127,7 @@
             "exasol",
             "greenplum",
             "hive",
-            "materializ",
-            "e",
+            "materialize",
             "mysql",
             "oracle",
             "postgres",
@@ -138,7 +137,8 @@
             "sparksql",
             "sqlite",
             "teradata",
-            "tsql"
+            "tsql",
+            "vertica"
           ],
           "default": "",
           "description": "The dialect of SQL to lint."
@@ -259,7 +259,7 @@
         "sqlfluff.format.arguments": {
           "type": "array",
           "default": [],
-          "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff fix` command."
+          "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff fix` command. Include `--force` if running sqlfluff < 3.0.0."
         },
         "sqlfluff.format.enabled": {
           "type": "boolean",
@@ -432,7 +432,6 @@
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.4.2",
     "@types/node-fetch": "^2.6.4",
@@ -449,8 +448,8 @@
     "glob": "^10.3.3",
     "mocha": "^10.2.0",
     "typescript": "^5.1.6",
-    "vsce": "^2.15.0",
-    "vscode-dts": "^0.3.3",
-    "vscode-test": "^1.6.1"
+    "@vscode/vsce": "^2.15.0",
+    "@vscode/dts": "^0.4.0",
+    "@vscode/test-electron": "^2.3.9"
   }
 }

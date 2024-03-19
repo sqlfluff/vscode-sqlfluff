@@ -73,7 +73,7 @@ DBT setup requires these settings to lint and format the document.
 
 ### Format file
 
-By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix --force <path>`
+By default you will be able use SQLFluff fix your file by formatting. Same as calling `sqlfluff fix <path>`
 
 ![plugin configuration](./media/format_config.gif)
 
