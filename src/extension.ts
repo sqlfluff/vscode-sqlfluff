@@ -93,6 +93,18 @@ export const activate = (context: vscode.ExtensionContext) => {
   };
   context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
 
+  if (Configuration.dbtInterfaceEnabled()) {
+      // When dbt-core-interface is enabled, adds a "Format document with
+      // sqlfluff" button to the lower right corner of the VS Code window. Use
+      // of the word "format" (vs "fix") is deliberate, as the button hits the
+      // dbt-core-interface "/format" endpoint, equivalent to "sqlfluff format".
+      const customStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+      customStatusBarItem.text = "$(list-selection) Format SQL";
+      customStatusBarItem.tooltip = "Format document with sqlfluff";
+      customStatusBarItem.command = fixCommand;
+      customStatusBarItem.show();
+  }
+
   const formatSelection = "sqlfluff.format.selection";
   const formatSelectionHandler = async () => {
     if (vscode.window.activeTextEditor) {
