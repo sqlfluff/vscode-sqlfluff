@@ -2,6 +2,17 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.0.2] - 2024-04-01
+
+- Update changelog
+
+## [3.0.1] - 2024-04-01
+
+- Add a status bar button that runs "Format document with sqlfluff"
+- If dbt-core-interface is enabled in the extension
+  - The "fix" command should use dbt-core-interface /format endpoint
+  - The "format selection" action should also use dbt-core-interface /format endpoint
+
 ## [3.0.0] - 2024-03-13
 
 - Update for sqlfluff version 3.0.0.
