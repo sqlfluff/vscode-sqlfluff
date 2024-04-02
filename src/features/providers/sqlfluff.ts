@@ -25,6 +25,58 @@ export default class SQLFluff {
       throw new Error("You must supply either a target file path or the file contents to scan");
     }
 
+    if (Configuration.dbtInterfaceEnabled() && command === CommandType.FIX) {
+      // Handles CommandType.FIX when dbt-core-interface is enabled.
+      // TRICKY: Note that this actually hits the dbt-core-interface /format
+      // endpoint. This is a deliberate choice, but may look odd to readers of
+      // the code.
+      const dbtInterface = new DbtInterface(
+        undefined,
+        options.workspacePath ?? options.filePath,
+        Configuration.config(),
+      );
+
+      Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
+      Utilities.outputChannel.appendLine(dbtInterface.getFormatURL());
+      Utilities.appendHyphenatedLine();
+
+      const response: any = await dbtInterface.format();
+      const output: FilePath[] = [
+        {
+          filepath: options.filePath,
+          // The server returns a message field which contains any errors.
+          // Should we display this to the user in the error handling block
+          // below?
+          //message: response.message ?? "",
+          // The "FilePath" interface requires a "violations" field, but /format
+          // doesn't return any violations. We'll just return an empty array.
+          violations: [],
+        },
+      ];
+
+      Utilities.outputChannel.appendLine("Raw DBT-Interface /format output:");
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
+      Utilities.appendHyphenatedLine();
+
+      return new Promise<CommandOutput>((resolve) => {
+        const code = response?.error?.code ?? 0;
+        const succeeded = code === 0;
+        if (!succeeded && !Configuration.suppressNotifications()) {
+          const message = response?.error?.message ?? "DBT-Interface formatting error.";
+          const detail = response?.error?.data?.error ?? "";
+
+          vscode.window.showErrorMessage([message, detail].join("\n"));
+        }
+
+        resolve({
+          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+          succeeded: succeeded,
+          lines: [],
+        });
+      });
+    }
+
     // This is an unlikely scenario, but we should limit the amount of processes happening at once.
     while (SQLFluff.childProcesses.length > 10) {
       const process = SQLFluff.childProcesses.shift();

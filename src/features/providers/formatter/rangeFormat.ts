@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 
 import Configuration from "../../helper/configuration";
+import { DbtInterface } from "../../helper/dbtInterface";
 import Utilities from "../../helper/utilities";
 import SQLFluff from "../sqlfluff";
 import CommandOptions from "../types/commandOptions";
@@ -72,23 +73,54 @@ export class FormatSelectionProvider {
       return [];
     }
 
-    const commandOptions: CommandOptions = {
-      filePath: filePath,
-      fileContents: document.getText(lineRange),
-    };
+    let lines = undefined;
+    if (!Configuration.dbtInterfaceEnabled()) {
+      // Format the selection using sqlfluff CLI
+      const commandOptions: CommandOptions = {
+        filePath: filePath,
+        fileContents: document.getText(lineRange),
+      };
 
-    const result = await SQLFluff.run(
-      workingDirectory,
-      CommandType.FIX,
-      Configuration.formatFileArguments(),
-      commandOptions,
-    );
+      const result = await SQLFluff.run(
+        workingDirectory,
+        CommandType.FIX,
+        Configuration.formatFileArguments(),
+        commandOptions,
+      );
 
-    if (!result.succeeded) {
-      throw new Error("Command failed to execute, check logs for details");
+      if (!result.succeeded) {
+        throw new Error("Command failed to execute, check logs for details");
+      }
+
+      lines = FormatHelper.parseLines(result.lines);
+    } else {
+       // Format the selection using dbt-core-interface
+      const dbtInterface = new DbtInterface(
+        document.getText(lineRange),
+        workingDirectory,
+        Configuration.config(),
+      );
+
+      Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
+      Utilities.outputChannel.appendLine(dbtInterface.getFormatURL());
+      Utilities.appendHyphenatedLine();
+
+      const response: any = await dbtInterface.format();
+      Utilities.outputChannel.appendLine("Raw DBT-Interface /format output:");
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
+      Utilities.appendHyphenatedLine();
+
+      const code = response?.error?.code ?? 0;
+      const succeeded = code === 0;
+      if (succeeded) {
+        // response.sql is a multiline string. Split it into an array of lines.
+        // This is similar to FormatHelper.parseLines(), but it does not look
+        // for SQLFluff messages in the text because, given this is API output,
+        // there won't be any.
+        lines = response.sql.split(/\r?\n|\r|\n/g);
+      }
     }
-
-    let lines = FormatHelper.parseLines(result.lines);
 
     const leadingWhitespace = document.lineAt(range.start.line).firstNonWhitespaceCharacterIndex + 1;
     lines = lines ? FormatHelper.addLeadingWhitespace(lines, document.languageId, leadingWhitespace) : undefined;

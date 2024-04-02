@@ -64,6 +64,22 @@ export class DbtInterface {
     return url;
   }
 
+  public getFormatURL(): string {
+    // This endpoint is equivalent to "sqlfluff format". The behavior is
+    // _similar_ to "sqlfluff fix", but it applies a different set of rules.
+    // https://docs.sqlfluff.com/en/stable/cli.html#sqlfluff-format
+    let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?sql_path=${this.sql_path}`;
+    if (this.sql !== undefined) {
+      url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?`;
+    }
+
+    if (this.extra_config_path) {
+      url += `&extra_config_path=${this.extra_config_path}`;
+    }
+
+    return url;
+  }
+
   public async healthCheck(): Promise<any> {
     const abortController = new AbortController();
     const timeoutHandler = setTimeout(() => {
@@ -134,7 +150,64 @@ export class DbtInterface {
       );
     } catch (error) {
       Utilities.appendHyphenatedLine();
-      Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint error response:");
+      Utilities.outputChannel.appendLine("Raw dbt-core-interface /lint error response:");
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine(error as string);
+      Utilities.appendHyphenatedLine();
+
+      clearTimeout(timeoutHandler);
+      return failedToReachServerError;
+    }
+    clearTimeout(timeoutHandler);
+    return await response.json() as T;
+  }
+
+  public async format<T>(timeout = 25000) {
+    const failedToReachServerError: DbtInterfaceErrorContainer = {
+      error: {
+        code: DbtInterfaceErrorCode.FailedToReachServer,
+        message: "Query failed to reach dbt sync server.",
+        data: {
+          "error": `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
+        },
+      },
+    };
+
+    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
+      error: {
+        code: DbtInterfaceErrorCode.FailedToReachServer,
+        message: "dbt project not registered",
+        data: {
+          "error": "",
+        },
+      },
+    };
+
+    if (!await this.healthCheck()) {
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine("Unhealthy dbt project:");
+      Utilities.appendHyphenatedLine();
+      return projectNotRegisteredError;
+    }
+
+    const abortController = new AbortController();
+    const timeoutHandler = setTimeout(() => {
+      abortController.abort();
+    }, timeout);
+    let response: Response;
+
+    try {
+      response = await fetch(
+        encodeURI(this.getFormatURL()),
+        {
+          method: "POST",
+          signal: abortController.signal as AbortSignal,
+          body: this.sql,
+        },
+      );
+    } catch (error) {
+      Utilities.appendHyphenatedLine();
+      Utilities.outputChannel.appendLine("Raw dbt-core-interface /format error response:");
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine(error as string);
       Utilities.appendHyphenatedLine();
