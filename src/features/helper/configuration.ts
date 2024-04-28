@@ -428,6 +428,9 @@ export default class Configuration {
     const fileName = editor ? Utilities.normalizePath(editor.document.fileName) : undefined;
 
     const vars: Variables = {
+      // - the path of the user's home folder
+      userHome: process.env.HOME || process.env.USERPROFILE,
+
       // - the path of the folder opened in VS Code
       workspaceFolder: rootPath,
 
