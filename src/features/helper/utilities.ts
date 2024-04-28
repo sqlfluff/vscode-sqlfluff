@@ -14,7 +14,7 @@ export default class Utilities {
   }
 
   static interpolateString(command: string, variables: Variables): string {
-    const regex = /\$\{([^\}]+)\}/g; // eslint-disable-line no-useless-escape
+    const regex = /\$\{([^}]+)\}/g;
 
     const match = command.match(regex);
     while (match?.length) {
