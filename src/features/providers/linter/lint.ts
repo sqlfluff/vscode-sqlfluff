@@ -112,7 +112,7 @@ export default class LintingProvider {
     const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = workspacePath ?? Configuration.workingDirectory(rootPath);
-    const filePath = document ? Utilities.normalizePath(document.fileName) : workingDirectory;
+    const filePath = document && !document.isUntitled ? Utilities.normalizePath(document.fileName) : workingDirectory;
 
     if (!filePath) {
       Utilities.outputChannel.appendLine("ERROR: File path not found.");
