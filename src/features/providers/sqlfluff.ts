@@ -14,6 +14,15 @@ import CommandType from "./types/commandType";
 
 export default class SQLFluff {
   static childProcesses: CProcess.ChildProcess[] = [];
+  static version: [major: number, minor: number, patch: number];
+
+  static isForceDeprecated = () => {
+    return SQLFluff.version >= [3, 0, 0];
+  };
+
+  static supportsStdinFilename = () => {
+    return SQLFluff.version > [3, 0, 5];
+  };
 
   public static async run(
     workingDirectory: string | undefined,
@@ -86,74 +95,107 @@ export default class SQLFluff {
     const normalizedWorkingDirectory = workingDirectory ? Utilities.normalizePath(workingDirectory) : undefined;
     const shouldUseStdin = !!options.fileContents?.length;
     const finalArgs = [command, ...args, ...Configuration.extraArguments()];
+    const targetFileRelativePath = SQLFluff.getTargetFileRelativePath(options, normalizedWorkingDirectory);
 
     Utilities.appendHyphenatedLine();
     if (shouldUseStdin) {
       Utilities.outputChannel.appendLine("Reading from stdin, not file, input may be dirty/partial");
+      if (SQLFluff.supportsStdinFilename() && targetFileRelativePath) {
+        finalArgs.push("--stdin-filename");
+        finalArgs.push(targetFileRelativePath);
+      }
       finalArgs.push("-");
     } else if (options.workspacePath) {
       Utilities.outputChannel.appendLine("Reading from workspace, not stdin");
     } else {
       Utilities.outputChannel.appendLine("Reading from file, not stdin");
-      // We want to use relative path to the file so intermediate sqlfluff config files can be found
-      const normalizedFilePath = Utilities.normalizePath(options.filePath);
-      const targetFileRelativePath = normalizedWorkingDirectory
-        ? Utilities.normalizePath(path.relative(normalizedWorkingDirectory, normalizedFilePath))
-        : normalizedFilePath;
-      finalArgs.push(targetFileRelativePath);
+      finalArgs.push(targetFileRelativePath!);
     }
 
     if (Configuration.dbtInterfaceEnabled() && command === CommandType.LINT) {
-      const dbtInterface = new DbtInterface(
-        shouldUseStdin ? options.fileContents : undefined,
-        options.workspacePath ?? options.filePath,
-        Configuration.config(),
-      );
-
-      Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
-      Utilities.outputChannel.appendLine(dbtInterface.getLintURL());
-      if (shouldUseStdin) {
-        Utilities.outputChannel.appendLine("\n-----Request Body-----\n");
-        if (options.fileContents) {
-          Utilities.outputChannel.appendLine(options.fileContents);
-        } else {
-          Utilities.outputChannel.appendLine("ERROR: File contents not found.");
-        }
-      }
-
-      Utilities.appendHyphenatedLine();
-
-      const response: any = await dbtInterface.lint();
-      const output: FilePath[] = [
-        {
-          filepath: options.filePath,
-          violations: response.result ?? [],
-        },
-      ];
-
-      Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint output:");
-      Utilities.appendHyphenatedLine();
-      Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
-      Utilities.appendHyphenatedLine();
-
-      return new Promise<CommandOutput>((resolve) => {
-        const code = response?.error?.code ?? 0;
-        const succeeded = code === 0;
-        if (!succeeded && !Configuration.suppressNotifications()) {
-          const message = response?.error?.message ?? "DBT-Interface linting error.";
-          const detail = response?.error?.data?.error ?? "";
-
-          vscode.window.showErrorMessage([message, detail].join("\n"));
-        }
-
-        resolve({
-          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
-          succeeded: succeeded,
-          lines: [JSON.stringify(output)],
-        });
-      });
+      return await SQLFluff.runDbtInterface(shouldUseStdin, options);
     }
 
+    return SQLFluff.runCommand(
+      finalArgs,
+      normalizedWorkingDirectory,
+      shouldUseStdin,
+      options,
+      command,
+    );
+  }
+
+  private static getTargetFileRelativePath(options: CommandOptions, normalizedWorkingDirectory: string | undefined) {
+    if (options.filePath) {
+      // We want to use relative path to the file so intermediate sqlfluff config files can be found
+      const normalizedFilePath = Utilities.normalizePath(options.filePath);
+      return normalizedWorkingDirectory
+        ? Utilities.normalizePath(path.relative(normalizedWorkingDirectory, normalizedFilePath))
+        : normalizedFilePath;
+    }
+  }
+
+  private static async runDbtInterface(
+    shouldUseStdin: boolean,
+    options: CommandOptions,
+  ): Promise<CommandOutput> {
+    const dbtInterface = new DbtInterface(
+      shouldUseStdin ? options.fileContents : undefined,
+      options.workspacePath ?? options.filePath,
+      Configuration.config(),
+    );
+
+    Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
+    Utilities.outputChannel.appendLine(dbtInterface.getLintURL());
+    if (shouldUseStdin) {
+      Utilities.outputChannel.appendLine("\n-----Request Body-----\n");
+      if (options.fileContents) {
+        Utilities.outputChannel.appendLine(options.fileContents);
+      } else {
+        Utilities.outputChannel.appendLine("ERROR: File contents not found.");
+      }
+    }
+
+    Utilities.appendHyphenatedLine();
+
+    const response: any = await dbtInterface.lint();
+    const output: FilePath[] = [
+      {
+        filepath: options.filePath,
+        violations: response.result ?? [],
+      },
+    ];
+
+    Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint output:");
+    Utilities.appendHyphenatedLine();
+    Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
+    Utilities.appendHyphenatedLine();
+
+    return new Promise<CommandOutput>((resolve) => {
+      const code = response?.error?.code ?? 0;
+      const succeeded = code === 0;
+      if (!succeeded && !Configuration.suppressNotifications()) {
+        const message = response?.error?.message ?? "DBT-Interface linting error.";
+        const detail = response?.error?.data?.error ?? "";
+
+        vscode.window.showErrorMessage([message, detail].join("\n"));
+      }
+
+      resolve({
+          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+        succeeded: succeeded,
+        lines: [JSON.stringify(output)],
+      });
+    });
+  }
+
+  private static runCommand(
+    finalArgs: string[],
+    normalizedWorkingDirectory: string | undefined,
+    shouldUseStdin: boolean,
+    options: CommandOptions | undefined,
+    command: CommandType | undefined,
+  ): Promise<CommandOutput> {
     return new Promise<CommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();
       const stdoutFix: Buffer[] = [];
@@ -184,7 +226,7 @@ export default class SQLFluff {
         childProcess.stdout.on("data", onStdoutDataEvent);
         childProcess.stderr.on("data", onStderrDataEvent);
         childProcess.on("close", (code, number) => onCloseEvent(code, number, childProcess));
-        if (shouldUseStdin) {
+        if (shouldUseStdin && options) {
           childProcess.stdin.write(options.fileContents);
           childProcess.stdin.end();
         }
@@ -269,5 +311,18 @@ export default class SQLFluff {
         });
       }
     });
+  }
+
+  static getCLIVersion() {
+    this.runCommand(["--version"], undefined, false, undefined, undefined).then(
+      (output) => {
+        const arr = output.lines[0]
+          .split("version ")[1]
+          .split(".", 3)
+          .map((s) => Number(s));
+        this.version = [arr[0], arr[1], arr[2]];
+        Utilities.outputChannel.appendLine(`sqlfluff version: ${this.version}`);
+      },
+    );
   }
 }
