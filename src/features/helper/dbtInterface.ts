@@ -40,6 +40,16 @@ export interface DbtInterfaceErrorContainer {
   };
 }
 
+const projectNotRegisteredError: DbtInterfaceErrorContainer = {
+  error: {
+    code: DbtInterfaceErrorCode.CompileSqlFailure,
+    message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
+    data: {
+      "error": "",
+    },
+  },
+};
+
 export class DbtInterface {
   private sql: string | undefined;
   private sql_path: string | undefined;
@@ -116,16 +126,6 @@ export class DbtInterface {
       },
     };
 
-    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
-      error: {
-        code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
-        data: {
-          "error": "",
-        },
-      },
-    };
-
     if (!await this.healthCheck()) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Unhealthy dbt project:");
@@ -169,16 +169,6 @@ export class DbtInterface {
         message: "Query failed to reach dbt sync server.",
         data: {
           "error": `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
-        },
-      },
-    };
-
-    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
-      error: {
-        code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
-        data: {
-          "error": "",
         },
       },
     };
