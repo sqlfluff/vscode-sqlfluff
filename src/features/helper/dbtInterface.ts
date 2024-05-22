@@ -119,7 +119,7 @@ export class DbtInterface {
     const projectNotRegisteredError: DbtInterfaceErrorContainer = {
       error: {
         code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "dbt project not registered",
+        message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
         data: {
           "error": "",
         },
@@ -176,7 +176,7 @@ export class DbtInterface {
     const projectNotRegisteredError: DbtInterfaceErrorContainer = {
       error: {
         code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "dbt project not registered",
+        message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
         data: {
           "error": "",
         },
