@@ -30,6 +30,7 @@ export enum DbtInterfaceErrorCode {
   CompileSqlFailure = 1,
   ExecuteSqlFailure = 2,
   ProjectParseFailure = 3,
+  UnlintableUnfixable = 0
 }
 
 export interface DbtInterfaceErrorContainer {
@@ -185,7 +186,6 @@ export class DbtInterface {
       abortController.abort();
     }, timeout);
     let response: Response;
-
     try {
       response = await fetch(
         encodeURI(this.getFormatURL()),

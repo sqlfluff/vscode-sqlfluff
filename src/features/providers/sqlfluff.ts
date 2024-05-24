@@ -62,7 +62,7 @@ export default class SQLFluff {
 
       return new Promise<CommandOutput>(async (resolve) => {
         const code = response?.error?.code ?? 0;
-        const succeeded = code === 0;
+        const succeeded = (code === 0  && !response?.error);
         if (!succeeded && !Configuration.suppressNotifications() && !this.shownDbtInterfacePopup) {
           const message = response?.error?.message ?? "DBT-Interface formatting error.";
           const detail = response?.error?.data?.error ?? "";
@@ -73,6 +73,8 @@ export default class SQLFluff {
             if (chosen === runDbt) {
               await vscode.commands.executeCommand("dbtPowerUser.dbtCompile");
             }
+          } else if(code === DbtInterfaceErrorCode.UnlintableUnfixable) {
+            vscode.window.showErrorMessage("Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details.")
           } else {
             vscode.window.showErrorMessage([message, detail].join("\n"));
           }
@@ -146,7 +148,7 @@ export default class SQLFluff {
 
       return new Promise<CommandOutput>(async (resolve) => {
         const code = response?.error?.code ?? 0;
-        const succeeded = code === 0;
+        const succeeded = (code === 0 && !response?.error);
         if (!succeeded && !Configuration.suppressNotifications() && !this.shownDbtInterfacePopup) {
           const message = response?.error?.message ?? "DBT-Interface linting error.";
           const detail = response?.error?.data?.error ?? "";
@@ -158,6 +160,8 @@ export default class SQLFluff {
             if (chosen === runDbt) {
               await vscode.commands.executeCommand("dbtPowerUser.dbtCompile");
             }
+          } else if(code === DbtInterfaceErrorCode.UnlintableUnfixable) {
+            vscode.window.showErrorMessage("Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details.")
           } else {
             vscode.window.showErrorMessage([message, detail].join("\n"));
           }
