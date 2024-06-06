@@ -6,7 +6,7 @@
    ```bash
    cd vscode-sqlfluff
    npm install
-   vsce package
+   npx vsce package
    ```
 4. Load into VS Code:
    1. Open VS Code and Navigate to the Extensions Panel

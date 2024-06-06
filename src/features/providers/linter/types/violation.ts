@@ -7,4 +7,5 @@ export default interface Violation {
   end_line_pos?: number,
   description: string,
   code: string,
+  warning?: boolean;
 }
