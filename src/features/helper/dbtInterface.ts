@@ -30,6 +30,7 @@ export enum DbtInterfaceErrorCode {
   CompileSqlFailure = 1,
   ExecuteSqlFailure = 2,
   ProjectParseFailure = 3,
+  UnlintableUnfixable = 0
 }
 
 export interface DbtInterfaceErrorContainer {
@@ -39,6 +40,16 @@ export interface DbtInterfaceErrorContainer {
     data: { [index: string]: (string | number); },
   };
 }
+
+const projectNotRegisteredError: DbtInterfaceErrorContainer = {
+  error: {
+    code: DbtInterfaceErrorCode.CompileSqlFailure,
+    message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
+    data: {
+      "error": "",
+    },
+  },
+};
 
 export class DbtInterface {
   private sql: string | undefined;
@@ -116,16 +127,6 @@ export class DbtInterface {
       },
     };
 
-    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
-      error: {
-        code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "dbt project not registered",
-        data: {
-          "error": "",
-        },
-      },
-    };
-
     if (!await this.healthCheck()) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Unhealthy dbt project:");
@@ -173,16 +174,6 @@ export class DbtInterface {
       },
     };
 
-    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
-      error: {
-        code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "dbt project not registered",
-        data: {
-          "error": "",
-        },
-      },
-    };
-
     if (!await this.healthCheck()) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Unhealthy dbt project:");
@@ -195,7 +186,6 @@ export class DbtInterface {
       abortController.abort();
     }, timeout);
     let response: Response;
-
     try {
       response = await fetch(
         encodeURI(this.getFormatURL()),
