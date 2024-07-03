@@ -36,13 +36,10 @@ suite("Extension Test Suite", () => {
 
   test("Bad SQL has zero diagnostics after document format", async () => {
     const documentUri = Helper.getDocumentUri("/test_sql/format.sql");
-    const document = await Helper.activate(documentUri);
+    await Helper.activate(documentUri);
     const preFormatDiagnostics = vscode.languages.getDiagnostics(documentUri);
     assert.strictEqual(preFormatDiagnostics.length, 1, "Pre-format diagnostics not expected length");
-
     await Helper.format(documentUri);
-    await Helper.activate(documentUri);
-
     const postFormatDiagnostics = vscode.languages.getDiagnostics(documentUri);
     assert.strictEqual(postFormatDiagnostics.length, 0, "Post-format diagnostics not expected length");
 

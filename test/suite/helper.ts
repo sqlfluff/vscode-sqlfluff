@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 
-export const SLEEP_TIME = 10000;
+export const SLEEP_TIME = 2000;
 
 export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
     // The extensionId is `publisher.name` from package.json
@@ -13,9 +13,7 @@ export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocu
         const document = await vscode.workspace.openTextDocument(documentUri);
         await vscode.window.showTextDocument(document);
         await document.save();
-
         await sleep(SLEEP_TIME); // Wait for server activation
-
         return document;
     } catch (e) {
         console.error(e);
@@ -28,11 +26,8 @@ export const format = async (documentUri: vscode.Uri) => {
         const document = await vscode.workspace.openTextDocument(documentUri);
         await vscode.window.showTextDocument(document);
         await vscode.commands.executeCommand("editor.action.formatDocument");
-        await sleep(SLEEP_TIME);
         await document.save();
-
         await sleep(SLEEP_TIME); // Wait for server activation
-
         return document;
     } catch (e) {
         console.error(e);
