@@ -2,6 +2,12 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.1.0] - 2024-07-03
+
+- Allow the extension to accept warnings from the underlying linter. Thanks to TheCleric's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/140)
+- Add support for --stdin-filename for nested config. Thanks to keraion's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/136)
+- Add support for ${userHome}. Thanks to keraion's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/135)
+
 ## [3.0.2] - 2024-04-01
 
 - Update changelog
