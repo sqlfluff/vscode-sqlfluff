@@ -3,6 +3,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { DiagnosticSeverity } from "vscode";
 
+import SQLFluff from "../providers/sqlfluff";
 import DiagnosticSetting from "./types/diagnosticSetting";
 import EnvironmentVariable from "./types/environmentVariable";
 import FormatLanguageSettings from "./types/formatLanguageSettings";
@@ -33,6 +34,14 @@ export default class Configuration {
           });
       }
     });
+
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration("sqlfluff.executablePath")) {
+        SQLFluff.getCLIVersion();
+      }
+    });
+
+    SQLFluff.getCLIVersion();
   }
 
   public static environmentVariables(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
@@ -217,7 +226,7 @@ export default class Configuration {
   public static noqaDisabledRules(): string[] {
     const defaultDisabledRules = ["L015", "L017", "L019", "L030", "L032", "L034", "L035", "L037", "L038", "L040", "L041", "L042", "L043", "L044", "L054", "L058", "L063", "L064"];
     const noqa = vscode.workspace
-      .getConfiguration("sqlfluff.codeActions")
+    .getConfiguration("sqlfluff.codeActions")
       .get<string[] | boolean>("noqa", defaultDisabledRules);
 
     if (typeof noqa === "boolean") return [];
@@ -235,18 +244,18 @@ export default class Configuration {
 
   public static formatLanguages(): string[] {
     const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get("languages");
+    .getConfiguration("sqlfluff.format")
+    .get("languages");
 
 
     const languages: string[] = [];
     languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
-      if (typeof languageSetting === "string") {
-        languages.push(languageSetting);
-      } else {
-        languages.push(languageSetting.language)
-      }
-    })
+        if (typeof languageSetting === "string") {
+          languages.push(languageSetting);
+        } else {
+          languages.push(languageSetting.language);
+        }
+      });
 
     return languages;
   }
@@ -258,31 +267,31 @@ export default class Configuration {
 
     const languages: string[] = [];
     languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
-      if (typeof languageSetting === "string") {
-        languages.push(languageSetting);
-      } else if (languageSetting.contextMenuFormatOptions) {
-        languages.push(languageSetting.language);
-      }
-    })
+        if (typeof languageSetting === "string") {
+          languages.push(languageSetting);
+        } else if (languageSetting.contextMenuFormatOptions) {
+          languages.push(languageSetting.language);
+        }
+      });
 
     return languages;
   }
 
   public static formatLanguageSetting(languageId: string): FormatLanguageSettings | undefined {
     const languageSettings: (FormatLanguageSettings | string)[] | undefined = vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get("languages");
+    .getConfiguration("sqlfluff.format")
+    .get("languages");
 
     const setting = languageSettings?.find((languageSetting: FormatLanguageSettings | string) => {
-      if (typeof languageSettings === "string") return false;
+        if (typeof languageSettings === "string") return false;
 
-      const typedSetting = languageSetting as unknown as FormatLanguageSettings;
-      if (typedSetting.language === languageId) return true;
+        const typedSetting = languageSetting as unknown as FormatLanguageSettings;
+        if (typedSetting.language === languageId) return true;
 
-      return false;
-    });
+        return false;
+      });
 
-    if (typeof setting === "string") return undefined
+    if (typeof setting === "string") return undefined;
     return setting;
   }
 
@@ -378,6 +387,12 @@ export default class Configuration {
 
   public static formatFileArguments(): string[] {
     const extraArguments = [...this.fixArguments()];
+    if (
+      !SQLFluff.isForceDeprecated() &&
+      !extraArguments.some((x) => x == "--force")
+    ) {
+      extraArguments.push("--force");
+    }
 
     return extraArguments;
   }
