@@ -328,7 +328,7 @@ export default class Configuration {
     return DiagnosticSeverity.Error;
   }
 
-  public static diagnosticSeverityByRule(violation: string): number {
+  public static diagnosticSeverityByRule(violation: string, defaultSeverity: number | null = null): number {
     const diagnosticSeverityByRule = vscode.workspace
       .getConfiguration("sqlfluff.linter")
       .get<DiagnosticSetting[]>("diagnosticSeverityByRule", []);
@@ -354,7 +354,7 @@ export default class Configuration {
         return DiagnosticSeverity.Information;
     }
 
-    return this.diagnosticSeverity();
+    return defaultSeverity == null ? this.diagnosticSeverity() : defaultSeverity;
   }
 
   public static lintEntireProject(): boolean {

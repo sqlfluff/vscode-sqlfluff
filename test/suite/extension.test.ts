@@ -45,9 +45,23 @@ suite("Extension Test Suite", () => {
 
   }).timeout(TIMEOUT);
 
-  const assertDiagnosticIsEqual = (actual: vscode.Diagnostic, expected: { range: any; message: any; code: any; }) => {
+  test("Warning SQL should have the correct diagnostics", async () => {
+    const documentUri = Helper.getDocumentUri("/test_sql/warning.sql");
+    await Helper.activate(documentUri);
+
+    const actualDiagnostics = vscode.languages.getDiagnostics(documentUri);
+
+    assert.strictEqual(actualDiagnostics.length, 1, JSON.stringify(actualDiagnostics, null, 4));
+    [
+      { range: Helper.toRange(0, 0, 0, 6), message: "Query produces an unknown number of result columns.", code: "AM04", severity: vscode.DiagnosticSeverity.Warning },
+    ].forEach((expectedDiagnostic, i) => {
+      assertDiagnosticIsEqual(actualDiagnostics[i], expectedDiagnostic);
+    });
+  }).timeout(TIMEOUT);
+
+  const assertDiagnosticIsEqual = (actual: vscode.Diagnostic, expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity }) => {
     assert.deepStrictEqual(actual.range, expected.range);
-    assert.strictEqual(actual.severity, 0);
+    assert.strictEqual(actual.severity, expected.severity == undefined ? 0 : expected.severity);
     assert.strictEqual(actual.message, expected.message);
     assert.strictEqual(actual.code, expected.code);
     assert.strictEqual(actual.source, "sqlfluff");

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use strict";
 import * as vscode from "vscode";
-import { Diagnostic, Disposable } from "vscode";
+import { Diagnostic, DiagnosticSeverity, Disposable } from "vscode";
 
 import Configuration from "./helper/configuration";
 import Utilities from "./helper/utilities";
@@ -49,6 +49,7 @@ export default class LinterProvider implements Linter {
             const end_line_no = Math.max(0, (violation.line_no ?? violation.end_line_no ?? 1) - 1);
             const end_line_pos = Math.max(0, (violation.line_pos ?? violation.end_line_pos ?? 1) - 1);
             const violationPosition = new vscode.Position(start_line_no, start_line_pos);
+            const warning: boolean = violation?.warning || false;
             let range = new vscode.Range(start_line_no, start_line_pos, end_line_no, end_line_pos);
 
             if (editor) {
@@ -58,7 +59,7 @@ export default class LinterProvider implements Linter {
               }
             }
 
-            const diagnosticSeverity = Configuration.diagnosticSeverityByRule(violation.code);
+            const diagnosticSeverity = Configuration.diagnosticSeverityByRule(violation.code, warning ? DiagnosticSeverity.Warning : null);
 
             const diagnostic = new Diagnostic(
               range,

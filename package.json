@@ -422,7 +422,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/src/extension.js --external:vscode --format=cjs --keep-names --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
-    "postbuild": "copyfiles \"./test/suite/test_sql/**/*.sql\" \"./out\" && copyfiles \"./test/.sqlfluff\" \"./out\"",
+    "postbuild": "copyfiles \"./test/suite/test_sql/**/*.sql\" \"./out\" && copyfiles \"./test/.sqlfluff\" \"./out\" && copyfiles copyfiles \"./test/.vscode/settings.json\" \"./out\"",
     "deploy": "vsce publish",
     "build-vsix": "vsce package"
   },
