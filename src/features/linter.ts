@@ -66,7 +66,7 @@ export default class LinterProvider implements Linter {
               violation.description,
               diagnosticSeverity,
             );
-            diagnostic.code = violation.code;
+            diagnostic.code = violation?.name ? `${violation.code}: ${violation.name}` : violation.code;
             diagnostic.source = "sqlfluff";
             fileDiagnostic.diagnostics.push(diagnostic);
           });

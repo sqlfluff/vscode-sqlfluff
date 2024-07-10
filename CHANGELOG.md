@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.1.1] - 2024-07-10
+
+- Show the rule name in the problems tab [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/134)
+
 ## [3.1.0] - 2024-07-03
 
 - Allow the extension to accept warnings from the underlying linter. Thanks to TheCleric's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/140)
