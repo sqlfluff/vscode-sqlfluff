@@ -13,7 +13,9 @@ export default class FormatHelper {
       lines.shift();
 
       if (!Configuration.suppressNotifications()) {
-        vscode.window.showErrorMessage("SQLFluff templating/parsing errors found. Unable to run 'sqlfluff fix' even with the errors ignored.");
+        vscode.window.showErrorMessage(
+          "SQLFluff templating/parsing errors found. Unable to run 'sqlfluff fix' even with the errors ignored.",
+        );
       }
     }
 
@@ -33,8 +35,12 @@ export default class FormatHelper {
     return parsedLines;
   }
 
-  public static addLeadingWhitespace(lines: string[], languageId: string, leadingWhitespace: number): string[] | undefined {
-    const formatSettings = Configuration.formatLanguageSetting(languageId)
+  public static addLeadingWhitespace(
+    lines: string[],
+    languageId: string,
+    leadingWhitespace: number,
+  ): string[] | undefined {
+    const formatSettings = Configuration.formatLanguageSetting(languageId);
     let linesWithWhitespace: string[] = [];
 
     if (formatSettings?.preserveLeadingWhitespace) {
@@ -46,7 +52,7 @@ export default class FormatHelper {
         const emptySpace = new Array(leadingWhitespace).join(" ");
         const whitespaceLine = !/\S/.test(line) ? line : emptySpace.concat(line);
         linesWithWhitespace.push(whitespaceLine);
-      })
+      });
     } else {
       linesWithWhitespace = lines;
     }

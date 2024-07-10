@@ -40,15 +40,18 @@ export class Throttler<T> {
     this.activePromise = promiseFactory();
 
     return new Promise<T>((resolve, reject) => {
-      this.activePromise.then((result: T) => {
-        // @ts-ignore
-        this.activePromise = null;
-        resolve(result);
-      }, (err: any) => {
-        // @ts-ignore
-        this.activePromise = null;
-        reject(err);
-      });
+      this.activePromise.then(
+        (result: T) => {
+          // @ts-ignore
+          this.activePromise = null;
+          resolve(result);
+        },
+        (err: any) => {
+          // @ts-ignore
+          this.activePromise = null;
+          reject(err);
+        },
+      );
     });
   }
 }
@@ -137,6 +140,8 @@ export class ThrottledDelayer<T> extends Delayer<Promise<T>> {
 
   public trigger(promiseFactory: ITask<Promise<T>>, delay?: number): Promise<Promise<T>> {
     // @ts-ignore
-    return super.trigger(() => { return this.throttler.queue(promiseFactory); }, delay);
+    return super.trigger(() => {
+      return this.throttler.queue(promiseFactory);
+    }, delay);
   }
 }

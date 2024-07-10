@@ -1,7 +1,7 @@
 enum RunTrigger {
   onSave = "onSave",
   onType = "onType",
-  off = "off"
+  off = "off",
 }
 
-export default RunTrigger
+export default RunTrigger;

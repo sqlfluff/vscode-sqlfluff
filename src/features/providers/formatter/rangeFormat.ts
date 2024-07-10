@@ -23,20 +23,18 @@ export class RangeFormattingProvider implements vscode.DocumentRangeFormattingEd
 }
 
 export class FormatSelectionProvider {
-  static async provideTextEdits(
-    document: vscode.TextDocument,
-    range: vscode.Range,
-  ): Promise<vscode.TextEdit[]> {
+  static async provideTextEdits(document: vscode.TextDocument, range: vscode.Range): Promise<vscode.TextEdit[]> {
     const filePath = Utilities.normalizePath(document.fileName);
-    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const workspaceFolder = vscode.workspace.workspaceFolders
+      ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
 
     // Do not format the last line if it is only whitespace
-    const endLine = !/\S/.test(
-      document.lineAt(range.end.line).text.slice(0, range.end.character),
-    ) ? range.end.line - 1
+    const endLine = !/\S/.test(document.lineAt(range.end.line).text.slice(0, range.end.character))
+      ? range.end.line - 1
       : range.end.line;
     const endCharacter = document.lineAt(endLine).range.end.character;
     const lineRange = new vscode.Range(
@@ -49,7 +47,9 @@ export class FormatSelectionProvider {
     }
 
     Utilities.appendHyphenatedLine();
-    Utilities.outputChannel.appendLine(`Range (Lines ${lineRange.start.line} to ${lineRange.end.line}) Format triggered for ${filePath}`);
+    Utilities.outputChannel.appendLine(
+      `Range (Lines ${lineRange.start.line} to ${lineRange.end.line}) Format triggered for ${filePath}`,
+    );
 
     if (!Configuration.formatEnabled()) {
       const message = "Format not enabled in the settings. Skipping Format.";
@@ -94,12 +94,8 @@ export class FormatSelectionProvider {
 
       lines = FormatHelper.parseLines(result.lines);
     } else {
-       // Format the selection using dbt-core-interface
-      const dbtInterface = new DbtInterface(
-        document.getText(lineRange),
-        workingDirectory,
-        Configuration.config(),
-      );
+      // Format the selection using dbt-core-interface
+      const dbtInterface = new DbtInterface(document.getText(lineRange), workingDirectory, Configuration.config());
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
       Utilities.outputChannel.appendLine(dbtInterface.getFormatURL());
@@ -129,14 +125,13 @@ export class FormatSelectionProvider {
 
     if (lines.length > 1 || lines[0] !== "") {
       const eol = document.eol;
-      textEdits.push(vscode.TextEdit.replace(
-        lineRange,
-        eol === vscode.EndOfLine.LF ? lines.join("\n") : lines.join("\r\n"),
-      ));
+      textEdits.push(
+        vscode.TextEdit.replace(lineRange, eol === vscode.EndOfLine.LF ? lines.join("\n") : lines.join("\r\n")),
+      );
     }
 
     if (Configuration.executeInTerminal()) {
-      await new Promise(sleep => setTimeout(sleep, 250));
+      await new Promise((sleep) => setTimeout(sleep, 250));
     }
 
     return textEdits;

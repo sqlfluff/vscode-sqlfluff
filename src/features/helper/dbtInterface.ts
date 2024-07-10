@@ -6,10 +6,10 @@ import Configuration from "./configuration";
 import Utilities from "./utilities";
 
 export interface DbtInterfaceRunResult {
-  column_names: string[],
-  rows: any[][],
-  raw_sql: string,
-  compiled_sql: string,
+  column_names: string[];
+  rows: any[][];
+  raw_sql: string;
+  compiled_sql: string;
 }
 
 export interface DbtInterfaceCompileResult {
@@ -22,7 +22,7 @@ export interface DbtInterfaceResetResult {
 
 export enum DbtInterfaceFullReparse {
   True = "true",
-  False = "false"
+  False = "false",
 }
 
 export enum DbtInterfaceErrorCode {
@@ -34,9 +34,9 @@ export enum DbtInterfaceErrorCode {
 
 export interface DbtInterfaceErrorContainer {
   error: {
-    code: DbtInterfaceErrorCode,
-    message: string,
-    data: { [index: string]: (string | number); },
+    code: DbtInterfaceErrorCode;
+    message: string;
+    data: { [index: string]: string | number };
   };
 }
 
@@ -83,25 +83,25 @@ export class DbtInterface {
   public async healthCheck(): Promise<any> {
     const abortController = new AbortController();
     const timeoutHandler = setTimeout(() => {
-        abortController.abort();
+      abortController.abort();
     }, 1000);
     try {
-        const response = await fetch(
-            `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/health`,
-            {
-                method: "GET",
-                signal: abortController.signal as AbortSignal,
-            },
-        );
-        if (response.status === 200) {
-            return true;
-        } else {
-          return false;
-        }
-    } catch (e) {
+      const response = await fetch(
+        `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/health`,
+        {
+          method: "GET",
+          signal: abortController.signal as AbortSignal,
+        },
+      );
+      if (response.status === 200) {
+        return true;
+      } else {
         return false;
+      }
+    } catch (e) {
+      return false;
     } finally {
-        clearTimeout(timeoutHandler);
+      clearTimeout(timeoutHandler);
     }
   }
 
@@ -111,7 +111,7 @@ export class DbtInterface {
         code: DbtInterfaceErrorCode.FailedToReachServer,
         message: "Query failed to reach dbt sync server.",
         data: {
-          "error": `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
+          error: `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
         },
       },
     };
@@ -121,12 +121,12 @@ export class DbtInterface {
         code: DbtInterfaceErrorCode.FailedToReachServer,
         message: "dbt project not registered",
         data: {
-          "error": "",
+          error: "",
         },
       },
     };
 
-    if (!await this.healthCheck()) {
+    if (!(await this.healthCheck())) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Unhealthy dbt project:");
       Utilities.appendHyphenatedLine();
@@ -140,14 +140,11 @@ export class DbtInterface {
     let response: Response;
 
     try {
-      response = await fetch(
-        encodeURI(this.getLintURL()),
-        {
-          method: "POST",
-          signal: abortController.signal as AbortSignal,
-          body: this.sql,
-        },
-      );
+      response = await fetch(encodeURI(this.getLintURL()), {
+        method: "POST",
+        signal: abortController.signal as AbortSignal,
+        body: this.sql,
+      });
     } catch (error) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Raw dbt-core-interface /lint error response:");
@@ -159,7 +156,7 @@ export class DbtInterface {
       return failedToReachServerError;
     }
     clearTimeout(timeoutHandler);
-    return await response.json() as T;
+    return (await response.json()) as T;
   }
 
   public async format<T>(timeout = 25000) {
@@ -168,7 +165,7 @@ export class DbtInterface {
         code: DbtInterfaceErrorCode.FailedToReachServer,
         message: "Query failed to reach dbt sync server.",
         data: {
-          "error": `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
+          error: `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
         },
       },
     };
@@ -178,12 +175,12 @@ export class DbtInterface {
         code: DbtInterfaceErrorCode.FailedToReachServer,
         message: "dbt project not registered",
         data: {
-          "error": "",
+          error: "",
         },
       },
     };
 
-    if (!await this.healthCheck()) {
+    if (!(await this.healthCheck())) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Unhealthy dbt project:");
       Utilities.appendHyphenatedLine();
@@ -197,14 +194,11 @@ export class DbtInterface {
     let response: Response;
 
     try {
-      response = await fetch(
-        encodeURI(this.getFormatURL()),
-        {
-          method: "POST",
-          signal: abortController.signal as AbortSignal,
-          body: this.sql,
-        },
-      );
+      response = await fetch(encodeURI(this.getFormatURL()), {
+        method: "POST",
+        signal: abortController.signal as AbortSignal,
+        body: this.sql,
+      });
     } catch (error) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Raw dbt-core-interface /format error response:");
@@ -216,6 +210,6 @@ export class DbtInterface {
       return failedToReachServerError;
     }
     clearTimeout(timeoutHandler);
-    return await response.json() as T;
+    return (await response.json()) as T;
   }
 }

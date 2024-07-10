@@ -9,14 +9,12 @@ suite("Extension Test Suite", () => {
   vscode.window.showInformationMessage("Start all tests.");
 
   test("Good SQL should have zero diagnostics", async () => {
-
     const documentUri = Helper.getDocumentUri("/test_sql/good.sql");
     await Helper.activate(documentUri);
 
     const actualDiagnostics = vscode.languages.getDiagnostics(documentUri);
 
     assert.strictEqual(actualDiagnostics.length, 0);
-
   }).timeout(TIMEOUT);
 
   test("Bad SQL should have the correct diagnostics", async () => {
@@ -42,7 +40,6 @@ suite("Extension Test Suite", () => {
     await Helper.format(documentUri);
     const postFormatDiagnostics = vscode.languages.getDiagnostics(documentUri);
     assert.strictEqual(postFormatDiagnostics.length, 0, "Post-format diagnostics not expected length");
-
   }).timeout(TIMEOUT);
 
   test("Warning SQL should have the correct diagnostics", async () => {
@@ -53,13 +50,21 @@ suite("Extension Test Suite", () => {
 
     assert.strictEqual(actualDiagnostics.length, 1, JSON.stringify(actualDiagnostics, null, 4));
     [
-      { range: Helper.toRange(0, 0, 0, 6), message: "Query produces an unknown number of result columns.", code: "AM04", severity: vscode.DiagnosticSeverity.Warning },
+      {
+        range: Helper.toRange(0, 0, 0, 6),
+        message: "Query produces an unknown number of result columns.",
+        code: "AM04",
+        severity: vscode.DiagnosticSeverity.Warning,
+      },
     ].forEach((expectedDiagnostic, i) => {
       assertDiagnosticIsEqual(actualDiagnostics[i], expectedDiagnostic);
     });
   }).timeout(TIMEOUT);
 
-  const assertDiagnosticIsEqual = (actual: vscode.Diagnostic, expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity }) => {
+  const assertDiagnosticIsEqual = (
+    actual: vscode.Diagnostic,
+    expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity },
+  ) => {
     assert.deepStrictEqual(actual.range, expected.range);
     assert.strictEqual(actual.severity, expected.severity == undefined ? 0 : expected.severity);
     assert.strictEqual(actual.message, expected.message);

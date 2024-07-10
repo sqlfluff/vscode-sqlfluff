@@ -116,13 +116,7 @@ export default class SQLFluff {
       return await SQLFluff.runDbtInterface(shouldUseStdin, options);
     }
 
-    return SQLFluff.runCommand(
-      finalArgs,
-      normalizedWorkingDirectory,
-      shouldUseStdin,
-      options,
-      command,
-    );
+    return SQLFluff.runCommand(finalArgs, normalizedWorkingDirectory, shouldUseStdin, options, command);
   }
 
   private static getTargetFileRelativePath(options: CommandOptions, normalizedWorkingDirectory: string | undefined) {
@@ -135,10 +129,7 @@ export default class SQLFluff {
     }
   }
 
-  private static async runDbtInterface(
-    shouldUseStdin: boolean,
-    options: CommandOptions,
-  ): Promise<CommandOutput> {
+  private static async runDbtInterface(shouldUseStdin: boolean, options: CommandOptions): Promise<CommandOutput> {
     const dbtInterface = new DbtInterface(
       shouldUseStdin ? options.fileContents : undefined,
       options.workspacePath ?? options.filePath,
@@ -182,7 +173,7 @@ export default class SQLFluff {
       }
 
       resolve({
-          // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
+        // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
         succeeded: succeeded,
         lines: [JSON.stringify(output)],
       });
@@ -210,15 +201,11 @@ export default class SQLFluff {
       const environmentVariables = Configuration.environmentVariables(process.env);
 
       // HERE: Spawn Process
-      const childProcess = CProcess.spawn(
-        Configuration.executablePath(),
-        finalArgs,
-        {
-          cwd: normalizedWorkingDirectory,
-          env: environmentVariables,
-          shell: shell,
-        },
-      );
+      const childProcess = CProcess.spawn(Configuration.executablePath(), finalArgs, {
+        cwd: normalizedWorkingDirectory,
+        env: environmentVariables,
+        shell: shell,
+      });
 
       SQLFluff.childProcesses.push(childProcess);
 
@@ -244,7 +231,8 @@ export default class SQLFluff {
 
         if ((error as any).code === "ENOENT") {
           message = "The sqlfluff executable was not found. ";
-          message += "Use the 'Executable Path' setting to configure the location of the executable, or add it to your PATH.";
+          message +=
+            "Use the 'Executable Path' setting to configure the location of the executable, or add it to your PATH.";
         }
 
         if (!Configuration.suppressNotifications()) {
@@ -302,7 +290,7 @@ export default class SQLFluff {
           }
         }
 
-        SQLFluff.childProcesses = SQLFluff.childProcesses.filter(childProcess => childProcess !== process);
+        SQLFluff.childProcesses = SQLFluff.childProcesses.filter((childProcess) => childProcess !== process);
 
         return resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
@@ -314,15 +302,13 @@ export default class SQLFluff {
   }
 
   static getCLIVersion() {
-    this.runCommand(["--version"], undefined, false, undefined, undefined).then(
-      (output) => {
-        const arr = output.lines[0]
-          .split("version ")[1]
-          .split(".", 3)
-          .map((s) => Number(s));
-        this.version = [arr[0], arr[1], arr[2]];
-        Utilities.outputChannel.appendLine(`sqlfluff version: ${this.version}`);
-      },
-    );
+    this.runCommand(["--version"], undefined, false, undefined, undefined).then((output) => {
+      const arr = output.lines[0]
+        .split("version ")[1]
+        .split(".", 3)
+        .map((s) => Number(s));
+      this.version = [arr[0], arr[1], arr[2]];
+      Utilities.outputChannel.appendLine(`sqlfluff version: ${this.version}`);
+    });
   }
 }

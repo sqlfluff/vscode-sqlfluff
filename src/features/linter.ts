@@ -59,13 +59,12 @@ export default class LinterProvider implements Linter {
               }
             }
 
-            const diagnosticSeverity = Configuration.diagnosticSeverityByRule(violation.code, warning ? DiagnosticSeverity.Warning : null);
-
-            const diagnostic = new Diagnostic(
-              range,
-              violation.description,
-              diagnosticSeverity,
+            const diagnosticSeverity = Configuration.diagnosticSeverityByRule(
+              violation.code,
+              warning ? DiagnosticSeverity.Warning : null,
             );
+
+            const diagnostic = new Diagnostic(range, violation.description, diagnosticSeverity);
             diagnostic.code = violation?.name ? `${violation.code}: ${violation.name}` : violation.code;
             diagnostic.source = "sqlfluff";
             fileDiagnostic.diagnostics.push(diagnostic);
