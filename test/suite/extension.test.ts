@@ -25,8 +25,16 @@ suite("Extension Test Suite", () => {
 
     assert.strictEqual(actualDiagnostics.length, 2);
     [
-      { range: Helper.toRange(1, 0, 1, 4), message: "Keywords must be upper case.", code: "CP01" },
-      { range: Helper.toRange(1, 5, 1, 12), message: "Files must end with a single trailing newline.", code: "LT12" },
+      {
+        range: Helper.toRange(1, 0, 1, 4),
+        message: "Keywords must be upper case.",
+        code: "CP01: capitalisation.keywords",
+      },
+      {
+        range: Helper.toRange(1, 5, 1, 12),
+        message: "Files must end with a single trailing newline.",
+        code: "LT12: layout.end_of_file",
+      },
     ].forEach((expectedDiagnostic, i) => {
       assertDiagnosticIsEqual(actualDiagnostics[i], expectedDiagnostic);
     });
@@ -53,7 +61,7 @@ suite("Extension Test Suite", () => {
       {
         range: Helper.toRange(0, 0, 0, 6),
         message: "Query produces an unknown number of result columns.",
-        code: "AM04",
+        code: "AM04: ambiguous.column_count",
         severity: vscode.DiagnosticSeverity.Warning,
       },
     ].forEach((expectedDiagnostic, i) => {
@@ -63,7 +71,7 @@ suite("Extension Test Suite", () => {
 
   const assertDiagnosticIsEqual = (
     actual: vscode.Diagnostic,
-    expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity },
+    expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity }
   ) => {
     assert.deepStrictEqual(actual.range, expected.range);
     assert.strictEqual(actual.severity, expected.severity == undefined ? 0 : expected.severity);
