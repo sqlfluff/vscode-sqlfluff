@@ -15,7 +15,7 @@ export default class LintingProvider {
   private documentTypeListener!: vscode.Disposable;
   private documentSaveListener!: vscode.Disposable;
   private diagnosticCollection!: vscode.DiagnosticCollection;
-  private delayers!: { [key: string]: ThrottledDelayer<void>; };
+  private delayers!: { [key: string]: ThrottledDelayer<void> };
   private linter: Linter;
 
   constructor(linter: Linter) {
@@ -30,12 +30,16 @@ export default class LintingProvider {
 
     vscode.workspace.onDidChangeConfiguration(this.loadConfiguration, this, subscriptions);
     vscode.workspace.onDidOpenTextDocument(this.triggerLint, this, subscriptions);
-    vscode.workspace.onDidCloseTextDocument((textDocument) => {
-      if (!Configuration.lintEntireProject()) {
-        this.diagnosticCollection.delete(textDocument.uri);
-      }
-      delete this.delayers[textDocument.uri.toString()];
-    }, null, subscriptions);
+    vscode.workspace.onDidCloseTextDocument(
+      (textDocument) => {
+        if (!Configuration.lintEntireProject()) {
+          this.diagnosticCollection.delete(textDocument.uri);
+        }
+        delete this.delayers[textDocument.uri.toString()];
+      },
+      null,
+      subscriptions,
+    );
   }
 
   public dispose(): void {
@@ -71,21 +75,26 @@ export default class LintingProvider {
 
     for (const workspaceFolder of workspaceFolders) {
       while (SQLFluff.childProcesses.length > 5) {
-        await new Promise(sleep => setTimeout(sleep, 1000));
+        await new Promise((sleep) => setTimeout(sleep, 1000));
       }
 
       const workspacePath = Utilities.normalizePath(workspaceFolder.uri.fsPath);
       this.triggerLint(undefined, false, forceLint, workspacePath);
       // TODO: Wait for child process to be created before continuing with loop.
-      await new Promise(sleep => setTimeout(sleep, 500));
+      await new Promise((sleep) => setTimeout(sleep, 500));
     }
   }
 
-  private triggerLint(textDocument?: vscode.TextDocument, currentDocument = false, forceLint = false, workspacePath?: string): void {
+  private triggerLint(
+    textDocument?: vscode.TextDocument,
+    currentDocument = false,
+    forceLint = false,
+    workspacePath?: string,
+  ): void {
     if (
-      (textDocument && !this.linter.languageId.includes(textDocument.languageId))
-      || this.executableNotFound
-      || (Configuration.runTrigger() === RunTrigger.off && !forceLint)
+      (textDocument && !this.linter.languageId.includes(textDocument.languageId)) ||
+      this.executableNotFound ||
+      (Configuration.runTrigger() === RunTrigger.off && !forceLint)
     ) {
       return;
     }
@@ -108,11 +117,17 @@ export default class LintingProvider {
     });
   }
 
-  public async doLint(document?: vscode.TextDocument, currentDocument?: boolean, workspacePath?: string): Promise<void> {
-    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+  public async doLint(
+    document?: vscode.TextDocument,
+    currentDocument?: boolean,
+    workspacePath?: string,
+  ): Promise<void> {
+    const workspaceFolder = vscode.workspace.workspaceFolders
+      ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = workspacePath ?? Configuration.workingDirectory(rootPath);
-    const filePath = document ? Utilities.normalizePath(document.fileName) : workingDirectory;
+    const filePath = document && !document.isUntitled ? Utilities.normalizePath(document.fileName) : workingDirectory;
 
     if (!filePath) {
       Utilities.outputChannel.appendLine("ERROR: File path not found.");
@@ -140,12 +155,7 @@ export default class LintingProvider {
       options.filePath = filePath;
     }
 
-    const result = await SQLFluff.run(
-      workingDirectory,
-      CommandType.LINT,
-      args,
-      options,
-    );
+    const result = await SQLFluff.run(workingDirectory, CommandType.LINT, args, options);
 
     if (!result.succeeded) {
       Utilities.outputChannel.appendLine("Linting command failed to execute");

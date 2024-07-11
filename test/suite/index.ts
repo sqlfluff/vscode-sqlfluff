@@ -15,13 +15,13 @@ export const run = (): Promise<void> => {
     try {
       const testFiles = glob.globSync("**/**.test.js", { cwd: testsRoot });
       // Add files to the test suite
-      testFiles.forEach(file => {
+      testFiles.forEach((file) => {
         return mocha.addFile(path.resolve(testsRoot, file));
       });
 
       try {
         // Run the mocha test
-        mocha.run(failures => {
+        mocha.run((failures) => {
           if (failures > 0) {
             reject(new Error(`${failures} tests failed.`));
           } else {

@@ -9,7 +9,9 @@ export default class Debug {
   public static sqlFluffLocation = "";
 
   public static async debug(): Promise<void> {
-    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const workspaceFolder = vscode.workspace.workspaceFolders
+      ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const normalizedWorkingDirectory = workingDirectory ? Utilities.normalizePath(workingDirectory) : undefined;
@@ -52,9 +54,7 @@ export default class Debug {
     Debug.endTesting();
   }
 
-  public static async testWorkingDirectory(
-    normalizedWorkingDirectory?: string,
-  ): Promise<boolean> {
+  public static async testWorkingDirectory(normalizedWorkingDirectory?: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       const stdout: Buffer[] = [];
       const stderrLines: string[] = [];
@@ -71,15 +71,11 @@ export default class Debug {
       }
       Utilities.outputChannel.appendLine("");
 
-      const childProcess = CProcess.spawn(
-        command,
-        args,
-        {
-          cwd: normalizedWorkingDirectory,
-          env: environmentVariables,
-          shell: shell ? shell : true,
-        },
-      );
+      const childProcess = CProcess.spawn(command, args, {
+        cwd: normalizedWorkingDirectory,
+        env: environmentVariables,
+        shell: shell ? shell : true,
+      });
 
       if (childProcess.pid) {
         childProcess.stdout.on("data", onStdoutDataEvent);
@@ -119,9 +115,7 @@ export default class Debug {
     });
   }
 
-  public static async testSqlfluffLocation(
-    normalizedWorkingDirectory?: string,
-  ): Promise<boolean> {
+  public static async testSqlfluffLocation(normalizedWorkingDirectory?: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       const stdout: Buffer[] = [];
       const stderrLines: string[] = [];
@@ -135,15 +129,11 @@ export default class Debug {
       Utilities.outputChannel.appendLine("\n--------------------Testing SQLFluff Location--------------------\n");
       Utilities.outputChannel.appendLine("command - " + command + " " + args.join(" "));
 
-      const childProcess = CProcess.spawn(
-        command,
-        args,
-        {
-          cwd: normalizedWorkingDirectory,
-          env: environmentVariables,
-          shell: shell,
-        },
-      );
+      const childProcess = CProcess.spawn(command, args, {
+        cwd: normalizedWorkingDirectory,
+        env: environmentVariables,
+        shell: shell,
+      });
 
       if (childProcess.pid) {
         childProcess.stdout.on("data", onStdoutDataEvent);
@@ -171,12 +161,7 @@ export default class Debug {
         const stringDecoder = new StringDecoder(encoding);
 
         const stdoutAllLines = stdout.reduce((response, buffer) => {
-          response += stringDecoder.write(buffer)
-            .replace("\r\n", "")
-            .replace("\n", "")
-            .split("\\")
-            .join("/");
-
+          response += stringDecoder.write(buffer).replace("\r\n", "").replace("\n", "").split("\\").join("/");
 
           return response;
         }, "");
@@ -213,21 +198,19 @@ export default class Debug {
       const environmentVariables = Configuration.environmentVariables(process.env);
 
       if (retryCommand) {
-        Utilities.outputChannel.appendLine("\n--------------------Testing SQLFluff Version (Retrying with path found in location test)--------------------\n");
+        Utilities.outputChannel.appendLine(
+          "\n--------------------Testing SQLFluff Version (Retrying with path found in location test)--------------------\n",
+        );
       } else {
         Utilities.outputChannel.appendLine("\n--------------------Testing SQLFluff Version--------------------\n");
       }
       Utilities.outputChannel.appendLine("command - " + command + " " + args.join(" "));
 
-      const childProcess = CProcess.spawn(
-        command,
-        args,
-        {
-          cwd: normalizedWorkingDirectory,
-          env: environmentVariables,
-          shell: shell,
-        },
-      );
+      const childProcess = CProcess.spawn(command, args, {
+        cwd: normalizedWorkingDirectory,
+        env: environmentVariables,
+        shell: shell,
+      });
 
       if (childProcess.pid) {
         childProcess.stdout.on("data", onStdoutDataEvent);
@@ -255,11 +238,7 @@ export default class Debug {
         const stringDecoder = new StringDecoder(encoding);
 
         const stdoutAllLines = stdout.reduce((response, buffer) => {
-          response += stringDecoder.write(buffer)
-            .replace("\r\n", "")
-            .replace("\n", "")
-            .split("\\")
-            .join("/");
+          response += stringDecoder.write(buffer).replace("\r\n", "").replace("\n", "").split("\\").join("/");
 
           return response;
         }, "");

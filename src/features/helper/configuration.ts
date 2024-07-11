@@ -3,6 +3,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { DiagnosticSeverity } from "vscode";
 
+import SQLFluff from "../providers/sqlfluff";
 import DiagnosticSetting from "./types/diagnosticSetting";
 import EnvironmentVariable from "./types/environmentVariable";
 import FormatLanguageSettings from "./types/formatLanguageSettings";
@@ -22,17 +23,22 @@ export default class Configuration {
       ) {
         const action = "Reload";
         vscode.window
-          .showInformationMessage(
-            "Reload window for configuration change to take effect.",
-            action,
-          )
-          .then(selectedAction => {
+          .showInformationMessage("Reload window for configuration change to take effect.", action)
+          .then((selectedAction) => {
             if (selectedAction === action) {
               vscode.commands.executeCommand("workbench.action.reloadWindow");
             }
           });
       }
     });
+
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration("sqlfluff.executablePath")) {
+        SQLFluff.getCLIVersion();
+      }
+    });
+
+    SQLFluff.getCLIVersion();
   }
 
   public static environmentVariables(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
@@ -65,9 +71,7 @@ export default class Configuration {
     }
 
     // Load the environment variables from the specified .env files
-    const dotEnvFilePaths = vscode.workspace
-      .getConfiguration("sqlfluff.env")
-      .get<string[]>("customDotEnvFiles", []);
+    const dotEnvFilePaths = vscode.workspace.getConfiguration("sqlfluff.env").get<string[]>("customDotEnvFiles", []);
 
     dotEnvFilePaths.forEach((path) => {
       const dotEnvPath = Utilities.interpolateString(path, Configuration.variables());
@@ -75,9 +79,7 @@ export default class Configuration {
     });
 
     // Load the environment variables from the .env file in the working directory
-    const useDotEnvFile = vscode.workspace
-      .getConfiguration("sqlfluff.env")
-      .get<boolean>("useDotEnvFile", false);
+    const useDotEnvFile = vscode.workspace.getConfiguration("sqlfluff.env").get<boolean>("useDotEnvFile", false);
 
     const workingDirectory = Configuration.variables().workspaceFolder;
     if (useDotEnvFile && workingDirectory) {
@@ -99,9 +101,7 @@ export default class Configuration {
   }
 
   public static config(): string {
-    let config = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get<string>("config", "");
+    let config = vscode.workspace.getConfiguration("sqlfluff").get<string>("config", "");
 
     config = Utilities.interpolateString(config, Configuration.variables());
 
@@ -109,17 +109,13 @@ export default class Configuration {
   }
 
   private static dialect(): string[] {
-    const dialect: string | undefined = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get("dialect");
+    const dialect: string | undefined = vscode.workspace.getConfiguration("sqlfluff").get("dialect");
 
     return dialect ? ["--dialect", dialect] : [];
   }
 
   private static excludeRules(): string[] {
-    const excludeRulesConfiguration: any = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .inspect("excludeRules");
+    const excludeRulesConfiguration: any = vscode.workspace.getConfiguration("sqlfluff").inspect("excludeRules");
 
     const excludeRulesGlobalArray = excludeRulesConfiguration.globalValue ?? [];
     const excludeRulesWorkspaceArray = excludeRulesConfiguration.workspaceValue ?? [];
@@ -130,35 +126,25 @@ export default class Configuration {
   }
 
   public static fixArguments(): string[] {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get<string[]>("arguments", []);
+    return vscode.workspace.getConfiguration("sqlfluff.format").get<string[]>("arguments", []);
   }
 
   public static ignoreLocalConfig(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get<boolean>("ignoreLocalConfig", false);
+    return vscode.workspace.getConfiguration("sqlfluff").get<boolean>("ignoreLocalConfig", false);
   }
 
   private static ignoreParsing(): string[] {
-    const ignoreParsing = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get("ignoreParsing");
+    const ignoreParsing = vscode.workspace.getConfiguration("sqlfluff").get("ignoreParsing");
 
     return ignoreParsing ? ["--ignore", "parsing"] : [];
   }
 
   public static lintArguments(): string[] {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get<string[]>("arguments", []);
+    return vscode.workspace.getConfiguration("sqlfluff.linter").get<string[]>("arguments", []);
   }
 
   private static rules(): string[] {
-    const rulesConfiguration: any = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .inspect("rules");
+    const rulesConfiguration: any = vscode.workspace.getConfiguration("sqlfluff").inspect("rules");
 
     const rulesGlobalArray = rulesConfiguration.globalValue ?? [];
     const rulesWorkspaceArray = rulesConfiguration.workspaceValue ?? [];
@@ -169,23 +155,17 @@ export default class Configuration {
   }
 
   public static shell(): boolean | string {
-    const shell: boolean | string = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get<boolean | string>("shell", false);
+    const shell: boolean | string = vscode.workspace.getConfiguration("sqlfluff").get<boolean | string>("shell", false);
 
     return shell;
   }
 
   public static suppressNotifications(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get<boolean>("suppressNotifications", false);
+    return vscode.workspace.getConfiguration("sqlfluff").get<boolean>("suppressNotifications", false);
   }
 
   public static workingDirectory(rootPath: string | undefined): string | undefined {
-    let workingDirectory: string = vscode.workspace
-      .getConfiguration("sqlfluff")
-      .get<string>("workingDirectory", "");
+    let workingDirectory: string = vscode.workspace.getConfiguration("sqlfluff").get<string>("workingDirectory", "");
 
     workingDirectory = Utilities.interpolateString(workingDirectory, Configuration.variables());
 
@@ -194,28 +174,41 @@ export default class Configuration {
 
   // #region Code Actions
   public static excludeRulesWorkspace(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.codeActions.excludeRules")
-      .get<boolean>("workspace", true);
+    return vscode.workspace.getConfiguration("sqlfluff.codeActions.excludeRules").get<boolean>("workspace", true);
   }
 
   public static excludeRulesGlobal(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.codeActions.excludeRules")
-      .get<boolean>("global", true);
+    return vscode.workspace.getConfiguration("sqlfluff.codeActions.excludeRules").get<boolean>("global", true);
   }
 
   public static noqaEnabled(): boolean {
-    const noqa = vscode.workspace
-      .getConfiguration("sqlfluff.codeActions")
-      .get<string[] | boolean>("noqa", true);
+    const noqa = vscode.workspace.getConfiguration("sqlfluff.codeActions").get<string[] | boolean>("noqa", true);
 
     if (noqa === false) return noqa;
     return true;
   }
 
   public static noqaDisabledRules(): string[] {
-    const defaultDisabledRules = ["L015", "L017", "L019", "L030", "L032", "L034", "L035", "L037", "L038", "L040", "L041", "L042", "L043", "L044", "L054", "L058", "L063", "L064"];
+    const defaultDisabledRules = [
+      "L015",
+      "L017",
+      "L019",
+      "L030",
+      "L032",
+      "L034",
+      "L035",
+      "L037",
+      "L038",
+      "L040",
+      "L041",
+      "L042",
+      "L043",
+      "L044",
+      "L054",
+      "L058",
+      "L063",
+      "L064",
+    ];
     const noqa = vscode.workspace
       .getConfiguration("sqlfluff.codeActions")
       .get<string[] | boolean>("noqa", defaultDisabledRules);
@@ -228,9 +221,7 @@ export default class Configuration {
 
   // #region Format
   public static formatEnabled(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.format")
-      .get<boolean>("enabled", true);
+    return vscode.workspace.getConfiguration("sqlfluff.format").get<boolean>("enabled", true);
   }
 
   public static formatLanguages(): string[] {
@@ -238,15 +229,14 @@ export default class Configuration {
       .getConfiguration("sqlfluff.format")
       .get("languages");
 
-
     const languages: string[] = [];
     languageSettings?.forEach((languageSetting: FormatLanguageSettings | string) => {
       if (typeof languageSetting === "string") {
         languages.push(languageSetting);
       } else {
-        languages.push(languageSetting.language)
+        languages.push(languageSetting.language);
       }
-    })
+    });
 
     return languages;
   }
@@ -263,7 +253,7 @@ export default class Configuration {
       } else if (languageSetting.contextMenuFormatOptions) {
         languages.push(languageSetting.language);
       }
-    })
+    });
 
     return languages;
   }
@@ -282,22 +272,18 @@ export default class Configuration {
       return false;
     });
 
-    if (typeof setting === "string") return undefined
+    if (typeof setting === "string") return undefined;
     return setting;
   }
 
   public static executeInTerminal(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.experimental.format")
-      .get<boolean>("executeInTerminal", false);
+    return vscode.workspace.getConfiguration("sqlfluff.experimental.format").get<boolean>("executeInTerminal", false);
   }
   // #endregion
 
   // #region Linter
   public static delay(): number {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get<number>("delay", 100);
+    return vscode.workspace.getConfiguration("sqlfluff.linter").get<number>("delay", 100);
   }
 
   public static diagnosticSeverity(): number {
@@ -319,7 +305,7 @@ export default class Configuration {
     return DiagnosticSeverity.Error;
   }
 
-  public static diagnosticSeverityByRule(violation: string): number {
+  public static diagnosticSeverityByRule(violation: string, defaultSeverity: number | null = null): number {
     const diagnosticSeverityByRule = vscode.workspace
       .getConfiguration("sqlfluff.linter")
       .get<DiagnosticSetting[]>("diagnosticSeverityByRule", []);
@@ -345,27 +331,21 @@ export default class Configuration {
         return DiagnosticSeverity.Information;
     }
 
-    return this.diagnosticSeverity();
+    return defaultSeverity == null ? this.diagnosticSeverity() : defaultSeverity;
   }
 
   public static lintEntireProject(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get<boolean>("lintEntireProject", false);
+    return vscode.workspace.getConfiguration("sqlfluff.linter").get<boolean>("lintEntireProject", false);
   }
 
   public static linterLanguages(): string[] {
-    const languages: any = vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get("languages");
+    const languages: any = vscode.workspace.getConfiguration("sqlfluff.linter").get("languages");
 
     return languages;
   }
 
   public static runTrigger(): string {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.linter")
-      .get<string>("run", RunTrigger.onType);
+    return vscode.workspace.getConfiguration("sqlfluff.linter").get<string>("run", RunTrigger.onType);
   }
   // #endregion
 
@@ -378,6 +358,9 @@ export default class Configuration {
 
   public static formatFileArguments(): string[] {
     const extraArguments = [...this.fixArguments()];
+    if (!SQLFluff.isForceDeprecated() && !extraArguments.some((x) => x == "--force")) {
+      extraArguments.push("--force");
+    }
 
     return extraArguments;
   }
@@ -388,7 +371,9 @@ export default class Configuration {
     extraArguments = Configuration.config() ? extraArguments.concat(["--config", this.config()]) : extraArguments;
     extraArguments = extraArguments.concat(this.dialect());
     extraArguments = extraArguments.concat(this.excludeRules());
-    extraArguments = Configuration.ignoreLocalConfig() ? extraArguments.concat(["--ignore-local-config"]) : extraArguments;
+    extraArguments = Configuration.ignoreLocalConfig()
+      ? extraArguments.concat(["--ignore-local-config"])
+      : extraArguments;
     extraArguments = extraArguments.concat(this.ignoreParsing());
     extraArguments = extraArguments.concat(this.rules());
 
@@ -399,21 +384,15 @@ export default class Configuration {
   /* DBT Interface */
 
   public static dbtInterfaceEnabled(): boolean {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.dbtInterface")
-      .get<boolean>("enabled", false);
+    return vscode.workspace.getConfiguration("sqlfluff.dbtInterface").get<boolean>("enabled", false);
   }
 
   public static dbtInterfaceHost(): string {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.dbtInterface")
-      .get<string>("host", "localhost");
+    return vscode.workspace.getConfiguration("sqlfluff.dbtInterface").get<string>("host", "localhost");
   }
 
   public static dbtInterfacePort(): number {
-    return vscode.workspace
-      .getConfiguration("sqlfluff.dbtInterface")
-      .get<number>("port", 8581);
+    return vscode.workspace.getConfiguration("sqlfluff.dbtInterface").get<number>("port", 8581);
   }
   // #endregion
 
@@ -421,18 +400,23 @@ export default class Configuration {
    * @returns The variables for a terminal
    */
   static variables(): Variables {
-    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const workspaceFolder = vscode.workspace.workspaceFolders
+      ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
 
     const editor = vscode.window.activeTextEditor;
     const fileName = editor ? Utilities.normalizePath(editor.document.fileName) : undefined;
 
     const vars: Variables = {
+      // - the path of the user's home folder
+      userHome: process.env.HOME || process.env.USERPROFILE,
+
       // - the path of the folder opened in VS Code
       workspaceFolder: rootPath,
 
       // - the current opened file's workspace folder
-      fileWorkspaceFolder: (editor) ? vscode.workspace.getWorkspaceFolder(editor?.document.uri)?.uri.fsPath : undefined,
+      fileWorkspaceFolder: editor ? vscode.workspace.getWorkspaceFolder(editor?.document.uri)?.uri.fsPath : undefined,
 
       // - the last portion of the path of the folder opened in VS Code
       workspaceFolderBasename: rootPath ? path.basename(rootPath) : undefined,
@@ -441,10 +425,8 @@ export default class Configuration {
       file: fileName,
 
       // - the current opened file relative to workspaceFolder
-      relativeFile: (editor && rootPath && fileName) ? Utilities.normalizePath(path.relative(
-        rootPath,
-        fileName,
-      )) : undefined,
+      relativeFile:
+        editor && rootPath && fileName ? Utilities.normalizePath(path.relative(rootPath, fileName)) : undefined,
 
       // - the last portion of the path to the file
       fileBasename: fileName ? path.basename(fileName) : undefined,

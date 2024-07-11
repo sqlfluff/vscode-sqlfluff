@@ -5,9 +5,7 @@ import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE } from "../../../commands/excludeR
 import Configuration from "../../../helper/configuration";
 
 export default class QuickFixProvider implements vscode.CodeActionProvider {
-  public static readonly providedCodeActionKind = [
-    vscode.CodeActionKind.QuickFix,
-  ];
+  public static readonly providedCodeActionKind = [vscode.CodeActionKind.QuickFix];
 
   provideCodeActions(
     document: vscode.TextDocument,
@@ -49,15 +47,15 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     allRules: boolean,
   ): vscode.CodeAction {
     const title = allRules ? "Ignore all rules for this line" : `Ignore rule ${diagnostic.code} for this line`;
-    const fix = new vscode.CodeAction(
-      title,
-      vscode.CodeActionKind.QuickFix,
-    );
+    const fix = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
     fix.diagnostics = [diagnostic];
     fix.edit = new vscode.WorkspaceEdit();
 
     const line = document.lineAt(diagnostic.range.start.line);
-    const endPosition = new vscode.Position(line.range.end.line, line.range.end.character > 0 ? line.range.end.character : 0);
+    const endPosition = new vscode.Position(
+      line.range.end.line,
+      line.range.end.character > 0 ? line.range.end.character : 0,
+    );
     const noqaREGEX = /\s*-- noqa(?::(\s?\w\d{3},?)*)?.*/;
     const noqa = noqaREGEX.exec(line.text);
     if (noqa) {
@@ -89,15 +87,9 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     return fix;
   }
 
-  private createExcludeRulesCodeAction(
-    diagnostic: vscode.Diagnostic,
-    global: boolean,
-  ): vscode.CodeAction {
+  private createExcludeRulesCodeAction(diagnostic: vscode.Diagnostic, global: boolean): vscode.CodeAction {
     const title = `Exclude Rule ${diagnostic.code} ${global ? "from Global Settings" : "from Workspace Settings"}`;
-    const action = new vscode.CodeAction(
-      title,
-      vscode.CodeActionKind.QuickFix,
-    );
+    const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
     action.command = {
       command: global ? EXCLUDE_RULE : EXCLUDE_RULE_WORKSPACE,
       title: title,

@@ -11,7 +11,7 @@ export default class HoverProvider implements vscode.HoverProvider {
     const diagnostics = vscode.languages.getDiagnostics(document.uri);
 
     let hover: vscode.Hover | undefined = undefined;
-    diagnostics.forEach(diagnostic => {
+    diagnostics.forEach((diagnostic) => {
       if (hover) return;
       if (position.isAfterOrEqual(diagnostic.range.start) && position.isBeforeOrEqual(diagnostic.range.end)) {
         hover = this.createHover(diagnostic);
@@ -26,9 +26,7 @@ export default class HoverProvider implements vscode.HoverProvider {
     return hover;
   }
 
-  private createHover(
-    diagnostic: vscode.Diagnostic,
-  ): vscode.Hover {
+  private createHover(diagnostic: vscode.Diagnostic): vscode.Hover {
     const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.sphinx.Rule_${diagnostic.code}`;
     const markdownString = new vscode.MarkdownString();
 

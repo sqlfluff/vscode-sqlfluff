@@ -14,7 +14,7 @@ export default class Utilities {
   }
 
   static interpolateString(command: string, variables: Variables): string {
-    const regex = /\$\{([^\}]+)\}/g; // eslint-disable-line no-useless-escape
+    const regex = /\$\{([^}]+)\}/g;
 
     const match = command.match(regex);
     while (match?.length) {
@@ -37,7 +37,7 @@ export default class Utilities {
     }
 
     // Capitalize drive letter
-    path = path.replace(/^[A-Za-z]:/, match => match.toUpperCase());
+    path = path.replace(/^[A-Za-z]:/, (match) => match.toUpperCase());
 
     if (allowEscapes) {
       return path.replace(/\\{2,}/g, "/");
@@ -47,6 +47,6 @@ export default class Utilities {
   }
 
   public static async sleep(milliseconds: number) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 }

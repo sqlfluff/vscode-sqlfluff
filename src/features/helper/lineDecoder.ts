@@ -13,9 +13,7 @@ export class LineDecoder {
 
   public write(buffer: Buffer): string[] {
     const result: string[] = [];
-    const value = this.remaining
-      ? this.remaining + this.stringDecoder.write(buffer)
-      : this.stringDecoder.write(buffer);
+    const value = this.remaining ? this.remaining + this.stringDecoder.write(buffer) : this.stringDecoder.write(buffer);
 
     if (value.length < 1) {
       this.lines = this.lines.concat(value);

@@ -1,4 +1,4 @@
 export default interface DiagnosticSetting {
-	rule: string
-	severity: string
+  rule: string;
+  severity: string;
 }

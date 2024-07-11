@@ -15,7 +15,9 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
     token: vscode.CancellationToken,
   ): Promise<vscode.TextEdit[]> {
     const filePath = Utilities.normalizePath(document.fileName);
-    const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    const workspaceFolder = vscode.workspace.workspaceFolders
+      ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = Configuration.workingDirectory(rootPath);
     const textEdits: vscode.TextEdit[] = [];
@@ -74,10 +76,7 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
         }
 
         if (lines.length > 1 || lines[0] !== "") {
-          textEdits.push(vscode.TextEdit.replace(
-            new vscode.Range(0, 0, lineCount, endChar),
-            lines.join("\n"),
-          ));
+          textEdits.push(vscode.TextEdit.replace(new vscode.Range(0, 0, lineCount, endChar), lines.join("\n")));
         }
       } catch (error) {
         Utilities.outputChannel.appendLine("\n--------------------Formatting Error--------------------\n");
@@ -111,15 +110,12 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
       const endChar = lastLineRange.end.character;
 
       if (lines.length > 1 || lines[0] !== "") {
-        textEdits.push(vscode.TextEdit.replace(
-          new vscode.Range(0, 0, lineCount, endChar),
-          lines.join("\n"),
-        ));
+        textEdits.push(vscode.TextEdit.replace(new vscode.Range(0, 0, lineCount, endChar), lines.join("\n")));
       }
     }
 
     if (Configuration.executeInTerminal()) {
-      await new Promise(sleep => setTimeout(sleep, 250));
+      await new Promise((sleep) => setTimeout(sleep, 250));
     }
 
     return textEdits;

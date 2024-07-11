@@ -20,25 +20,19 @@ export const activate = (context: vscode.ExtensionContext) => {
   const formatSelectors = Configuration.formatLanguages();
   const linterSelectors = Configuration.linterLanguages();
 
-  formatSelectors.forEach(selector => {
+  formatSelectors.forEach((selector) => {
     // Register the "Format Document" command
     const formattingProvider = new FormattingEditProvider().activate();
-    vscode.languages.registerDocumentFormattingEditProvider(
-      selector,
-      formattingProvider,
-    );
+    vscode.languages.registerDocumentFormattingEditProvider(selector, formattingProvider);
 
     // Register the "Format Selection" command
     if (!Configuration.executeInTerminal()) {
       const rangeFormattingProvider = new RangeFormattingEditProvider().activate();
-      vscode.languages.registerDocumentRangeFormattingEditProvider(
-        selector,
-        rangeFormattingProvider,
-      );
+      vscode.languages.registerDocumentRangeFormattingEditProvider(selector, rangeFormattingProvider);
     }
   });
 
-  linterSelectors.forEach(selector => {
+  linterSelectors.forEach((selector) => {
     // Register the code actions
     if (!Configuration.dbtInterfaceEnabled()) {
       const codeActionProvider = vscode.languages.registerCodeActionsProvider(selector, new QuickFixProvider(), {
@@ -53,8 +47,8 @@ export const activate = (context: vscode.ExtensionContext) => {
   });
 
   const contextMenuItems = Configuration.formatLanguagesContextMenuItems();
-  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", formatSelectors)
-  vscode.commands.executeCommand("setContext", "sqlfluff.contextLanguages", contextMenuItems)
+  vscode.commands.executeCommand("setContext", "sqlfluff.formatLanguages", formatSelectors);
+  vscode.commands.executeCommand("setContext", "sqlfluff.contextLanguages", contextMenuItems);
 
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE, ExcludeRules.toggleRule));
   context.subscriptions.push(vscode.commands.registerCommand(EXCLUDE_RULE_WORKSPACE, ExcludeRules.toggleRuleWorkspace));
@@ -94,15 +88,15 @@ export const activate = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(fixCommand, fixCommandHandler));
 
   if (Configuration.dbtInterfaceEnabled()) {
-      // When dbt-core-interface is enabled, adds a "Format document with
-      // sqlfluff" button to the lower right corner of the VS Code window. Use
-      // of the word "format" (vs "fix") is deliberate, as the button hits the
-      // dbt-core-interface "/format" endpoint, equivalent to "sqlfluff format".
-      const customStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-      customStatusBarItem.text = "$(list-selection) Format SQL";
-      customStatusBarItem.tooltip = "Format document with sqlfluff";
-      customStatusBarItem.command = fixCommand;
-      customStatusBarItem.show();
+    // When dbt-core-interface is enabled, adds a "Format document with
+    // sqlfluff" button to the lower right corner of the VS Code window. Use
+    // of the word "format" (vs "fix") is deliberate, as the button hits the
+    // dbt-core-interface "/format" endpoint, equivalent to "sqlfluff format".
+    const customStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    customStatusBarItem.text = "$(list-selection) Format SQL";
+    customStatusBarItem.tooltip = "Format document with sqlfluff";
+    customStatusBarItem.command = fixCommand;
+    customStatusBarItem.show();
   }
 
   const formatSelection = "sqlfluff.format.selection";
@@ -113,19 +107,16 @@ export const activate = (context: vscode.ExtensionContext) => {
       const range = new vscode.Range(
         vscode.window.activeTextEditor.selection.start,
         vscode.window.activeTextEditor.selection.end,
-      )
-
-      const textEdits = await FormatSelectionProvider.provideTextEdits(
-        document,
-        range,
       );
+
+      const textEdits = await FormatSelectionProvider.provideTextEdits(document, range);
 
       textEdits.forEach((textEdit) => {
         const workspaceEdit = new vscode.WorkspaceEdit();
         workspaceEdit.replace(document.uri, textEdit.range, textEdit.newText);
 
         vscode.workspace.applyEdit(workspaceEdit);
-      })
+      });
     }
   };
   context.subscriptions.push(vscode.commands.registerCommand(formatSelection, formatSelectionHandler));
@@ -140,8 +131,10 @@ export const activate = (context: vscode.ExtensionContext) => {
   const showOutputChannelCommandHandler = async () => {
     Utilities.outputChannel.show();
   };
-  context.subscriptions.push(vscode.commands.registerCommand(showOutputChannelCommand, showOutputChannelCommandHandler));
+  context.subscriptions.push(
+    vscode.commands.registerCommand(showOutputChannelCommand, showOutputChannelCommandHandler),
+  );
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const deactivate: any = () => { };
+export const deactivate: any = () => {};
