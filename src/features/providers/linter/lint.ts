@@ -141,6 +141,10 @@ export default class LintingProvider {
       return;
     }
 
+    if (document && document.isUntitled && document.getText() === "") {
+      return;
+    }
+
     const args: string[] = [...Configuration.lintFileArguments()];
     const options: CommandOptions = { filePath: filePath };
 
