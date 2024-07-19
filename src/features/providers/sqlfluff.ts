@@ -4,7 +4,7 @@ import { StringDecoder } from "string_decoder";
 import * as vscode from "vscode";
 
 import Configuration from "../helper/configuration";
-import { DbtInterface } from "../helper/dbtInterface";
+import { DbtInterface, DbtInterfaceErrorCode } from "../helper/dbtInterface";
 import { LineDecoder } from "../helper/lineDecoder";
 import Utilities from "../helper/utilities";
 import FilePath from "./linter/types/filePath";
@@ -14,6 +14,7 @@ import CommandType from "./types/commandType";
 
 export default class SQLFluff {
   static childProcesses: CProcess.ChildProcess[] = [];
+  static shownDbtInterfacePopup: boolean = false;
   static version: [major: number, minor: number, patch: number];
 
   static isForceDeprecated = () => {
@@ -28,7 +29,7 @@ export default class SQLFluff {
     workingDirectory: string | undefined,
     command: CommandType,
     args: string[],
-    options: CommandOptions,
+    options: CommandOptions
   ): Promise<CommandOutput> {
     if (!options.fileContents && !options.filePath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
@@ -42,7 +43,7 @@ export default class SQLFluff {
       const dbtInterface = new DbtInterface(
         undefined,
         options.workspacePath ?? options.filePath,
-        Configuration.config(),
+        Configuration.config()
       );
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
@@ -68,16 +69,27 @@ export default class SQLFluff {
       Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
       Utilities.appendHyphenatedLine();
 
-      return new Promise<CommandOutput>((resolve) => {
+      return new Promise<CommandOutput>(async (resolve) => {
         const code = response?.error?.code ?? 0;
-        const succeeded = code === 0;
-        if (!succeeded && !Configuration.suppressNotifications()) {
+        const succeeded = code === 0 && !response?.error;
+        if (!succeeded && !Configuration.suppressNotifications() && !this.shownDbtInterfacePopup) {
           const message = response?.error?.message ?? "DBT-Interface formatting error.";
           const detail = response?.error?.data?.error ?? "";
-
-          vscode.window.showErrorMessage([message, detail].join("\n"));
+          if (code === DbtInterfaceErrorCode.CompileSqlFailure) {
+            this.shownDbtInterfacePopup = true;
+            const runDbt = "Debug by running dbt Compile";
+            const chosen = await vscode.window.showErrorMessage(message, runDbt);
+            if (chosen === runDbt) {
+              await vscode.commands.executeCommand("dbtPowerUser.dbtCompile");
+            }
+          } else if (code === DbtInterfaceErrorCode.UnlintableUnfixable) {
+            vscode.window.showErrorMessage(
+              "Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details."
+            );
+          } else {
+            vscode.window.showErrorMessage([message, detail].join("\n"));
+          }
         }
-
         resolve({
           // 0 = all good, 1 = format passed but contains unfixable linting violations, 65 = lint passed but found errors
           succeeded: succeeded,
@@ -133,7 +145,7 @@ export default class SQLFluff {
     const dbtInterface = new DbtInterface(
       shouldUseStdin ? options.fileContents : undefined,
       options.workspacePath ?? options.filePath,
-      Configuration.config(),
+      Configuration.config()
     );
 
     Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
@@ -157,19 +169,32 @@ export default class SQLFluff {
       },
     ];
 
-    Utilities.outputChannel.appendLine("Raw dbt-omsosis /lint output:");
+    Utilities.outputChannel.appendLine("Raw dbt-core-interface /lint output:");
     Utilities.appendHyphenatedLine();
     Utilities.outputChannel.appendLine(JSON.stringify(response, undefined, 2));
     Utilities.appendHyphenatedLine();
 
-    return new Promise<CommandOutput>((resolve) => {
+    return new Promise<CommandOutput>(async (resolve) => {
       const code = response?.error?.code ?? 0;
-      const succeeded = code === 0;
-      if (!succeeded && !Configuration.suppressNotifications()) {
+      const succeeded = code === 0 && !response?.error;
+      if (!succeeded && !Configuration.suppressNotifications() && !this.shownDbtInterfacePopup) {
         const message = response?.error?.message ?? "DBT-Interface linting error.";
         const detail = response?.error?.data?.error ?? "";
 
-        vscode.window.showErrorMessage([message, detail].join("\n"));
+        if (code === DbtInterfaceErrorCode.CompileSqlFailure) {
+          this.shownDbtInterfacePopup = true;
+          const runDbt = "Debug by running dbt Compile";
+          const chosen = await vscode.window.showErrorMessage(message, runDbt);
+          if (chosen === runDbt) {
+            await vscode.commands.executeCommand("dbtPowerUser.dbtCompile");
+          }
+        } else if (code === DbtInterfaceErrorCode.UnlintableUnfixable) {
+          vscode.window.showErrorMessage(
+            "Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details."
+          );
+        } else {
+          vscode.window.showErrorMessage([message, detail].join("\n"));
+        }
       }
 
       resolve({
@@ -185,7 +210,7 @@ export default class SQLFluff {
     normalizedWorkingDirectory: string | undefined,
     shouldUseStdin: boolean,
     options: CommandOptions | undefined,
-    command: CommandType | undefined,
+    command: CommandType | undefined
   ): Promise<CommandOutput> {
     return new Promise<CommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();

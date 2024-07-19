@@ -30,6 +30,7 @@ export enum DbtInterfaceErrorCode {
   CompileSqlFailure = 1,
   ExecuteSqlFailure = 2,
   ProjectParseFailure = 3,
+  UnlintableUnfixable = 0,
 }
 
 export interface DbtInterfaceErrorContainer {
@@ -39,6 +40,16 @@ export interface DbtInterfaceErrorContainer {
     data: { [index: string]: string | number };
   };
 }
+
+const projectNotRegisteredError: DbtInterfaceErrorContainer = {
+  error: {
+    code: DbtInterfaceErrorCode.CompileSqlFailure,
+    message: "Sqlfluff currently unavailable. Check that your project does not contain compilation errors.",
+    data: {
+      error: "",
+    },
+  },
+};
 
 export class DbtInterface {
   private sql: string | undefined;
@@ -52,7 +63,9 @@ export class DbtInterface {
   }
 
   public getLintURL(): string {
-    let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?sql_path=${this.sql_path}`;
+    let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?sql_path=${
+      this.sql_path
+    }`;
     if (this.sql !== undefined) {
       url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/lint?`;
     }
@@ -68,7 +81,9 @@ export class DbtInterface {
     // This endpoint is equivalent to "sqlfluff format". The behavior is
     // _similar_ to "sqlfluff fix", but it applies a different set of rules.
     // https://docs.sqlfluff.com/en/stable/cli.html#sqlfluff-format
-    let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?sql_path=${this.sql_path}`;
+    let url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?sql_path=${
+      this.sql_path
+    }`;
     if (this.sql !== undefined) {
       url = `http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()}/format?`;
     }
@@ -91,7 +106,7 @@ export class DbtInterface {
         {
           method: "GET",
           signal: abortController.signal as AbortSignal,
-        },
+        }
       );
       if (response.status === 200) {
         return true;
@@ -112,16 +127,6 @@ export class DbtInterface {
         message: "Query failed to reach dbt sync server.",
         data: {
           error: `Is the server listening on the http://${Configuration.dbtInterfaceHost()}:${Configuration.dbtInterfacePort()} address?`,
-        },
-      },
-    };
-
-    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
-      error: {
-        code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "dbt project not registered",
-        data: {
-          error: "",
         },
       },
     };
@@ -170,16 +175,6 @@ export class DbtInterface {
       },
     };
 
-    const projectNotRegisteredError: DbtInterfaceErrorContainer = {
-      error: {
-        code: DbtInterfaceErrorCode.FailedToReachServer,
-        message: "dbt project not registered",
-        data: {
-          error: "",
-        },
-      },
-    };
-
     if (!(await this.healthCheck())) {
       Utilities.appendHyphenatedLine();
       Utilities.outputChannel.appendLine("Unhealthy dbt project:");
@@ -192,7 +187,6 @@ export class DbtInterface {
       abortController.abort();
     }, timeout);
     let response: Response;
-
     try {
       response = await fetch(encodeURI(this.getFormatURL()), {
         method: "POST",
