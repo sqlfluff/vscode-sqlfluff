@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 import * as CProcess from "child_process";
 import * as path from "path";
 import { StringDecoder } from "string_decoder";

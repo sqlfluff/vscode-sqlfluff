@@ -2,6 +2,12 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.1.2] - 2024-07-19
+
+- Attempt to fix "File path not found" [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/147)
+- Datacoves' dbt-core-interface improvements + new response. Thanks to BAntonellini's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/144)
+- Prevent "Specified path does not exist" error for empty untitled files. Thanks to jackfrey13's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/149)
+
 ## [3.1.1] - 2024-07-10
 
 - Show the rule name in the problems tab [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/134)

@@ -38,7 +38,7 @@ export default class LintingProvider {
         delete this.delayers[textDocument.uri.toString()];
       },
       null,
-      subscriptions,
+      subscriptions
     );
   }
 
@@ -89,7 +89,7 @@ export default class LintingProvider {
     textDocument?: vscode.TextDocument,
     currentDocument = false,
     forceLint = false,
-    workspacePath?: string,
+    workspacePath?: string
   ): void {
     if (
       (textDocument && !this.linter.languageId.includes(textDocument.languageId)) ||
@@ -120,14 +120,14 @@ export default class LintingProvider {
   public async doLint(
     document?: vscode.TextDocument,
     currentDocument?: boolean,
-    workspacePath?: string,
+    workspacePath?: string
   ): Promise<void> {
     const workspaceFolder = vscode.workspace.workspaceFolders
       ? vscode.workspace.workspaceFolders[0].uri.fsPath
       : undefined;
     const rootPath = workspaceFolder ? Utilities.normalizePath(workspaceFolder) : undefined;
     const workingDirectory = workspacePath ?? Configuration.workingDirectory(rootPath);
-    const filePath = document && !document.isUntitled ? Utilities.normalizePath(document.fileName) : workingDirectory;
+    const filePath = document && document.fileName ? Utilities.normalizePath(document.fileName) : workingDirectory;
 
     if (!filePath) {
       Utilities.outputChannel.appendLine("ERROR: File path not found.");
