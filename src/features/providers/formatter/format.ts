@@ -26,6 +26,10 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
       return [];
     }
 
+    if (document && document.isUntitled && document.getText() === "") {
+      return [];
+    }
+
     Utilities.appendHyphenatedLine();
     Utilities.outputChannel.appendLine(`Format triggered for ${filePath}`);
 
