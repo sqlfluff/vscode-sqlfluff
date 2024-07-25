@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.1.3] - 2024-07-25
+
+- Improved Handling for Problems in Closed/Deleted files. Thanks to jackfrey13's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/150)
+
 ## [3.1.2] - 2024-07-19
 
 - Attempt to fix "File path not found" [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/147)
