@@ -31,11 +31,21 @@ export default class LintingProvider {
     vscode.workspace.onDidChangeConfiguration(this.loadConfiguration, this, subscriptions);
     vscode.workspace.onDidOpenTextDocument(this.triggerLint, this, subscriptions);
     vscode.workspace.onDidCloseTextDocument(
-      (textDocument) => {
-        if (!Configuration.lintEntireProject()) {
-          this.diagnosticCollection.delete(textDocument.uri);
+      async (textDocument) => {
+        const { uri } = textDocument;
+        let doesDocumentExist = true;
+  
+        try {
+          await vscode.workspace.fs.stat(uri);
+        } catch {
+          doesDocumentExist = false;
         }
-        delete this.delayers[textDocument.uri.toString()];
+  
+        if (!Configuration.lintEntireProject() || !vscode.workspace.getWorkspaceFolder(uri) || !doesDocumentExist) {
+          this.diagnosticCollection.delete(uri);
+        }
+  
+        delete this.delayers[uri.toString()];
       },
       null,
       subscriptions
