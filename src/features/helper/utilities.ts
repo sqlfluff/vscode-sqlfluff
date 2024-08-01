@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { ParsedVersion } from "../providers/types/parsedVersion";
 import Variables from "./types/variables";
 
 export default class Utilities {
@@ -49,4 +50,43 @@ export default class Utilities {
   public static async sleep(milliseconds: number) {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
+
+  public static parseVersion(versionString: string): ParsedVersion {
+    const parsedVersion: ParsedVersion = {
+      major: 0,
+      minor: 0,
+      patch: 0,
+      preRelease: null,
+      build: null,
+    };
+
+    // Regular expression to match the version number within the input string
+    const versionRegex = /version (\d+\.\d+\.\d+)(-(?<preRelease>[0-9A-Za-z-.]+))?(\+(?<build>[0-9A-Za-z-.]+))?/;
+
+    // Match the version string with the regex
+    const match = versionString.match(versionRegex);
+
+    // If there's a match, extract the version number
+    if (match) {
+      const version = match[1];
+      const semverRegex =
+        /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(-(?<preRelease>[0-9A-Za-z-.]+))?(\+(?<build>[0-9A-Za-z-.]+))?$/;
+      const semverMatch = version.match(semverRegex);
+
+      // If there's a match for the semver regex, assign the components to the parsedVersion object
+      if (semverMatch && semverMatch.groups) {
+        parsedVersion.major = Utilities.toNumber(semverMatch.groups.major, 0);
+        parsedVersion.minor = Utilities.toNumber(semverMatch.groups.minor, 0);
+        parsedVersion.patch = Utilities.toNumber(semverMatch.groups.patch, 0);
+        parsedVersion.preRelease = semverMatch.groups.preRelease || null;
+        parsedVersion.build = semverMatch.groups.build || null;
+      }
+    }
+
+    return parsedVersion;
+  }
+
+  public static isNumber = (value: any, cast = true) =>
+    typeof value === "number" || (cast ? !isNaN(Number(value)) : !isNaN(value));
+  public static toNumber = (value: any, fallback = 0) => (Utilities.isNumber(value) ? Number(value) : fallback);
 }

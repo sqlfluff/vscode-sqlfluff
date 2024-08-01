@@ -226,7 +226,6 @@ export default class SQLFluff {
       const shell = Configuration.shell();
       const environmentVariables = Configuration.environmentVariables(process.env);
 
-      // HERE: Spawn Process
       const childProcess = CProcess.spawn(Configuration.executablePath(), finalArgs, {
         cwd: normalizedWorkingDirectory,
         env: environmentVariables,
@@ -329,12 +328,10 @@ export default class SQLFluff {
 
   static getCLIVersion() {
     this.runCommand(["--version"], undefined, false, undefined, undefined).then((output) => {
-      const arr = output.lines[0]
-        .split("version ")[1]
-        .split(".", 3)
-        .map((s) => Number(s));
-      this.version = [arr[0], arr[1], arr[2]];
-      Utilities.outputChannel.appendLine(`sqlfluff version: ${this.version}`);
+      const versionString = output.lines[0];
+      const version = Utilities.parseVersion(versionString);
+      this.version = [version.major, version.minor, version.patch];
+      Utilities.outputChannel.appendLine(`sqlfluff version\n${JSON.stringify(version, null, 2)}`);
     });
   }
 }
