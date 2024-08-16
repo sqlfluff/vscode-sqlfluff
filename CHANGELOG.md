@@ -2,6 +2,9 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.1.5] - 2024-08-16
+- Fix bug with ignoring diagnostics
+
 ## [3.1.4] - 2024-07-25
 
 - Correctly parse the sqlfluff version number. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/151)

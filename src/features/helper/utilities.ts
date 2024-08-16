@@ -6,7 +6,7 @@ import Variables from "./types/variables";
 export default class Utilities {
   static outputChannel = vscode.window.createOutputChannel("SQLFluff");
 
-  public static appendHyphenatedLine(newLines = true) {
+  static appendHyphenatedLine(newLines = true) {
     if (newLines) {
       Utilities.outputChannel.appendLine("\n------------------------------------------------------------\n");
     } else {
@@ -32,7 +32,7 @@ export default class Utilities {
     return command;
   }
 
-  public static normalizePath(path: string, allowEscapes = false): string {
+  static normalizePath(path: string, allowEscapes = false): string {
     if (path === undefined) {
       return path;
     }
@@ -47,11 +47,11 @@ export default class Utilities {
     return path.replace(/\\+/g, "/");
   }
 
-  public static async sleep(milliseconds: number) {
+  static async sleep(milliseconds: number) {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 
-  public static parseVersion(versionString: string): ParsedVersion {
+  static parseVersion(versionString: string): ParsedVersion {
     const parsedVersion: ParsedVersion = {
       major: 0,
       minor: 0,
@@ -86,7 +86,21 @@ export default class Utilities {
     return parsedVersion;
   }
 
-  public static isNumber = (value: any, cast = true) =>
+  static isNumber = (value: any, cast = true) =>
     typeof value === "number" || (cast ? !isNaN(Number(value)) : !isNaN(value));
-  public static toNumber = (value: any, fallback = 0) => (Utilities.isNumber(value) ? Number(value) : fallback);
+
+  static toNumber = (value: any, fallback = 0) => (Utilities.isNumber(value) ? Number(value) : fallback);
+
+  /**
+   * Get the diagnostic code without the description
+   * @param diagnostic - VSCode Diagnostic
+   * @returns Diagnostic code without description
+   */
+  static getDiagnosticCode = (diagnostic: vscode.Diagnostic) =>
+    Utilities.extractBeforeColon(diagnostic.code?.toString() ?? "");
+
+  private static extractBeforeColon(input: string): string {
+    const match = input.match(/^(.*?):/);
+    return match ? match[1] : "";
+  }
 }

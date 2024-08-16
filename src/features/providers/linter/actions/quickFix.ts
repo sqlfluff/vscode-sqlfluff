@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 
 import { EXCLUDE_RULE, EXCLUDE_RULE_WORKSPACE } from "../../../commands/excludeRules";
 import Configuration from "../../../helper/configuration";
+import Utilities from "../../../helper/utilities";
 
 export default class QuickFixProvider implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKind = [vscode.CodeActionKind.QuickFix];
@@ -11,7 +12,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
-    token: vscode.CancellationToken,
+    token: vscode.CancellationToken
   ): vscode.CodeAction[] {
     const noqaSingleRules: vscode.CodeAction[] = [];
     const noqaAllRules: vscode.CodeAction[] = [];
@@ -21,7 +22,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     if (Configuration.noqaEnabled()) {
       const noqaDisabledRules = Configuration.noqaDisabledRules();
       context.diagnostics.forEach((diagnostic) => {
-        if (diagnostic.code && !noqaDisabledRules.includes(diagnostic.code.toString())) {
+        if (diagnostic.code && !noqaDisabledRules.includes(Utilities.getDiagnosticCode(diagnostic))) {
           const singleRuleCodeAction = this.createNoqaCodeFix(document, diagnostic, false);
           const allRulesCodeAction = this.createNoqaCodeFix(document, diagnostic, true);
           noqaSingleRules.push(singleRuleCodeAction);
@@ -44,7 +45,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
   private createNoqaCodeFix(
     document: vscode.TextDocument,
     diagnostic: vscode.Diagnostic,
-    allRules: boolean,
+    allRules: boolean
   ): vscode.CodeAction {
     const title = allRules ? "Ignore all rules for this line" : `Ignore rule ${diagnostic.code} for this line`;
     const fix = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -54,7 +55,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     const line = document.lineAt(diagnostic.range.start.line);
     const endPosition = new vscode.Position(
       line.range.end.line,
-      line.range.end.character > 0 ? line.range.end.character : 0,
+      line.range.end.character > 0 ? line.range.end.character : 0
     );
     const noqaREGEX = /\s*-- noqa(?::(\s?\w\d{3},?)*)?.*/;
     const noqa = noqaREGEX.exec(line.text);
@@ -67,12 +68,12 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
         if (noqa.length > 1) {
           if (noqa[1]) {
             if (noqa[1].endsWith(",")) {
-              fix.edit.insert(document.uri, endPosition, ` ${diagnostic.code}`);
+              fix.edit.insert(document.uri, endPosition, ` ${Utilities.getDiagnosticCode(diagnostic)}`);
             } else {
-              fix.edit.insert(document.uri, endPosition, `, ${diagnostic.code}`);
+              fix.edit.insert(document.uri, endPosition, `, ${Utilities.getDiagnosticCode(diagnostic)}`);
             }
           } else {
-            fix.edit.insert(document.uri, endPosition, `: ${diagnostic.code}`);
+            fix.edit.insert(document.uri, endPosition, `: ${Utilities.getDiagnosticCode(diagnostic)}`);
           }
         }
       }
@@ -80,7 +81,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
       if (allRules) {
         fix.edit.insert(document.uri, endPosition, " -- noqa");
       } else {
-        fix.edit.insert(document.uri, endPosition, ` -- noqa: ${diagnostic.code}`);
+        fix.edit.insert(document.uri, endPosition, ` -- noqa: ${Utilities.getDiagnosticCode(diagnostic)}`);
       }
     }
 
@@ -94,7 +95,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
       command: global ? EXCLUDE_RULE : EXCLUDE_RULE_WORKSPACE,
       title: title,
       tooltip: `This will exclude the rule ${diagnostic.code} in the ${global ? "Global" : "Workspace"} Settings`,
-      arguments: [diagnostic.code],
+      arguments: [Utilities.getDiagnosticCode(diagnostic)],
     };
     action.diagnostics = [diagnostic];
 
