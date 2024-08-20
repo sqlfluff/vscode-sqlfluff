@@ -32,8 +32,7 @@ export default class HoverProvider implements vscode.HoverProvider {
     // Link to the rule permalinks so that if the rule docs move in the future that
     // we don't have to update the links here. We rely on the docs internally redirecting
     // us to the appropriate location.
-    // const path = `https://docs.sqlfluff.com/en/stable/perma/rule/${Utilities.getDiagnosticCode(diagnostic)}.html`;
-    const path = `https://docs.sqlfluff.com/en/stable/rules.html#sqlfluff.rules.sphinx.Rule_${diagnostic.code}`;
+    const path = `https://docs.sqlfluff.com/en/stable/perma/rule/${Utilities.getDiagnosticCode(diagnostic)}.html`;
     const markdownString = new vscode.MarkdownString();
 
     markdownString.appendMarkdown(`[View Documentation](${path}) for Rule ${diagnostic.code}.\n`);

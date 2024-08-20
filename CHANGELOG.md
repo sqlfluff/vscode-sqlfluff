@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.2.0] - 2024-08-20
+
+- Update to rule permalinks. Thanks to alanmcruickshank's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/152)
+
 ## [3.1.5] - 2024-08-16
 - Fix bug with ignoring diagnostics
 
