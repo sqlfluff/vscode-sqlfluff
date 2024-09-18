@@ -310,7 +310,10 @@ export default class SQLFluff {
 
         if (stderrLines?.length > 0 && !Configuration.suppressNotifications()) {
           const stderrString = stderrLines.join("\n");
-          if (!stderrString.includes("ignored by a .sqlfluffignore pattern")) {
+          if (
+            !stderrString.includes("ignored by a .sqlfluffignore pattern") &&
+            !stderrString.includes("ignored by an ignore pattern set in .sqlfluffignore")
+          ) {
             vscode.window.showErrorMessage(stderrString);
           }
         }

@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.2.1] - 2024-09-18
+
+- Silence notification when file/path is in `.sqlfluffignore`. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/155)
+
 ## [3.2.0] - 2024-08-20
 
 - Update to rule permalinks. Thanks to alanmcruickshank's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/152)
