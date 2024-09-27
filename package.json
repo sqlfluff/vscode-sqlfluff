@@ -1,7 +1,7 @@
 {
   "name": "vscode-sqlfluff",
   "displayName": "sqlfluff",
-  "version": "3.2.1",
+  "version": "3.3.0",
   "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
   "publisher": "dorzey",
   "icon": "images/icon.png",
@@ -76,11 +76,13 @@
     "configuration": {
       "properties": {
         "sqlfluff.config": {
+          "scope": "resource",
           "type": "string",
           "default": "",
           "description": "Specify an additional configuration file that overrides the standard configuration files."
         },
         "sqlfluff.environmentVariables": {
+          "scope": "resource",
           "type": "array",
           "default": [
             {
@@ -109,11 +111,13 @@
           "markdownDescription": "DEPRECATED: Use sqlfluff.env.environmentVariables"
         },
         "sqlfluff.executablePath": {
+          "scope": "resource",
           "type": "string",
           "default": "sqlfluff",
           "description": "Points to the sqlfluff executable."
         },
         "sqlfluff.dialect": {
+          "scope": "resource",
           "type": "string",
           "enum": [
             "",
@@ -144,26 +148,31 @@
           "description": "The dialect of SQL to lint."
         },
         "sqlfluff.excludeRules": {
+          "scope": "resource",
           "type": "array",
           "default": [],
           "description": "Exclude specific rules. The excludedRules from the global settings and workspace settings are combined."
         },
         "sqlfluff.ignoreLocalConfig": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "description": "Ignore config files in default search path locations. Can be used with config to only reference the custom config file."
         },
         "sqlfluff.ignoreParsing": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "description": "Determines if the sql linter should ignore parsing errors."
         },
         "sqlfluff.rules": {
+          "scope": "resource",
           "type": "array",
           "default": [],
           "description": "Narrow the search to only specific rules. The rules from the global settings and workspace settings are combined."
         },
         "sqlfluff.shell": {
+          "scope": "resource",
           "type": [
             "boolean",
             "string"
@@ -172,26 +181,31 @@
           "markdownDescription": "Set the shell for the child process. This can be set to false (limited shell features), true (shell features such as the `dir` command), or the path to the shell executable."
         },
         "sqlfluff.suppressNotifications": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "description": "Hide notification messages. The output channel will still be populated."
         },
         "sqlfluff.workingDirectory": {
+          "scope": "resource",
           "type": "string",
           "default": "",
           "markdownDescription": "Set the working directory for the `sqlfluff lint` and `sqlfluff fix` commands. Use an absolute path (can use variables if necessary). This defaults to the root path of the workspace. This setting should only be changed if absolutely necessary."
         },
         "sqlfluff.codeActions.excludeRules.workspace": {
+          "scope": "resource",
           "type": "boolean",
           "default": true,
           "markdownDescription": "Determines if the `Exclude Rule <rule> from Workspace Settings` code action is enabled."
         },
         "sqlfluff.codeActions.excludeRules.global": {
+          "scope": "resource",
           "type": "boolean",
           "default": true,
           "markdownDescription": "Determines if the `Exclude Rule <rule> from Global Settings` code action is enabled."
         },
         "sqlfluff.codeActions.noqa": {
+          "scope": "resource",
           "type": [
             "array",
             "boolean"
@@ -219,6 +233,7 @@
           "markdownDescription": "Set the rules that will not show the `noqa` code actions. Set this to `false` to disable all `noqa` code actions."
         },
         "sqlfluff.env.environmentVariables": {
+          "scope": "resource",
           "type": "array",
           "default": [
             {
@@ -247,26 +262,31 @@
           "markdownDescription": "Set the environment variables for the linter and formatter."
         },
         "sqlfluff.env.customDotEnvFiles": {
+          "scope": "resource",
           "type": "array",
           "default": [],
           "description": "Load the .env file from the specified paths."
         },
         "sqlfluff.env.useDotEnvFile": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "description": "Load the .env file from the working directory."
         },
         "sqlfluff.format.arguments": {
+          "scope": "resource",
           "type": "array",
           "default": [],
           "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff fix` command. Include `--force` if running sqlfluff < 3.0.0."
         },
         "sqlfluff.format.enabled": {
+          "scope": "resource",
           "type": "boolean",
           "default": true,
           "description": "Determines if the document formatter is enabled."
         },
         "sqlfluff.format.languages": {
+          "scope": "resource",
           "type": "array",
           "default": [
             "sql",
@@ -306,21 +326,25 @@
           "description": "The languages formatting is enabled for."
         },
         "sqlfluff.experimental.format.executeInTerminal": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "markdownDescription": "Determines if the `sqlfluff fix` command overwrites the file contents instead of this extension. You should not change the file contents while formatting is occurring if this is enabled. May lead to problems if `editor.formatOnSave = true`. This allows formatting to work when the templater is set to dbt. This can help solve [Mojibake](https://en.wikipedia.org/wiki/Mojibake) issues."
         },
         "sqlfluff.linter.arguments": {
+          "scope": "resource",
           "type": "array",
           "default": [],
           "markdownDescription": "This is useful for setting extra arguments for the `sqlfluff lint` command."
         },
         "sqlfluff.linter.delay": {
+          "scope": "resource",
           "type": "number",
           "default": 100,
           "markdownDescription": "Set the delay (milliseconds) before running the linter when using `sqlfluff.linter.run = 'onType'`."
         },
         "sqlfluff.linter.diagnosticSeverity": {
+          "scope": "resource",
           "type": "string",
           "enum": [
             "error",
@@ -332,6 +356,7 @@
           "markdownDescription": "Set the default diagnostic severity of the linting results."
         },
         "sqlfluff.linter.diagnosticSeverityByRule": {
+          "scope": "resource",
           "type": "array",
           "default": [],
           "items": {
@@ -361,11 +386,13 @@
           "markdownDescription": "Set the diagnostic severity of individual linting results."
         },
         "sqlfluff.linter.lintEntireProject": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "markdownDescription": "Determines if the linter will lint the workspaces on startup and configuration changes. Does not work with `dbt-core-interface`."
         },
         "sqlfluff.linter.languages": {
+          "scope": "resource",
           "type": "array",
           "default": [
             "sql",
@@ -377,6 +404,7 @@
           "description": "The languages linting is enabled for."
         },
         "sqlfluff.linter.run": {
+          "scope": "resource",
           "type": "string",
           "enum": [
             "onType",
@@ -392,16 +420,19 @@
           ]
         },
         "sqlfluff.dbtInterface.enabled": {
+          "scope": "resource",
           "type": "boolean",
           "default": false,
           "markdownDescription": "Enable this if `dbt-core-interface` is installed. This disables all other options except for `sqlfluff.config`."
         },
         "sqlfluff.dbtInterface.host": {
+          "scope": "resource",
           "type": "string",
           "default": "localhost",
           "description": "The host for the dbt-interface server."
         },
         "sqlfluff.dbtInterface.port": {
+          "scope": "resource",
           "type": "number",
           "default": 8581,
           "description": "The port for the dbt-interface server."

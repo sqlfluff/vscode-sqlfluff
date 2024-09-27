@@ -7,10 +7,7 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "${workspaceFolder}/test",
-        "--extensionDevelopmentPath=${workspaceRoot}"
-      ],
+      "args": ["${workspaceFolder}/test", "--extensionDevelopmentPath=${workspaceRoot}", "--disable-extensions"],
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/out/**/*.js"],
       "preLaunchTask": "npm"
@@ -20,10 +17,7 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "${workspaceFolder}/test/suite/test_sql/bad.sql",
-        "--extensionDevelopmentPath=${workspaceRoot}"
-      ],
+      "args": ["${workspaceFolder}/test/suite/test_sql/bad.sql", "--extensionDevelopmentPath=${workspaceRoot}"],
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/out/**/*.js"],
       "preLaunchTask": "npm"
