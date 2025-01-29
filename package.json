@@ -141,6 +141,7 @@
             "sparksql",
             "sqlite",
             "teradata",
+            "trino",
             "tsql",
             "vertica"
           ],
