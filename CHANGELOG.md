@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.3.1] - 2024-09-27
+
+- Update the dialects to add `trino`. Thanks to PaulRBerg's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/169)
+
 ## [3.3.0] - 2024-09-27
 
 - Update the scope of the settings to 'resource' for more granular settings. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/156)
