@@ -7,6 +7,7 @@ import Configuration from "./features/helper/configuration";
 import Utilities from "./features/helper/utilities";
 import LinterProvider from "./features/linter";
 import Debug from "./features/providers/debug";
+import { FormattingProvider } from "./features/providers/formatter/format";
 import { FormatSelectionProvider } from "./features/providers/formatter/rangeFormat";
 import HoverProvider from "./features/providers/linter/actions/hover";
 import QuickFixProvider from "./features/providers/linter/actions/quickFix";
@@ -77,11 +78,29 @@ export const activate = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(vscode.commands.registerCommand(lintProjectCommand, lintProjectCommandHandler));
 
   const fixCommand = "sqlfluff.fix";
-  const fixCommandHandler = () => {
+  const fixCommandHandler = async () => {
     if (vscode.window.activeTextEditor) {
       const document = vscode.window.activeTextEditor.document;
       if (document) {
-        vscode.commands.executeCommand("editor.action.formatDocument");
+        const formattingProvider = new FormattingProvider();
+        const options: vscode.FormattingOptions = {
+          insertSpaces: vscode.window.activeTextEditor.options.insertSpaces as boolean,
+          tabSize: vscode.window.activeTextEditor.options.tabSize as number,
+        };
+        const textEdits = await formattingProvider.provideDocumentFormattingEdits(
+          document,
+          options,
+          new vscode.CancellationTokenSource().token
+        );
+
+        if (textEdits.length > 0) {
+          const workspaceEdit = new vscode.WorkspaceEdit();
+          textEdits.forEach((textEdit) => {
+            workspaceEdit.replace(document.uri, textEdit.range, textEdit.newText);
+          });
+
+          await vscode.workspace.applyEdit(workspaceEdit);
+        }
       }
     }
   };
