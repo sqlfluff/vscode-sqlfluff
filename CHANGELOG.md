@@ -2,6 +2,11 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.4.0] - 2024-09-27
+
+- Ensure `sqlfluff.fix` uses the `sqlfluff` formatter when it is not
+the default formatter. Thanks to zellers' [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/176)
+
 ## [3.3.1] - 2024-09-27
 
 - Update the dialects to add `trino`. Thanks to PaulRBerg's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/169)
