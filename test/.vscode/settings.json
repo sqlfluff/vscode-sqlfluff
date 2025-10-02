@@ -36,6 +36,6 @@
   "sqlfluff.executablePath": "sqlfluff",
   // "sqlfluff.shell": true,
   // "sqlfluff.shell": "C:/Program Files/Git/bin/bash.exe",
-  "sqlfluff.workingDirectory": "${fileDirname}"
+  // "sqlfluff.workingDirectory": "${fileDirname}"
   // "sqlfluff.workingDirectory": "broken",
 }

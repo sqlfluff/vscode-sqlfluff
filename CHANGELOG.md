@@ -2,10 +2,16 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.5.0] - 2025-10-02
+
+- Ensure the `onType` linting respects ignored files. This is done by
+  adding ignored files (determined when `onSave` is run) to an array and
+  checking against that array. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/178)
+
 ## [3.4.0] - 2024-09-27
 
 - Ensure `sqlfluff.fix` uses the `sqlfluff` formatter when it is not
-the default formatter. Thanks to zellers' [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/176)
+  the default formatter. Thanks to zellers' [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/176)
 
 ## [3.3.1] - 2024-09-27
 
@@ -24,6 +30,7 @@ the default formatter. Thanks to zellers' [Pull Request](https://github.com/sqlf
 - Update to rule permalinks. Thanks to alanmcruickshank's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/152)
 
 ## [3.1.5] - 2024-08-16
+
 - Fix bug with ignoring diagnostics
 
 ## [3.1.4] - 2024-07-25

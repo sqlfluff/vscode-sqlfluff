@@ -17,6 +17,7 @@ export default class SQLFluff {
   static childProcesses: CProcess.ChildProcess[] = [];
   static shownDbtInterfacePopup: boolean = false;
   static version: [major: number, minor: number, patch: number];
+  static ignoreFiles: string[] = [];
 
   static isForceDeprecated = () => {
     return SQLFluff.version >= [3, 0, 0];
@@ -129,7 +130,14 @@ export default class SQLFluff {
       return await SQLFluff.runDbtInterface(shouldUseStdin, options);
     }
 
-    return SQLFluff.runCommand(finalArgs, normalizedWorkingDirectory, shouldUseStdin, options, command);
+    return SQLFluff.runCommand(
+      finalArgs,
+      targetFileRelativePath,
+      normalizedWorkingDirectory,
+      shouldUseStdin,
+      options,
+      command
+    );
   }
 
   private static getTargetFileRelativePath(options: CommandOptions, normalizedWorkingDirectory: string | undefined) {
@@ -208,6 +216,7 @@ export default class SQLFluff {
 
   private static runCommand(
     finalArgs: string[],
+    targetFileRelativePath: string | undefined,
     normalizedWorkingDirectory: string | undefined,
     shouldUseStdin: boolean,
     options: CommandOptions | undefined,
@@ -222,6 +231,14 @@ export default class SQLFluff {
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
       Utilities.outputChannel.appendLine(Configuration.executablePath() + " " + finalArgs.join(" "));
       Utilities.appendHyphenatedLine();
+
+      if (shouldUseStdin && targetFileRelativePath && SQLFluff.ignoreFiles.includes(targetFileRelativePath)) {
+        Utilities.outputChannel.appendLine(`File marked as ignored: ${targetFileRelativePath}`);
+        resolve({ succeeded: false, lines: [] });
+        return;
+      }
+
+      SQLFluff.ignoreFiles = SQLFluff.ignoreFiles.filter((f) => f !== targetFileRelativePath);
 
       const shell = Configuration.shell();
       const environmentVariables = Configuration.environmentVariables(process.env);
@@ -308,13 +325,24 @@ export default class SQLFluff {
           Utilities.appendHyphenatedLine();
         }
 
-        if (stderrLines?.length > 0 && !Configuration.suppressNotifications()) {
+        if (stderrLines?.length > 0) {
           const stderrString = stderrLines.join("\n");
+
           if (
-            !stderrString.includes("ignored by a .sqlfluffignore pattern") &&
-            !stderrString.includes("ignored by an ignore pattern set in .sqlfluffignore")
+            targetFileRelativePath &&
+            (!stderrString.includes("ignored by a .sqlfluffignore pattern") ||
+              stderrString.includes("ignored by an ignore pattern"))
           ) {
-            vscode.window.showErrorMessage(stderrString);
+            SQLFluff.ignoreFiles = Array.from(new Set([...SQLFluff.ignoreFiles, targetFileRelativePath]));
+          }
+
+          if (!Configuration.suppressNotifications()) {
+            if (
+              !stderrString.includes("ignored by a .sqlfluffignore pattern") &&
+              !stderrString.includes("ignored by an ignore pattern")
+            ) {
+              vscode.window.showErrorMessage(stderrString);
+            }
           }
         }
 
@@ -330,7 +358,7 @@ export default class SQLFluff {
   }
 
   static getCLIVersion() {
-    this.runCommand(["--version"], undefined, false, undefined, undefined).then((output) => {
+    this.runCommand(["--version"], undefined, undefined, false, undefined, undefined).then((output) => {
       const versionString = output.lines[0];
       const version = Utilities.parseVersion(versionString);
       this.version = [version.major, version.minor, version.patch];
