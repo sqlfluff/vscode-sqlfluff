@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [3.6.0] - 2025-10-03
+
+- Fix bug with new files. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/179)
+
 ## [3.5.0] - 2025-10-02
 
 - Ensure the `onType` linting respects ignored files. This is done by

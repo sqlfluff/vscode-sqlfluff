@@ -330,7 +330,7 @@ export default class SQLFluff {
 
           if (
             targetFileRelativePath &&
-            (!stderrString.includes("ignored by a .sqlfluffignore pattern") ||
+            (stderrString.includes("ignored by a .sqlfluffignore pattern") ||
               stderrString.includes("ignored by an ignore pattern"))
           ) {
             SQLFluff.ignoreFiles = Array.from(new Set([...SQLFluff.ignoreFiles, targetFileRelativePath]));
