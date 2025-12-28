@@ -4,6 +4,7 @@ import { ParsedVersion } from "../providers/types/parsedVersion";
 import Variables from "./types/variables";
 
 export default class Utilities {
+  static extensionName = "sqlfluff";
   static outputChannel = vscode.window.createOutputChannel("SQLFluff");
 
   static appendHyphenatedLine(newLines = true) {

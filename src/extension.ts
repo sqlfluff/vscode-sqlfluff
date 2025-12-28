@@ -90,7 +90,7 @@ export const activate = (context: vscode.ExtensionContext) => {
         const textEdits = await formattingProvider.provideDocumentFormattingEdits(
           document,
           options,
-          new vscode.CancellationTokenSource().token
+          new vscode.CancellationTokenSource().token,
         );
 
         if (textEdits.length > 0) {

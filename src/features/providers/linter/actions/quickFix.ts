@@ -12,7 +12,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.CodeAction[] {
     const noqaSingleRules: vscode.CodeAction[] = [];
     const noqaAllRules: vscode.CodeAction[] = [];
@@ -22,6 +22,10 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     if (Configuration.noqaEnabled()) {
       const noqaDisabledRules = Configuration.noqaDisabledRules();
       context.diagnostics.forEach((diagnostic) => {
+        if (diagnostic.source !== Utilities.extensionName) {
+          return;
+        }
+
         if (diagnostic.code && !noqaDisabledRules.includes(Utilities.getDiagnosticCode(diagnostic))) {
           const singleRuleCodeAction = this.createNoqaCodeFix(document, diagnostic, false);
           const allRulesCodeAction = this.createNoqaCodeFix(document, diagnostic, true);
@@ -45,7 +49,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
   private createNoqaCodeFix(
     document: vscode.TextDocument,
     diagnostic: vscode.Diagnostic,
-    allRules: boolean
+    allRules: boolean,
   ): vscode.CodeAction {
     const title = allRules ? "Ignore all rules for this line" : `Ignore rule ${diagnostic.code} for this line`;
     const fix = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -55,7 +59,7 @@ export default class QuickFixProvider implements vscode.CodeActionProvider {
     const line = document.lineAt(diagnostic.range.start.line);
     const endPosition = new vscode.Position(
       line.range.end.line,
-      line.range.end.character > 0 ? line.range.end.character : 0
+      line.range.end.character > 0 ? line.range.end.character : 0,
     );
     const noqaREGEX = /\s*-- noqa(?::(\s?\w\d{3},?)*)?.*/;
     const noqa = noqaREGEX.exec(line.text);

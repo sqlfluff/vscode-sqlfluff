@@ -12,7 +12,7 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument,
     options: vscode.FormattingOptions,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): Promise<vscode.TextEdit[]> {
     const filePath = Utilities.normalizePath(document.fileName);
     const workspaceFolder = vscode.workspace.workspaceFolders
@@ -57,7 +57,7 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
           workingDirectory,
           CommandType.FIX,
           Configuration.formatFileArguments(),
-          commandOptions
+          commandOptions,
         );
 
         if (!result.succeeded) {
@@ -99,7 +99,7 @@ export class FormattingProvider implements vscode.DocumentFormattingEditProvider
         workingDirectory,
         CommandType.FIX,
         Configuration.formatFileArguments(),
-        commandOptions
+        commandOptions,
       );
 
       if (!result.succeeded) {

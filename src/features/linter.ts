@@ -66,7 +66,7 @@ export default class LinterProvider implements Linter {
 
             const diagnostic = new Diagnostic(range, violation.description, diagnosticSeverity);
             diagnostic.code = violation?.name ? `${violation.code}: ${violation.name}` : violation.code;
-            diagnostic.source = "sqlfluff";
+            diagnostic.source = Utilities.extensionName;
             fileDiagnostic.diagnostics.push(diagnostic);
           });
 

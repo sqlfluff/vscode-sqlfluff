@@ -71,7 +71,7 @@ suite("Extension Test Suite", () => {
 
   const assertDiagnosticIsEqual = (
     actual: vscode.Diagnostic,
-    expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity }
+    expected: { range: any; message: any; code: any; severity?: vscode.DiagnosticSeverity },
   ) => {
     assert.deepStrictEqual(actual.range, expected.range);
     assert.strictEqual(actual.severity, expected.severity == undefined ? 0 : expected.severity);

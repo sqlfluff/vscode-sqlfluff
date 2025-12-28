@@ -31,7 +31,7 @@ export default class SQLFluff {
     workingDirectory: string | undefined,
     command: CommandType,
     args: string[],
-    options: CommandOptions
+    options: CommandOptions,
   ): Promise<CommandOutput> {
     if (!options.fileContents && !options.filePath) {
       throw new Error("You must supply either a target file path or the file contents to scan");
@@ -45,7 +45,7 @@ export default class SQLFluff {
       const dbtInterface = new DbtInterface(
         undefined,
         options.workspacePath ?? options.filePath,
-        Configuration.config()
+        Configuration.config(),
       );
 
       Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
@@ -86,7 +86,7 @@ export default class SQLFluff {
             }
           } else if (code === DbtInterfaceErrorCode.UnlintableUnfixable) {
             vscode.window.showErrorMessage(
-              "Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details."
+              "Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details.",
             );
           } else {
             vscode.window.showErrorMessage([message, detail].join("\n"));
@@ -136,7 +136,7 @@ export default class SQLFluff {
       normalizedWorkingDirectory,
       shouldUseStdin,
       options,
-      command
+      command,
     );
   }
 
@@ -154,7 +154,7 @@ export default class SQLFluff {
     const dbtInterface = new DbtInterface(
       shouldUseStdin ? options.fileContents : undefined,
       options.workspacePath ?? options.filePath,
-      Configuration.config()
+      Configuration.config(),
     );
 
     Utilities.outputChannel.appendLine("\n--------------------Executing Command--------------------\n");
@@ -199,7 +199,7 @@ export default class SQLFluff {
           }
         } else if (code === DbtInterfaceErrorCode.UnlintableUnfixable) {
           vscode.window.showErrorMessage(
-            "Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details."
+            "Unable to load SQLFluff due to configuration issue. Try linting an sql file to see more details.",
           );
         } else {
           vscode.window.showErrorMessage([message, detail].join("\n"));
@@ -220,7 +220,7 @@ export default class SQLFluff {
     normalizedWorkingDirectory: string | undefined,
     shouldUseStdin: boolean,
     options: CommandOptions | undefined,
-    command: CommandType | undefined
+    command: CommandType | undefined,
   ): Promise<CommandOutput> {
     return new Promise<CommandOutput>((resolve) => {
       const stdoutLint = new LineDecoder();

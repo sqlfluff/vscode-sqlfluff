@@ -106,7 +106,7 @@ export class DbtInterface {
         {
           method: "GET",
           signal: abortController.signal as AbortSignal,
-        }
+        },
       );
       if (response.status === 200) {
         return true;

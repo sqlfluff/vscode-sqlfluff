@@ -7,7 +7,7 @@ export default class HoverProvider implements vscode.HoverProvider {
   public provideHover(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.Hover> {
     const editor = vscode.window.activeTextEditor;
     const diagnostics = vscode.languages.getDiagnostics(document.uri);

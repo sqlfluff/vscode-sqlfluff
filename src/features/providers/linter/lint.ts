@@ -34,21 +34,21 @@ export default class LintingProvider {
       async (textDocument) => {
         const { uri } = textDocument;
         let doesDocumentExist = true;
-  
+
         try {
           await vscode.workspace.fs.stat(uri);
         } catch {
           doesDocumentExist = false;
         }
-  
+
         if (!Configuration.lintEntireProject() || !vscode.workspace.getWorkspaceFolder(uri) || !doesDocumentExist) {
           this.diagnosticCollection.delete(uri);
         }
-  
+
         delete this.delayers[uri.toString()];
       },
       null,
-      subscriptions
+      subscriptions,
     );
   }
 
@@ -99,7 +99,7 @@ export default class LintingProvider {
     textDocument?: vscode.TextDocument,
     currentDocument = false,
     forceLint = false,
-    workspacePath?: string
+    workspacePath?: string,
   ): void {
     if (
       (textDocument && !this.linter.languageId.includes(textDocument.languageId)) ||
@@ -130,7 +130,7 @@ export default class LintingProvider {
   public async doLint(
     document?: vscode.TextDocument,
     currentDocument?: boolean,
-    workspacePath?: string
+    workspacePath?: string,
   ): Promise<void> {
     const workspaceFolder = vscode.workspace.workspaceFolders
       ? vscode.workspace.workspaceFolders[0].uri.fsPath
