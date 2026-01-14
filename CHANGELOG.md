@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [4.0.0] - 2026-01-13
+
+- Changed extension publisher from `dorzey` to `sqlfluff`. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/185)
+
 ## [3.7.0] - 2025-12-28
 
 - Fix bug with code actions. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/184)
