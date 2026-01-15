@@ -9,7 +9,7 @@ Hosted VS Code, dbt-core, SqlFluff, and Airflow, find out more at [Datacoves.com
 
 # vscode-sqlfluff
 
-![.github/workflows/ci.yml](https://github.com/dorzey/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
+![.github/workflows/ci.yml](https://github.com/sqlfluff/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
 
 A linter and auto-formatter for [SQLFluff](https://github.com/sqlfluff/sqlfluff), a popular linting tool for SQL and dbt.
 

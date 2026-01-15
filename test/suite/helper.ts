@@ -5,7 +5,7 @@ export const SLEEP_TIME = 2000;
 
 export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
   // The extensionId is `publisher.name` from package.json
-  const extension = vscode.extensions.getExtension("dorzey.vscode-sqlfluff");
+  const extension = vscode.extensions.getExtension("sqlfluff.vscode-sqlfluff");
   assert.notStrictEqual(extension, undefined);
   await extension?.activate();
   try {
