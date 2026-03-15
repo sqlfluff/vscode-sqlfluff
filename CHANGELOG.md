@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [4.0.1] - 2026-03-15
+
+- Fix empty-string and 0 env var values. Thanks to tgmof's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/187)
+
 ## [4.0.0] - 2026-01-13
 
 - Changed extension publisher from `dorzey` to `sqlfluff`. [Issue](https://github.com/sqlfluff/vscode-sqlfluff/issues/185)

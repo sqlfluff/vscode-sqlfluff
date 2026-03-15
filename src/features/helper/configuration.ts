@@ -65,7 +65,7 @@ export default class Configuration {
     for (const variable of environmentVariables) {
       const key = variable?.key ?? undefined;
       const value = variable?.value ?? undefined;
-      if (key && value !== undefined) {
+      if (key !== undefined && key !== null && key !== "") {
         environment[key] = value;
       }
     }
