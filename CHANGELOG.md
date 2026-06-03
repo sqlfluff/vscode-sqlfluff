@@ -2,6 +2,10 @@
 
 All notable changes to the "sqlfluff" extension will be documented in this file.
 
+## [4.0.2] - 2026-03-15
+
+- Update sqlfluff dialects. Thanks to ajlouie's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/189)
+
 ## [4.0.1] - 2026-03-15
 
 - Fix empty-string and 0 env var values. Thanks to tgmof's [Pull Request](https://github.com/sqlfluff/vscode-sqlfluff/pull/187)
