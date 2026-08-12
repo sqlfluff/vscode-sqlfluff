@@ -2,7 +2,7 @@
 
 ![.github/workflows/ci.yml](https://github.com/sqlfluff/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
 
-A linter and auto-formatter for [SQLFluff](https://github.com/sqlfluff/sqlfluff), a popular linting tool for SQL and dbt.
+Lint and auto-format SQL and dbt code using [SQLFluff](https://github.com/sqlfluff/sqlfluff), a popular SQL linter.
 
 ![linter in action](./media/linter_in_action.gif)
 
