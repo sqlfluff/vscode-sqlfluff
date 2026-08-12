@@ -1,12 +1,3 @@
-## Sponsor
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="images/datacoves-dark.png">
-  <img alt="Datacoves" src="images/datacoves-light.png" width="150">
-</picture>
-
-Hosted VS Code, dbt-core, SQLFluff, and Airflow, find out more at [Datacoves.com](https://datacoves.com/product).
-
 # SQLFluff for Visual Studio Code
 
 ![.github/workflows/ci.yml](https://github.com/sqlfluff/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
@@ -16,6 +7,15 @@ A linter and auto-formatter for [SQLFluff](https://github.com/sqlfluff/sqlfluff)
 ![linter in action](./media/linter_in_action.gif)
 
 You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection. Please note that not all linting violations are automatically fixable.
+
+## Sponsor
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/datacoves-dark.png">
+  <img alt="Datacoves" src="images/datacoves-light.png" width="150">
+</picture>
+
+Hosted VS Code, dbt-core, SQLFluff, and Airflow, find out more at [Datacoves.com](https://datacoves.com/product).
 
 ## Configuration
 
