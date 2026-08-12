@@ -1,6 +1,8 @@
 # SQLFluff for Visual Studio Code
 
 ![.github/workflows/ci.yml](https://github.com/sqlfluff/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
+[![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version/sqlfluff.vscode-sqlfluff.svg)](https://marketplace.visualstudio.com/items?itemName=sqlfluff.vscode-sqlfluff)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/sqlfluff/vscode-sqlfluff)](https://open-vsx.org/extension/sqlfluff/vscode-sqlfluff)
 
 Lint and auto-format SQL and dbt code using [SQLFluff](https://github.com/sqlfluff/sqlfluff), a popular SQL linter.
 
