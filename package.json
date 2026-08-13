@@ -1,8 +1,8 @@
 {
   "name": "vscode-sqlfluff",
-  "displayName": "sqlfluff",
+  "displayName": "SQLFluff",
   "version": "4.0.2",
-  "description": "A linter and auto-formatter for SQLfluff, a popular linting tool for SQL and dbt.",
+  "description": "Lint and auto-format SQL and dbt code using SQLFluff, a popular SQL linter.",
   "publisher": "sqlfluff",
   "icon": "images/icon.png",
   "engines": {
@@ -478,7 +478,7 @@
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
     "@vscode/dts": "^0.4.1",
-    "@vscode/test-electron": "^2.4.1",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^2.29.0",
     "copyfiles": "^2.4.1",
     "esbuild": "^0.23.0",

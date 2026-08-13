@@ -1,3 +1,15 @@
+# SQLFluff for Visual Studio Code
+
+![.github/workflows/ci.yml](https://github.com/sqlfluff/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
+[![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version/sqlfluff.vscode-sqlfluff.svg)](https://marketplace.visualstudio.com/items?itemName=sqlfluff.vscode-sqlfluff)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/sqlfluff/vscode-sqlfluff)](https://open-vsx.org/extension/sqlfluff/vscode-sqlfluff)
+
+Lint and auto-format SQL and dbt code using [SQLFluff](https://github.com/sqlfluff/sqlfluff), a popular SQL linter.
+
+![linter in action](./media/linter_in_action.gif)
+
+You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection. Please note that not all linting violations are automatically fixable.
+
 ## Sponsor
 
 <picture>
@@ -5,17 +17,7 @@
   <img alt="Datacoves" src="images/datacoves-light.png" width="150">
 </picture>
 
-Hosted VS Code, dbt-core, SqlFluff, and Airflow, find out more at [Datacoves.com](https://datacoves.com/product).
-
-# vscode-sqlfluff
-
-![.github/workflows/ci.yml](https://github.com/sqlfluff/vscode-sqlfluff/workflows/.github/workflows/ci.yml/badge.svg)
-
-A linter and auto-formatter for [SQLFluff](https://github.com/sqlfluff/sqlfluff), a popular linting tool for SQL and dbt.
-
-![linter in action](./media/linter_in_action.gif)
-
-You can run [Format Document](https://code.visualstudio.com/docs/editor/codebasics#_formatting) to fix the linting violations. You cannot run Format Selection. Please note that not all linting violations are automatically fixable.
+Hosted VS Code, dbt-core, SQLFluff, and Airflow, find out more at [Datacoves.com](https://datacoves.com/product).
 
 ## Configuration
 
@@ -85,9 +87,9 @@ For SQLFluff versions after v2.0.0 this link will take you to the rule documenta
 
 For SQLFLuff versions before v2.0.0 this link will take you to the top of the documentation page.
 
-### VSCode Variables
+### VS Code Variables
 
-The `executablePath` and `config` settings can use some VSCode variables.
+The `executablePath` and `config` settings can use some VS Code variables.
 This is achieved by using the format `${variableName}` in the settings.
 Here are a few useful ones.
 
@@ -125,8 +127,8 @@ If that doesn't help narrow down your problem, you can open an issue at https://
 ## Credits / Links
 
 - [dorzey](https://github.com/sqlfluff/vscode-sqlfluff)
-- [VSCode's Extensions Samples](https://github.com/microsoft/vscode-extension-samples/tree/main/test-provider-sample)
-- [VSCode's Testing Documentation](https://code.visualstudio.com/api/extension-guides/testing)
+- [VS Code's Extensions Samples](https://github.com/microsoft/vscode-extension-samples/tree/main/test-provider-sample)
+- [VS Code's Testing Documentation](https://code.visualstudio.com/api/extension-guides/testing)
 
 ## License
 

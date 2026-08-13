@@ -1,7 +1,26 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 
-export const SLEEP_TIME = 2000;
+const DIAGNOSTICS_TIMEOUT = 15000;
+
+// The linter spawns an external `sqlfluff` process, whose run time varies with
+// CI machine speed; a fixed sleep here was too short on slower runners, so
+// wait for the diagnostics update that the lint run produces instead.
+const waitForDiagnostics = (uri: vscode.Uri, timeout = DIAGNOSTICS_TIMEOUT): Promise<void> => {
+  return new Promise((resolve) => {
+    const finish = () => {
+      clearTimeout(timer);
+      disposable.dispose();
+      resolve();
+    };
+    const timer = setTimeout(finish, timeout);
+    const disposable = vscode.languages.onDidChangeDiagnostics((event) => {
+      if (event.uris.some((changedUri) => changedUri.toString() === uri.toString())) {
+        finish();
+      }
+    });
+  });
+};
 
 export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocument | undefined> => {
   // The extensionId is `publisher.name` from package.json
@@ -10,10 +29,11 @@ export const activate = async (documentUri: vscode.Uri): Promise<vscode.TextDocu
   await extension?.activate();
   try {
     await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+    const diagnosticsChanged = waitForDiagnostics(documentUri);
     const document = await vscode.workspace.openTextDocument(documentUri);
     await vscode.window.showTextDocument(document);
     await document.save();
-    await sleep(SLEEP_TIME); // Wait for server activation
+    await diagnosticsChanged;
     return document;
   } catch (e) {
     console.error(e);
@@ -25,19 +45,16 @@ export const format = async (documentUri: vscode.Uri) => {
     await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
     const document = await vscode.workspace.openTextDocument(documentUri);
     await vscode.window.showTextDocument(document);
+    // The document is already open at this point (activate() opened it), so
+    // formatting -- not opening -- is what triggers the next lint run.
+    const diagnosticsChanged = waitForDiagnostics(documentUri);
     await vscode.commands.executeCommand("editor.action.formatDocument");
     await document.save();
-    await sleep(SLEEP_TIME); // Wait for server activation
+    await diagnosticsChanged;
     return document;
   } catch (e) {
     console.error(e);
   }
-};
-
-export const sleep = async (ms: number): Promise<any> => {
-  return new Promise((resolve) => {
-    return setTimeout(resolve, ms);
-  });
 };
 
 export const getDocumentUri = (p: string) => {
